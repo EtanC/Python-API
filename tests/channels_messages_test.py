@@ -17,7 +17,7 @@ def reset_data():
 #     password = "Password1"
 #     name_first = "John"
 #     name_last = "Smith"
-#     user_id = auth_register_v1(email, password, name_first, name_last)
+#     user_id = auth_register_v1(email, password, name_first, name_last)['auth_user_id']
 #     channel_name = "Channel1"
 #     channel_id = channels_create_v1(user_id, channel_name, False)['channel_id']
 #     assert channel_messages_v1(user_id, channel_id, 0) == {'messages' : [], 'start': 0, 'end': -1}
@@ -31,7 +31,7 @@ def reset_data():
 #     password = "Password1"
 #     name_first = "John"
 #     name_last = "Smith"
-#     user_id = auth_register_v1(email, password, name_first, name_last)
+#     user_id = auth_register_v1(email, password, name_first, name_last)['auth_user_id']
 #     channel_name = "Channel1"
 #     channel_id = channels_create_v1(user_id, channel_name, False)['channel_id'] + 1
 #     with pytest.raises(InputError):
@@ -42,9 +42,9 @@ def reset_data():
 #     password = "Password1"
 #     name_first = "John"
 #     name_last = "Smith"
-#     user_id = auth_register_v1(email, password, name_first, name_last)
+#     user_id = auth_register_v1(email, password, name_first, name_last)['auth_user_id']
 #     channel_name = "Channel1"
-#     channel_id = channels_create_v1(user_id, channel_name, False)
+#     channel_id = channels_create_v1(user_id, channel_name, False)['channel_id']
 #     with pytest.raises(InputError):
 #         channel_messages_v1(user_id, channel_id, 1000)
 
@@ -53,16 +53,16 @@ def reset_data():
 #     password = "Password1"
 #     name_first = "John"
 #     name_last = "Smith"
-#     user_id = auth_register_v1(email, password, name_first, name_last)
+#     user_id = auth_register_v1(email, password, name_first, name_last)['auth_user_id']
 
 #     email = "realemail_127@outlook.edu.au"
 #     password = "Password1"
 #     name_first = "Smith"
 #     name_last = "John"
-#     another_user_id = auth_register_v1(email, password, name_first, name_last)
+#     another_user_id = auth_register_v1(email, password, name_first, name_last)['auth_user_id']
     
 #     channel_name = "Channel1"
-#     channel_id = channels_create_v1(user_id, channel_name, False)
+#     channel_id = channels_create_v1(user_id, channel_name, False)['channel_id']
 #     with pytest.raises(AccessError):
 #         channel_messages_v1(another_user_id, channel_id, 0)
 # -----------------------------------------------------------------------------
