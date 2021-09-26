@@ -43,8 +43,9 @@ def channels_create_v1(auth_user_id, name, is_public):
     
     # Append channel_data to 'channels' list in data_store 
     store['channels'].append(channel_data)
+    data_store.set(store)
 
-
+    
     return {
         'channel_id': channel_id,
     }
