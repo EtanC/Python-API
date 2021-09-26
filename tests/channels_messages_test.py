@@ -10,7 +10,7 @@ def reset_data():
     clear_v1()
 
 # Testing valid 
-# channels_create required
+# CHANNELS_CREATE REQUIRED
 # -----------------------------------------------------------------------------
 # def test_valid(reset_data):
 #     email = "realemail_812@outlook.edu.au"
@@ -24,7 +24,7 @@ def reset_data():
 # -----------------------------------------------------------------------------
 
 # Testing errors
-# channels_create required
+# CHANNELS_CREATE REQUIRED
 # -----------------------------------------------------------------------------
 # def test_invalid_channel_id(reset_data):
 #     email = "realemail_812@outlook.edu.au"
@@ -36,20 +36,18 @@ def reset_data():
 #     channel_id = channels_create_v1(user_id, channel_name, False)['channel_id'] + 1
 #     with pytest.raises(InputError):
 #         channel_messages_v1(user_id, channel_id, 0)
-# -----------------------------------------------------------------------------
-def test_invalid_start(reset_data):
-    email = "realemail_812@outlook.edu.au"
-    password = "Password1"
-    name_first = "John"
-    name_last = "Smith"
-    user_id = auth_register_v1(email, password, name_first, name_last)
-    channel_name = "Channel1"
-    channel_id = channels_create_v1(user_id, channel_name, False)
-    with pytest.raises(InputError):
-        channel_messages_v1(user_id, channel_id, 1000)
 
-# channels_create required
-# -----------------------------------------------------------------------------
+# def test_invalid_start(reset_data):
+#     email = "realemail_812@outlook.edu.au"
+#     password = "Password1"
+#     name_first = "John"
+#     name_last = "Smith"
+#     user_id = auth_register_v1(email, password, name_first, name_last)
+#     channel_name = "Channel1"
+#     channel_id = channels_create_v1(user_id, channel_name, False)
+#     with pytest.raises(InputError):
+#         channel_messages_v1(user_id, channel_id, 1000)
+
 # def test_invalid_user(reset_data):
 #     email = "realemail_812@outlook.edu.au"
 #     password = "Password1"
