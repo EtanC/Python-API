@@ -40,5 +40,8 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     }
 
 def channel_join_v1(auth_user_id, channel_id):
+    '''
+    YOU SHOULD BE ABLE TO READ THIS INSIDE "channel_join_v1_BenH" branch
+    '''
     return {
     }
