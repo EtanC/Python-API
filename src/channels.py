@@ -32,7 +32,7 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     if check_valid_user_id(auth_user_id, store) == False: 
         raise AccessError("Invalid auth_user_id")
-    
+
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
 
