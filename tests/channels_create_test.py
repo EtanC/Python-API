@@ -4,6 +4,7 @@ from src.channels import channels_create_v1
 from src.auth import auth_register_v1, auth_login_v1 
 from src.other import clear_v1
 from src.error import InputError 
+from src.error import AccessError 
 
 # Clear all data before testing 
 # register and log in before testing 
@@ -50,3 +51,9 @@ def test_long_name(reset):
     with pytest.raises(InputError): 
         channels_create_v1(auth_user_id, channel_name, is_public)
 
+def test_invalid_user(reset): 
+    auth_user_id = 0 
+    channel_name = "channel1_"
+    is_public = True
+    with pytest.raises(AccessError): 
+        channels_create_v1(auth_user_id, channel_name, is_public)
