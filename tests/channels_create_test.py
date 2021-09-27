@@ -52,7 +52,7 @@ def test_long_name(reset):
         channels_create_v1(auth_user_id, channel_name, is_public)
 
 def test_invalid_user(reset): 
-    auth_user_id = 0 
+    auth_user_id = reset + 1
     channel_name = "channel1_"
     is_public = True
     with pytest.raises(AccessError): 

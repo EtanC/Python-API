@@ -24,7 +24,7 @@ def channels_listall_v1(auth_user_id):
 
 def channels_create_v1(auth_user_id, name, is_public):
     # Checking for length of channel name 
-    if (len(name) < 1) or (len(name) > 20): 
+    if len(name) < 1 or len(name) > 20: 
         raise InputError("Channel name must be between 1 and 20 characters long")
 
 
@@ -32,8 +32,8 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     if check_valid_user_id(auth_user_id, store) == False: 
         raise AccessError("Invalid auth_user_id")
-
-    # get channel id by counting nunmber of channels and adding one 
+    
+    # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
 
     # Store channel data in a dictionary 
