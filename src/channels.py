@@ -24,7 +24,7 @@ def channels_listall_v1(auth_user_id):
 
 def channels_create_v1(auth_user_id, name, is_public):
     # Checking for length of channel name 
-    if (len(name) < 1) or (len(name) > 20): 
+    if len(name) < 1 or len(name) > 20: 
         raise InputError("Channel name must be between 1 and 20 characters long")
 
 
