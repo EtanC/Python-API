@@ -1,5 +1,6 @@
 from src.data_store import data_store
 from src.error import InputError 
+from src.error import AccessError 
 
 def channels_list_v1(auth_user_id):
     return {
@@ -29,6 +30,10 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     store = data_store.get()
 
+    if check_valid_user_id(auth_user_id, store) == False: 
+        raise AccessError("Invalid auth_user_id")
+
+    # get channel id by counting nunmber of channels and adding one 
     channel_id = len(store['channels']) + 1 
 
     # Store channel data in a dictionary 
@@ -44,8 +49,18 @@ def channels_create_v1(auth_user_id, name, is_public):
     # Append channel_data to 'channels' list in data_store 
     store['channels'].append(channel_data)
     data_store.set(store)
-
     
     return {
         'channel_id': channel_id,
     }
+
+# check if user id is valid 
+def check_valid_user_id(auth_user_id, store): 
+    result = False 
+
+    # if auth_user_id exists, return true, else return false 
+    for users in store['users']: 
+        if auth_user_id == users['u_id']: 
+            result = True
+
+    return result
