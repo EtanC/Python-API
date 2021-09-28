@@ -36,14 +36,20 @@ def channels_create_v1(auth_user_id, name, is_public):
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
 
+    # based on auth_user_id passed in, copy creator user's dictionary into user_dict
+    user_dict = {} 
+    for users in store['users']: 
+        if auth_user_id == users['u_id']: 
+            user_dict = users 
+
     # Store channel data in a dictionary 
     channel_data = { 
         'channel_id': channel_id,
         'name': name,
         'is_public': is_public,
-        'owner_members': [auth_user_id],
-        'all_members': [auth_user_id], 
-
+        'owner_members': [user_dict],
+        'all_members': [user_dict], 
+        'messages': [],
     }
     
     # Append channel_data to 'channels' list in data_store 
