@@ -1,5 +1,7 @@
 from src.data_store import data_store
 from src.error import InputError
+from src.error import AccessError
+
 import re
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -48,8 +50,10 @@ def channel_join_v1(auth_user_id, channel_id):
     YOU SHOULD BE ABLE TO READ ALL THIS INSIDE "channel_join_v1_BenH" branch
     '''
 
-    #Given a channel_id of a channel that the authorised user can join, adds them to that channel.
+    #Given a channel_id of a channel that the authorised user can join, 
+    #adds them to that channel.
     #auth_user_id and channel_id are in integer form
+
 
     #channel_id does not refer to a valid channel
     if ...:
@@ -62,8 +66,11 @@ def channel_join_v1(auth_user_id, channel_id):
     #channel_id refers to a channel that is private 
     #and the authorised user is not already a channel member 
     #and is not a global owner
-    if ...:
-        raise AccessError("This channel is PRIVATE")
+
+    store = data_store.get()
+    for channel in store['channels']:
+        if channel['Private'] == True:
+            raise AccessError("This channel is PRIVATE")
 
 
         
