@@ -53,10 +53,13 @@ def channel_join_v1(auth_user_id, channel_id):
     #Given a channel_id of a channel that the authorised user can join, 
     #adds them to that channel.
     #auth_user_id and channel_id are in integer form
+    store = data_store.get() # get the data
 
 
     #channel_id does not refer to a valid channel
-    if ...:
+    for channel in store['channels']:
+        if channel['channel_id'] == channel_id:
+            break
         raise InputError("channel_id is INVALID")
 
     #the authorised user is already a member of the channel
@@ -67,11 +70,12 @@ def channel_join_v1(auth_user_id, channel_id):
     #and the authorised user is not already a channel member 
     #and is not a global owner
 
-    store = data_store.get()
     for channel in store['channels']:
         if channel['Private'] == True:
             raise AccessError("This channel is PRIVATE")
-
+            break
+        else:
+            channel['members'] = auth_user_id
 
         
     return {
