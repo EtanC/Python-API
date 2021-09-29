@@ -22,18 +22,37 @@ def reset_data():
     auth_user_id = result['auth_user_id']
     return auth_user_id
 
+
+
 # Blackbox test for invalid input for auth_user_id
 # ===============================================================
 def test_invalid_id(reset_data): 
     auth_user_id = reset_data + 1
     with pytest.raises(AccessError): 
         c_list(auth_user_id)
+    with pytest.raises(AccessError): 
+        c_listall(auth_user_id)
 
-def test_invalid_list_all(reset_data): 
+def test_empty_input1(reset_data): 
+    auth_user_id = None
+    with pytest.raises(AccessError): 
+        c_list(auth_user_id)
+    with pytest.raises(AccessError): 
+        c_listall(auth_user_id)
+
+def test_halfEmpty_input2(reset_data): 
+    auth_user_id = ""
+    with pytest.raises(AccessError): 
+        c_list(auth_user_id)
+    with pytest.raises(AccessError): 
+        c_listall(auth_user_id)
+
+# ===============================================================
+def test_valid_list_all(reset_data): 
     auth_user_id = reset_data
     name = 'Elon'
     is_public = True
-    channels_create_v1(auth_user_id, name, is_public = True)
+    channel_id = channels_create_v1(auth_user_id, name, is_public)
 
 def test_long_list(reset_data): 
     pass
