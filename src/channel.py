@@ -1,3 +1,7 @@
+from src.data_store import data_store
+from src.error import InputError
+import re
+
 def channel_invite_v1(auth_user_id, channel_id, u_id):
     return {
     }
@@ -41,7 +45,27 @@ def channel_messages_v1(auth_user_id, channel_id, start):
 
 def channel_join_v1(auth_user_id, channel_id):
     '''
-    YOU SHOULD BE ABLE TO READ THIS INSIDE "channel_join_v1_BenH" branch
+    YOU SHOULD BE ABLE TO READ ALL THIS INSIDE "channel_join_v1_BenH" branch
     '''
+
+    #Given a channel_id of a channel that the authorised user can join, adds them to that channel.
+    #auth_user_id and channel_id are in integer form
+
+    #channel_id does not refer to a valid channel
+    if ...:
+        raise InputError("channel_id is INVALID")
+
+    #the authorised user is already a member of the channel
+    if ...:
+        raise InputError("User already in channel")
+
+    #channel_id refers to a channel that is private 
+    #and the authorised user is not already a channel member 
+    #and is not a global owner
+    if ...:
+        raise AccessError("This channel is PRIVATE")
+
+
+        
     return {
     }
