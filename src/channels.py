@@ -1,9 +1,6 @@
-
-
-from tests.channels_test import test_invalid_id
-from src.data_store import data_store
-from src.error import AccessError 
-from src.error import InputError 
+from data_store import data_store
+from error import AccessError 
+from error import InputError 
 
 # if it is valid it shouldnt raise an error 
 
@@ -22,18 +19,26 @@ def channels_list_v1(auth_user_id):
     # merged from master, usual check of auth_user_id
     if check_valid_user_id(auth_user_id, store) == False: 
         raise AccessError("Invalid auth_user_id")
-    
-    # This is the dictionary we return at the end. 
-    channels = {}
 
     # access list within channels
     list_channels = store['channels']
-    member = list_channels['members']
+    member = list_channels['all_members']
 
-    for u_id in list_channels: 
-        if auth_user_id == member['u_id']: 
-            channels.append(list_channels[u_id])
-    return channels
+    # This is the dictionary we return at the end. 
+    channel_id = []
+    channel_name = []
+
+    # if auth_user_id matches a user_id in the channel, records the channel name and id. 
+    for channels in list_channels: 
+        for users in member: 
+            if auth_user_id == member['users']:
+                channel_id.append(list_channels['channel_id'])
+                channel_name.append(list_channels['name'])
+
+    # merge the channel_id with channel_name into one dictionary
+    channel = dict(zip(channel_id, channel_name))
+
+    return channel
 
 '''
 ===========================================================================
@@ -50,16 +55,20 @@ def channels_listall_v1(auth_user_id):
         raise AccessError("Invalid auth_user_id")
     
     # This is the dictionary we return at the end. 
-    channels = {}
+    channel_id = []
+    channel_name = []
 
-    existing_users = store['users'] 
     list_channels = store['channels']
+    id = list_channels['channel_id']
+    name = list_channels['name']
 
-    for users in existing_users: 
-        if auth_user_id == existing_users: 
-            for channel in list_channels:
-                channels.append(list_channels[('channel_id','name')])
-    return channels
+    for channels in list_channels: 
+        channel_id.append(id)
+        channel_name.append(name)
+    # merge the list of channel_id and name into one dictionary
+    channel = dict(zip(channel_id, channel_name))
+
+    return channel
    
 '''
 ===============================================================================
