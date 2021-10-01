@@ -25,7 +25,6 @@ def create_and_reset():
     # take auth user id from returned dictionary 
     auth_user_id = result['auth_user_id']
     return auth_user_id
-    
 
 
 # Blackbox test for invalid input for auth_user_id
@@ -35,70 +34,112 @@ def test_invalid_id(reset_data):
     with pytest.raises(AccessError): 
         assert c_listall(auth_user_id)
 
-def test_empty_input1(reset_data): 
+def test_empty_input1(): 
     auth_user_id = None
     with pytest.raises(AccessError): 
         assert c_listall(auth_user_id)
 
-def test_halfEmpty_input2(reset_data): 
+def test_halfEmpty_input2(): 
     auth_user_id = ""
     with pytest.raises(AccessError): 
         assert c_listall(auth_user_id)
 
 # ===============================================================
-# test_valid -> test return type is dict
+# test_valid -> test return type is a list of dictionaries
 def test_valid(reset): 
     auth_user_id = reset 
     result = c_listall(auth_user_id)
-    assert type(result) is dict
+    assert type(result) is list
 
 # when the user does not have any channels 
 def test_empty_list(reset_data): 
     auth_user_id = reset_data
     assert c_listall(auth_user_id) == ()
 
+# a test where there are multiple users creating multiple channels
 def test_long_list(create_and_reset): 
     auth_user_id = create_and_reset()
-    # creates 5 people who each create another 5 channels
-    for i in range(5): 
-        email = f"realemail_81{i}@outlook.edu.au"
-        password = f"Password{i}"
-        name_first = f"Elon{i}"
-        name_last = f"Mask{i}"
-        auth_register_v1(email, password, name_first, name_last)
-        result = auth_login_v1(email, password) 
-        # take user_id from returned dictionary 
-        user_id = result['auth_user_id']
-        # here they each create 5 channels
-        for channels_id in range(5): 
-            name = 'Elon_public'
-            c_name = name + ' ' + channels_id
-            is_public = True
-            c_create(user_id,c_name,is_public)
-    assert c_listall(auth_user_id) == {
-        1: 'Elon_public 0',
-        2: 'Elon_public 1',
-        3: 'Elon_public 2', 
-        4: 'Elon_public 3',
-        5: 'Elon_public 4',  
-        6: 'Elon_public 0',
-        7: 'Elon_public 1',
-        8: 'Elon_public 2', 
-        9: 'Elon_public 3',
-        10: 'Elon_public 4',
-        11: 'Elon_public 0',
-        12: 'Elon_public 1',
-        13: 'Elon_public 2', 
-        14: 'Elon_public 3',
-        15: 'Elon_public 4',  
-        16: 'Elon_public 0',
-        17: 'Elon_public 1',
-        18: 'Elon_public 2', 
-        19: 'Elon_public 3',
-        20: 'Elon_public 4',  
-        21: 'Elon_public 0',
-        22: 'Elon_public 1',
-        23: 'Elon_public 2', 
-        24: 'Elon_public 3',
-        25: 'Elon_public 4',    
-    }
+    is_public = True
+
+    # person 1
+    email = "realemail_81@outlook.edu.au"
+    password = "Password1"
+    name_first = "Elon1"
+    name_last = "Mask1"
+    auth_register_v1(email, password, name_first, name_last)
+    result = auth_login_v1(email, password) 
+    # person 1 creates a channel
+    user_id = result['auth_user_id']
+    name = 'Elon_public1'
+    c_create(user_id,name,is_public)
+
+    # person 1
+    email = "realemail_81@outlook.edu.au"
+    password = "Password1"
+    name_first = "Elon1"
+    name_last = "Mask1"
+    auth_register_v1(email, password, name_first, name_last)
+    result = auth_login_v1(email, password) 
+    # person 1 creates a channel
+    user_id = result['auth_user_id']
+    name = 'Elon_public1'
+    c_create(user_id,name,is_public)
+
+    # person 2
+    email = "realemail_82@outlook.edu.au"
+    password = "Password2"
+    name_first = "Elon2"
+    name_last = "Mask2"
+    auth_register_v1(email, password, name_first, name_last)
+    result = auth_login_v1(email, password) 
+    # person 2 creates a channel
+    user_id = result['auth_user_id']
+    name = 'Elon_public2'
+    c_create(user_id,name,is_public)
+
+    # person 3
+    email = "realemail_83@outlook.edu.au"
+    password = "Password3"
+    name_first = "Elon3"
+    name_last = "Mask3"
+    auth_register_v1(email, password, name_first, name_last)
+    result = auth_login_v1(email, password) 
+    # person 3 creates a channel
+    user_id = result['auth_user_id']
+    name = 'Elon_public3'
+    c_create(user_id,name,is_public)
+
+    # person 4
+    email = "realemail_84@outlook.edu.au"
+    password = "Password4"
+    name_first = "Elon4"
+    name_last = "Mask4"
+    auth_register_v1(email, password, name_first, name_last)
+    result = auth_login_v1(email, password) 
+    # person 1 creates a channel
+    user_id = result['auth_user_id']
+    name = 'Elon_public4'
+    c_create(user_id,name,is_public)
+
+    # person 5
+    email = "realemail_85@outlook.edu.au"
+    password = "Password5"
+    name_first = "Elon5"
+    name_last = "Mask5"
+    auth_register_v1(email, password, name_first, name_last)
+    result = auth_login_v1(email, password) 
+    # person 1 creates a channel
+    user_id = result['auth_user_id']
+    name = 'Elon_public5'
+    c_create(user_id,name,is_public)
+  
+    assert c_listall(auth_user_id) == [
+        {
+            'channel_id' : 1, 'name' : 'Elon_public1',
+            'channel_id' : 2, 'name' : 'Elon_public2',
+            'channel_id' : 3, 'name' : 'Elon_public3',
+            'channel_id' : 4, 'name' : 'Elon_public4',
+            'channel_id' : 5, 'name' : 'Elon_public5'
+        }
+
+    ]

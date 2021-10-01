@@ -22,23 +22,17 @@ def channels_list_v1(auth_user_id):
 
     # access list within channels
     list_channels = store['channels']
-    member = list_channels['all_members']
 
-    # This is the dictionary we return at the end. 
-    channel_id = []
-    channel_name = []
+    # a list of dictionary that we return
+    auth_user_channels = []
 
-    # if auth_user_id matches a user_id in the channel, records the channel name and id. 
-    for channels in list_channels: 
-        for users in member: 
-            if auth_user_id == member['users']:
-                channel_id.append(list_channels['channel_id'])
-                channel_name.append(list_channels['name'])
+    for channel in range(len(list_channels)):
+        # if auth_user_id matches a user_id in the channel, records the channel name and id.
+        if channel['users'] == auth_user_id: 
+            new_dict = {'channel_id' :  channel['channel_id'], 'name' : channel['name']}
+            auth_user_channels.append(new_dict)
 
-    # merge the channel_id with channel_name into one dictionary
-    channel = dict(zip(channel_id, channel_name))
-
-    return channel
+    return auth_user_channels
 
 '''
 ===========================================================================
@@ -53,21 +47,16 @@ def channels_listall_v1(auth_user_id):
     # merged from master, usual check of auth_user_id
     if check_valid_user_id(auth_user_id, store) == False: 
         raise AccessError("Invalid auth_user_id")
-    
-    channel_id = []
-    channel_name = []
 
     list_channels = store['channels']
-    id = list_channels['channel_id']
-    name = list_channels['name']
+    # a list of dictionary that we return
+    all_channels = []
 
-    for channels in list_channels: 
-        channel_id.append(id)
-        channel_name.append(name)
-    # merge the list of channel_id and name into one dictionary
-    channel = dict(zip(channel_id, channel_name))
+    for channels in range(len(list_channels)):
+        new_dict = {'channel_id' :  channels['channel_id'], 'name' : channels['name']}
+        all_channels.append(new_dict)
 
-    return channel
+    return all_channels
    
 '''
 ===============================================================================
