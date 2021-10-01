@@ -5,87 +5,130 @@ from src.other import clear_v1
 from src.error import InputError
 from src.error import AccessError
 from src.auth import auth_register_v1, auth_login_v1 
+from src.channels import channels_create_v1
 
-#channel_join_v1(auth_user_id, channel_id):
-#channels_create_v1(auth_user_id, name, is_public):
-#auth_register_v1(email, password, name_first, name_last):
-
-#create user 1
-@pytest.fixture 
-def create_user1():
-
+# this runs before every test function.
+@pytest.fixture
+def reset_data():
     clear_v1()
-    email = "valid1@gmail.com"
-    password = "password1"
-    name_first = "John"
-    name_last = "Smith"
-    result = auth_register_v1(email, password, name_first, name_last)
-    auth_user_id = result['auth_user_id']
-    return auth_user_id
 
-#create user 2
-@pytest.fixture 
-def create_user2():
 
+
+@pytest.fixture
+def create_and_reset():
+
+    # creates a real user before every test after clear_v1.
     clear_v1()
-    email = "valid2@yahoo.com"
-    password = "password2"
+
+    # creates a real user before every test after clear_v1.
+    email = "Jackjones@gmail.com.au"
+    password = "Password1"
     name_first = "Jack"
-    name_last = "Smith"
-    result = auth_register_v1(email, password, name_first, name_last)
+    name_last = "Jones"
+
+    auth_register_v1(email, password, name_first, name_last)
+    result = auth_login_v1(email, password) 
+
+    # take auth user id from returned dictionary 
     auth_user_id = result['auth_user_id']
     return auth_user_id
 
-#create public channel
-@pytest.fixture 
-def create_public_channel():
+def test_invalid_user_error(create_and_reset):
 
-    clear_v1()
-    channel_name = "Channel1"
+    #get user_id from the fixture
+    user_id = create_and_reset
+
+    #create a public channel
     is_public = True
-    u_id = create_user1()
-    public_channel = channels_create_v1(u_id, channel_name is_public)
-    channel_id = public_channel['channel_id']
+    name = 'JohnCena_public'
+    channel = channels_create_v1(user_id ,name, is_public)
+    channel_id = channel['channel_id']
 
-    return channel_id
 
-#create private channel
-@pytest.fixture 
-def create_private_channel():
+    with pytest.raises(InputError):
+        channel_join_v1(user_id + 1, channel_id)
+        #user_id + 1 to a diff user
 
-    clear_v1()
-    channel_name = "Channel2"
+def test_invalid_channel_error(create_and_reset):
+
+    #get user_id from the fixture
+    user_id = create_and_reset
+
+    # Create person 2
+    email = "jamessmith@gmail.com"
+    password = "asdfgh"
+    name_first = "James "
+    name_last = "Smih"
+    auth_register_v1(email, password, name_first, name_last)
+    result2 = auth_login_v1(email, password) 
+    user_id2 = result2['auth_user_id']
+
+    #create a public channel
+    is_public = True
+    name = 'JohnCena_public'
+    channel = channels_create_v1(user_id ,name, is_public)
+    channel_id = channel['channel_id']
+
+
+    with pytest.raises(InputError):
+        channel_join_v1(user_id2, channel_id + 1)
+        #channel_id + 1 to a diff channel
+
+def test_user_already_in_channel_error(create_and_reset):
+
+    #auth_user_id = create_and_reset
+    is_public = True
+
+    # person 1
+    email = "johnsmith@gmail.com"
+    password = "qwerty"
+    name_first = "John "
+    name_last = "Smith"
+    auth_register_v1(email, password, name_first, name_last)
+    result1 = auth_login_v1(email, password) 
+    
+    # person 1 creates a public channel
+    user_id1 = result1['auth_user_id']
+    name1 = 'JohnSmith_public'
+    channel1 = channels_create_v1(user_id1 ,name1, is_public)
+    channel_id_1 = channel1['channel_id']
+
+    # person 2
+    email = "jamessmith@gmail.com"
+    password = "asdfgh"
+    name_first = "James "
+    name_last = "Smih"
+    auth_register_v1(email, password, name_first, name_last)
+    result2 = auth_login_v1(email, password) 
+    
+    # person 2 creates a public channel
+    user_id2 = result2['auth_user_id']
+    name2 = 'JamesSmith_public'
+    channel2 = channels_create_v1(user_id2, name2, is_public)
+    channel_id_2 = channel2['channel_id']
+
+    with pytest.raises(InputError):
+        channel_join_v1(user_id1, channel_id_1)
+        channel_join_v1(user_id2, channel_id_2)
+
+def test_private_channel(create_and_reset):
+    user_id = create_and_reset
+
+    #create a private channel
     is_public = False
-    u_id = create_user2()
-    private_channel = channels_create_v1(u_id, channel_name is_public)
-    channel_id = private_channel['channel_id']
-
-    return channel_id
+    name = 'JohnCena_public'
+    channel = channels_create_v1(user_id ,name, is_public)
+    channel_id = channel['channel_id']
 
 
-#test being able to join a channel as usual
-def test_join_public_channel_valid():
-    auth_user_id = create_user1()
-    channel_id = create_public_channel()
-    assert(channel_join_v1(auth_user_id, channel_id))
+    # Create person 2
+    email = "jamessmith@gmail.com"
+    password = "asdfgh"
+    name_first = "James "
+    name_last = "Smih"
+    auth_register_v1(email, password, name_first, name_last)
+    result2 = auth_login_v1(email, password) 
+    user_id2 = result2['auth_user_id']
 
-#if channel is invalid
-def test_invalid_channel_id():
-
-    auth_user_id = create_user1()
-    channel_id = 0
-
-    with pytest.raises(InputError):
-        channels_join_v1(auth_user_id, channel_id)
-
-#if channel is private but the user is not invited
-def test_private_channel():
-
-    auth_user_id1 = create_user1()
-    channel_id = create_private_channel
-    channel_join_v1(auth_user_id1, channel_id)
-    auth_user_id2 = create_user2()
-
-    # user1 is invited to priv but not user2
-    with pytest.raises(InputError):
-        channels_join_v1(auth_user_id2, channel_id)
+    with pytest.raises(AccessError):
+        channel_join_v1(user_id2, channel_id)
