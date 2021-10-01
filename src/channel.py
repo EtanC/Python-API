@@ -35,6 +35,10 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         if  channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
+    data_store.set()
+
+    return {}
+
 
 def valid_user_id(u_id):
     store = data_store.get()
