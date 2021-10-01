@@ -1,6 +1,6 @@
-from data_store import data_store
-from error import AccessError 
-from error import InputError 
+from src.data_store import data_store
+from src.error import AccessError 
+from src.error import InputError 
 
 # if it is valid it shouldnt raise an error 
 
@@ -26,11 +26,12 @@ def channels_list_v1(auth_user_id):
     # a list of dictionary that we return
     auth_user_channels = []
 
-    for channel in range(len(list_channels)):
+    for channel in list_channels:
         # if auth_user_id matches a user_id in the channel, records the channel name and id.
-        if channel['users'] == auth_user_id: 
-            new_dict = {'channel_id' :  channel['channel_id'], 'name' : channel['name']}
-            auth_user_channels.append(new_dict)
+        for users in channel['all_members']:
+            if users['u_id'] == auth_user_id: 
+                new_dict = {'channel_id' :  channel['channel_id'], 'name' : channel['name']}
+                auth_user_channels.append(new_dict)
 
     return auth_user_channels
 
@@ -52,7 +53,7 @@ def channels_listall_v1(auth_user_id):
     # a list of dictionary that we return
     all_channels = []
 
-    for channels in range(len(list_channels)):
+    for channels in list_channels:
         new_dict = {'channel_id' :  channels['channel_id'], 'name' : channels['name']}
         all_channels.append(new_dict)
 
@@ -103,7 +104,6 @@ def channels_create_v1(auth_user_id, name, is_public):
 # check if user id is valid 
 def check_valid_user_id(auth_user_id, store): 
     result = False 
-
     # if auth_user_id exists, return true, else return false 
     for users in store['users']: 
         if auth_user_id == users['u_id']: 

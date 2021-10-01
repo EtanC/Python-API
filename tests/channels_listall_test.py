@@ -10,11 +10,6 @@ from src.error import AccessError
 def reset_data():
     clear_v1()
 
-@pytest.fixture
-def create_and_reset():
-    # creates a real user before every test after clear_v1.
-    clear_v1()
-
     # creates a real user before every test after clear_v1.
     email = "realemail_812@outlook.edu.au"
     password = "Password1"
@@ -26,10 +21,10 @@ def create_and_reset():
     auth_user_id = result['auth_user_id']
     return auth_user_id
 
-
 # Blackbox test for invalid input for auth_user_id
 # ===============================================================
 def test_invalid_id(reset_data): 
+    # only has one user, logically there should not be another user with +1 auth_id
     auth_user_id = reset_data + 1
     with pytest.raises(AccessError): 
         assert c_listall(auth_user_id)
@@ -46,32 +41,20 @@ def test_halfEmpty_input2():
 
 # ===============================================================
 # test_valid -> test return type is a list of dictionaries
-def test_valid(reset): 
-    auth_user_id = reset 
+def test_valid(reset_data): 
+    auth_user_id = reset_data 
     result = c_listall(auth_user_id)
     assert type(result) is list
 
 # when the user does not have any channels 
 def test_empty_list(reset_data): 
     auth_user_id = reset_data
-    assert c_listall(auth_user_id) == ()
+    assert c_listall(auth_user_id) == []
 
 # a test where there are multiple users creating multiple channels
-def test_long_list(create_and_reset): 
-    auth_user_id = create_and_reset()
+def test_long_list(reset_data): 
+    auth_user_id = reset_data
     is_public = True
-
-    # person 1
-    email = "realemail_81@outlook.edu.au"
-    password = "Password1"
-    name_first = "Elon1"
-    name_last = "Mask1"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # person 1 creates a channel
-    user_id = result['auth_user_id']
-    name = 'Elon_public1'
-    c_create(user_id,name,is_public)
 
     # person 1
     email = "realemail_81@outlook.edu.au"
@@ -116,7 +99,7 @@ def test_long_list(create_and_reset):
     name_last = "Mask4"
     auth_register_v1(email, password, name_first, name_last)
     result = auth_login_v1(email, password) 
-    # person 1 creates a channel
+    # person 4 creates a channel
     user_id = result['auth_user_id']
     name = 'Elon_public4'
     c_create(user_id,name,is_public)
@@ -128,18 +111,15 @@ def test_long_list(create_and_reset):
     name_last = "Mask5"
     auth_register_v1(email, password, name_first, name_last)
     result = auth_login_v1(email, password) 
-    # person 1 creates a channel
+    # person  creates a channel
     user_id = result['auth_user_id']
     name = 'Elon_public5'
     c_create(user_id,name,is_public)
   
     assert c_listall(auth_user_id) == [
-        {
-            'channel_id' : 1, 'name' : 'Elon_public1',
-            'channel_id' : 2, 'name' : 'Elon_public2',
-            'channel_id' : 3, 'name' : 'Elon_public3',
-            'channel_id' : 4, 'name' : 'Elon_public4',
-            'channel_id' : 5, 'name' : 'Elon_public5'
-        }
-
+        {'channel_id': 1, 'name': 'Elon_public1'},
+        {'channel_id': 2, 'name': 'Elon_public2'},
+        {'channel_id': 3, 'name': 'Elon_public3'},
+        {'channel_id': 4, 'name': 'Elon_public4'},
+        {'channel_id': 5, 'name': 'Elon_public5'} 
     ]
