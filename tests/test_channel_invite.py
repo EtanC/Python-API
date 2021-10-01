@@ -2,7 +2,7 @@ import pytest
 
 from src.auth import auth_register_v1, auth_login_v1 
 from src.channels import channels_create_v1
-from src.channel import channel_invite_v1
+from src.channel import channel_invite_v1, channel_details_v1
 from src.other import clear_v1
 from src.error import InputError
 from src.error import AccessError
@@ -38,7 +38,7 @@ def test_valid(reset):
     
     channel_invite_v1(auth_user_id, channel_id, auth_user_id_2)
 
-    channel_data = channel_details_v1(passes in)
+    channel_data = channel_details_v1(auth_user_id, channel_id)
     members_list = channel_data['all_members']
 
     member_in_channel = False

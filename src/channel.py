@@ -1,6 +1,6 @@
 from src.data_store import data_store
 from src.error import InputError, AccessError
-from src.channel import check_valid_user_id
+from src.channels import check_valid_user_id
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -10,6 +10,10 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     # check for invalid user id 
     if check_valid_user_id(auth_user_id, store) == False: 
         raise AccessError("Invalid auth_user_id")
+
+    # check for invalid u_id
+    if check_valid_user_id(u_id, store) == False: 
+        raise InputError("Invalid u_id")
     
     # check for invalid channel id 
     if check_valid_channel(channel_id, store) == False: 
@@ -19,6 +23,17 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     if check_member_in_channel(auth_user_id, channel_id, store) == True: 
         raise InputError("Authorised user is already a member of the channel")
 
+    new_member = {}
+
+    users_list = store['users']
+    for users in users_list:
+        if users['u_id'] == u_id:
+            new_member = users
+
+    channels_list = store['channels']
+    for channels in channels_list:
+        if  channels['channel_id'] == channel_id:
+            channels['all_members'].append(new_member)
 
 
 def valid_user_id(u_id):
@@ -38,9 +53,9 @@ def valid_channel_id(channel_id):
     return False
 
 def not_in_channel(channel_id, u_id):
-
+    pass
 def not_authorised_user(auth_user_id):
-
+    pass
 
 def channel_details_v1(auth_user_id, channel_id):
     return {
