@@ -44,12 +44,12 @@ def test_halfEmpty_input2():
 def test_valid(reset_data): 
     auth_user_id = reset_data 
     result = c_listall(auth_user_id)
-    assert type(result) is list
+    assert type(result) is dict
 
 # when the user does not have any channels 
 def test_empty_list(reset_data): 
     auth_user_id = reset_data
-    assert c_listall(auth_user_id) == []
+    assert c_listall(auth_user_id) == {'channels':[]}
 
 # a test where there are multiple users creating multiple channels
 def test_long_list(reset_data): 
@@ -116,10 +116,12 @@ def test_long_list(reset_data):
     name = 'Elon_public5'
     c_create(user_id,name,is_public)
   
-    assert c_listall(auth_user_id) == [
-        {'channel_id': 1, 'name': 'Elon_public1'},
-        {'channel_id': 2, 'name': 'Elon_public2'},
-        {'channel_id': 3, 'name': 'Elon_public3'},
-        {'channel_id': 4, 'name': 'Elon_public4'},
-        {'channel_id': 5, 'name': 'Elon_public5'} 
-    ]
+    assert c_listall(auth_user_id) == { 
+        'channels' : [
+            {'channel_id': 1, 'name': 'Elon_public1'},
+            {'channel_id': 2, 'name': 'Elon_public2'},
+            {'channel_id': 3, 'name': 'Elon_public3'},
+            {'channel_id': 4, 'name': 'Elon_public4'},
+            {'channel_id': 5, 'name': 'Elon_public5'} 
+        ]
+    }

@@ -42,14 +42,14 @@ def test_halfEmpty_input2(reset_data):
 # when the user does not have any channels 
 def test_empty_list(reset_data): 
     auth_user_id = reset_data
-    assert c_list(auth_user_id) == []
+    assert c_list(auth_user_id) == {'channels':[]}
 
 # ===============================================================
 # test_valid -> test return type is a lsit of dictionaries
 def test_valid(reset_data): 
     auth_user_id = reset_data 
     result = c_list(auth_user_id)
-    assert type(result) is list
+    assert type(result) is dict
 
 # check the returned value contains channel_id and name 
 def test_valid_list_all(reset_data): 
@@ -57,12 +57,14 @@ def test_valid_list_all(reset_data):
     name = 'Elon_public'
     is_public = True
     c_create(auth_user_id, name, is_public)
-    assert c_list(auth_user_id) == [ 
-        {
-            'channel_id': 1, 
-            'name': 'Elon_public'
-        }
-    ]
+    assert c_list(auth_user_id) == {
+        'channels' : [ 
+            {
+                'channel_id': 1, 
+                'name': 'Elon_public'
+            }
+        ]
+    }
     
 # when the user has joined multiple channels
 def test_long_list(reset_data): 
@@ -89,15 +91,15 @@ def test_long_list(reset_data):
     name5 = 'Elon_public4'
     c_create(auth_user_id,name5,is_public)
 
-    assert c_list(auth_user_id) == [
+    assert c_list(auth_user_id) == { 
+        'channels' : [
             {'channel_id': 1, 'name': 'Elon_public0'},
             {'channel_id': 2, 'name': 'Elon_public1'},
             {'channel_id': 3, 'name': 'Elon_public2'},
             {'channel_id': 4, 'name': 'Elon_public3'},
             {'channel_id': 5, 'name': 'Elon_public4'} 
-    ]
-
-
+        ],
+    }
 
 
 
