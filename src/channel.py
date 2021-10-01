@@ -69,18 +69,16 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     # Checking auth_user_id is part of channel
     if not is_channel_member(auth_user_id, channel['all_members']):
         raise AccessError("User is not a member of the channel")
-
+    # Returning up to 50 messages
+    end = start + 50
+    messages = channel['messages'][start:end]
+    # Setting end to -1 if no more messages left
+    if start + 50 > len(channel['messages']):
+        end = -1
     return {
-        'messages': [
-            {
-                'message_id': 1,
-                'u_id': 1,
-                'message': 'Hello world',
-                'time_created': 1582426789,
-            }
-        ],
-        'start': 0,
-        'end': 50,
+        'messages': messages,
+        'start': start,
+        'end': end,
     }
 
 def channel_join_v1(auth_user_id, channel_id):
