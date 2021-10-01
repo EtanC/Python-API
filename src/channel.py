@@ -147,3 +147,4 @@ def find_channel(channel_id, store):
     for channel in store['channels']: 
         if channel_id == channel['channel_id']: 
             return channel 
+    return None 
