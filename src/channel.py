@@ -67,7 +67,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     if start > len(channel['messages']):
         raise InputError("Invalid start")
     # Checking auth_user_id is part of channel
-    if is_channel_member(auth_user_id, channel['members']):
+    if not is_channel_member(auth_user_id, channel['all_members']):
         raise AccessError("User is not a member of the channel")
 
     return {
