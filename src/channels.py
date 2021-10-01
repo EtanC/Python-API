@@ -58,8 +58,8 @@ def channels_listall_v1(auth_user_id):
     for channels in list_channels:
         new_dict = {'channel_id' :  channels['channel_id'], 'name' : channels['name']}
         all_channels.append(new_dict)
+
     return return_dict
-   
 '''
 ===============================================================================
 '''
