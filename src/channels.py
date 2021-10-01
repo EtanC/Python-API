@@ -54,7 +54,6 @@ def channels_listall_v1(auth_user_id):
     if check_valid_user_id(auth_user_id, store) == False: 
         raise AccessError("Invalid auth_user_id")
     
-    # This is the dictionary we return at the end. 
     channel_id = []
     channel_name = []
 
