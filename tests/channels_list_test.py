@@ -45,7 +45,7 @@ def test_empty_list(reset_data):
     assert c_list(auth_user_id) == {'channels':[]}
 
 # ===============================================================
-# test_valid -> test return type is a lsit of dictionaries
+# test_valid -> test return type is a list of dictionaries
 def test_valid(reset_data): 
     auth_user_id = reset_data 
     result = c_list(auth_user_id)
