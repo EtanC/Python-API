@@ -158,14 +158,14 @@ def test_two_members(reset):
 
     # only 1 owner in this iteration, so checking for only one owner
     assert return_dict['owner_members'] ==  [
-            {
-                'u_id': auth_user_id, 
-                'email': email_1, 
-                'name_first': name_first_1, 
-                'name_last': name_last_1,
-                'handle_str': 'johnsmith', 
-            }
-        ]
+        {
+            'u_id': auth_user_id, 
+            'email': email_1, 
+            'name_first': name_first_1, 
+            'name_last': name_last_1,
+            'handle_str': 'johnsmith', 
+        }
+    ]
     # check owner and members list is correct, returned list can be in any order 
     mem_list = [ 
         {
@@ -199,4 +199,92 @@ def test_two_members(reset):
 
 
     assert same == True 
+
+def test_three_members(reset): 
+    email_1 = "realemail_812@outlook.edu.au"
+    password_1 = "Password1"
+    name_first_1 = "John"
+    name_last_1 = "Smith"
+    auth_register_v1(email_1, password_1, name_first_1, name_last_1)
+    result = auth_login_v1(email_1, password_1) 
+
+    auth_user_id = result['auth_user_id']
+    
+    email_2 = "realemail_813@outlook.edu.au"
+    password_2 = "Password2"
+    name_first_2 = "Johne"
+    name_last_2 = "Smithe"
+    auth_register_v1(email_2, password_2, name_first_2, name_last_2)
+    result = auth_login_v1(email_2, password_2) 
+
+    auth_user_id_2 = result['auth_user_id']
+
+    email_3 = "realemail_814@outlook.edu.au"
+    password_3 = "Password3"
+    name_first_3 = "Johnny"
+    name_last_3 = "Smithy"
+    auth_register_v1(email_3, password_3, name_first_3, name_last_3)
+    result = auth_login_v1(email_3, password_3) 
+
+    auth_user_id_3 = result['auth_user_id']
+
+    channel_name = "channel1"
+    is_public = True 
+    result = channels_create_v1(auth_user_id, channel_name, is_public)
+    channel_id = result['channel_id']
+
+    channel_join_v1(auth_user_id_2, channel_id)
+    channel_join_v1(auth_user_id_3, channel_id) 
+
+    return_dict = channel_details_v1(auth_user_id_3, channel_id)
+
+    assert return_dict['name'] == channel_name 
+    assert return_dict['is_public'] == is_public 
+
+    assert return_dict['owner_members'] ==  [
+        {
+            'u_id': auth_user_id, 
+            'email': email_1, 
+            'name_first': name_first_1, 
+            'name_last': name_last_1,
+            'handle_str': 'johnsmith', 
+        }
+    ]
+
+    mem_list = [ 
+        {
+            'u_id': auth_user_id, 
+            'email': email_1, 
+            'name_first': name_first_1, 
+            'name_last': name_last_1, 
+            'handle_str': 'johnsmith', 
+        }, 
+        { 
+            'u_id': auth_user_id_2, 
+            'email': email_2, 
+            'name_first': name_first_2, 
+            'name_last': name_last_2, 
+            'handle_str': 'johnesmithe', 
+        }, 
+        { 
+            'u_id': auth_user_id_3, 
+            'email': email_3, 
+            'name_first': name_first_3, 
+            'name_last': name_last_3, 
+            'handle_str': 'johnnysmithy', 
+        }, 
+    ]
+
+    same = True
+    for i in return_dict['all_members']: 
+        if i not in mem_list: 
+            same = False 
+    
+    for i in mem_list: 
+        if i not in return_dict['all_members']: 
+            same = False 
+
+    assert same == True 
+
+
 '''
