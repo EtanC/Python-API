@@ -20,7 +20,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         raise InputError("Invalid channel id")
 
     # check whether member is in the channel or not 
-    if check_member_in_channel(auth_user_id, channel_id, store) == True: 
+    if check_member_in_channel(u_id, channel_id, store) == True: 
         raise InputError("Authorised user is already a member of the channel")
 
     new_member = {}
@@ -35,31 +35,10 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         if  channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
-    data_store.set()
+    data_store.set(store)
 
     return {}
 
-
-def valid_user_id(u_id):
-    store = data_store.get()
-
-    for user in store['users']:
-        if user['user_id'] == u_id:
-            return True
-    return False
-
-def valid_channel_id(channel_id):
-    store = data_store.get()
-
-    for channel in store['channels']:
-        if channel['channel_id'] == channel_id:
-            return True
-    return False
-
-def not_in_channel(channel_id, u_id):
-    pass
-def not_authorised_user(auth_user_id):
-    pass
 
 def channel_details_v1(auth_user_id, channel_id):
     return {

@@ -47,6 +47,7 @@ def test_valid(reset):
             member_in_channel = True
 
     assert member_in_channel == True
+        
 
     
 def test_invalid_channel(reset):
@@ -132,8 +133,6 @@ def test_already_in_channel(reset):
     result = channels_create_v1(auth_user_id, channel_name, is_public)
     # Changing the channel id
     channel_id = result['channel_id']
-
-    auth_user_id_2 = auth_user_id_2
 
     channel_invite_v1(auth_user_id, channel_id, auth_user_id_2)
     
