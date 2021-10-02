@@ -43,23 +43,6 @@ def channels_list_v1(auth_user_id):
 Provide a list of all channels, including private channels, (and their associated details)
 
 '''
-def channels_listall_v1(auth_user_id):
-    store = data_store.get()
-
-    # merged from master, usual check of auth_user_id
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
-
-    list_channels = store['channels']
-    # a list of dictionary that we return
-    all_channels = []
-    return_dict = {'channels' : all_channels}
-
-    for channels in list_channels:
-        new_dict = {'channel_id' :  channels['channel_id'], 'name' : channels['name']}
-        all_channels.append(new_dict)
-
-    return return_dict
 '''
 ===============================================================================
 '''
