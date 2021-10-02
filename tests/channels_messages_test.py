@@ -65,7 +65,7 @@ def test_invalid_user(reset_data, messages_data, extra_user):
     with pytest.raises(AccessError):
         channel_messages_v1(another_user_id, channel_id, 0)
 
-def test_invalid_user_id(reset_data, messages_data, extra_user):
+def test_invalid_user_id(reset_data, messages_data):
     user_id = messages_data[0] + 1
     channel_id = messages_data[1]
     with pytest.raises(AccessError):
