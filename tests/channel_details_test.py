@@ -120,7 +120,7 @@ def test_invalid_user(reset):
     with pytest.raises(AccessError): 
         channel_details_v1(auth_user_id + 1, channel_id)
 
-''' 
+'''
 TESTS FOR MORE THAN ONE MEMBER IN CHANNEL - REQUIRE CHANNEL_JOIN  
 
 def test_two_members(reset): 
@@ -183,22 +183,14 @@ def test_two_members(reset):
             'handle': 'johnesmithe', 
         },
     ]
-    
-    # setting up condition for whether member lists are same or not 
-    # loop through each list once and check if its in other list, this way
-    # the lists aren't accidentally considered the same if both lists 
-    # are same but one has an extra element 
-    same = True
-    for i in return_dict['all_members']: 
-        if i not in mem_list: 
-            same = False 
-    
-    for i in mem_list: 
-        if i not in return_dict['all_members']: 
-            same = False 
 
+    # using sorted and lambda function to sort both lists according to u_id
+    # this should make it so that both lists are sorted in the same order 
+    # and thus allowing for direct comparison 
+    new_return_list = sorted(return_dict['all_members'], key = lambda k: k['u_id']) 
+    new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 
-    assert same == True 
+    assert new_return_list = new_mem_list 
 
 def test_three_members(reset): 
     email_1 = "realemail_812@outlook.edu.au"
@@ -275,16 +267,10 @@ def test_three_members(reset):
         }, 
     ]
 
-    same = True
-    for i in return_dict['all_members']: 
-        if i not in mem_list: 
-            same = False 
-    
-    for i in mem_list: 
-        if i not in return_dict['all_members']: 
-            same = False 
+    new_return_list = sorted(return_dict['all_members'], key = lambda k: k['u_id']) 
+    new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 
-    assert same == True 
+    assert new_return_list = new_mem_list 
 
 
 '''
