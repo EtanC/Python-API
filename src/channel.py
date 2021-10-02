@@ -122,7 +122,7 @@ def check_valid_channel(channel_id, store):
     return result 
 
 def check_member_in_channel(auth_user_id, channel_id, store): 
-    # put user info dictionaru into user_data 
+    # put user info dictionary into user_data 
     user_data = {} 
     for user in store['users']: 
         if auth_user_id == user['u_id']: 
