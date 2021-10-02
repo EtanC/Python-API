@@ -4,7 +4,6 @@ from src.error import InputError
 
 # if it is valid it shouldnt raise an error 
 
-
 '''
 {channels_list_v1}
 
@@ -13,7 +12,29 @@ Provide a list of all channels (and their associated details)
 that the authorised user is part of.
 
 '''
+def channels_list_v1(auth_user_id):
+    store = data_store.get()
 
+    # merged from master, usual check of auth_user_id
+    if check_valid_user_id(auth_user_id, store) == False: 
+        raise AccessError("Invalid auth_user_id")
+
+    # access list within channels
+    list_channels = store['channels']
+
+    # a list of dictionary that we return
+    auth_user_channels = []
+    return_dict = {'channels' : auth_user_channels}
+
+    for channel in list_channels:
+        # if auth_user_id matches a user_id in the channel, records the channel name and id.
+        for users in channel['all_members']:
+            if users['u_id'] == auth_user_id: 
+                new_dict = {'channel_id' :  channel['channel_id'], 'name' : channel['name']}
+                auth_user_channels.append(new_dict)
+
+    return return_dict
+    
 '''
 ===========================================================================
 {channels_listall_v1}
@@ -21,6 +42,8 @@ that the authorised user is part of.
 Provide a list of all channels, including private channels, (and their associated details)
 
 '''
+
+
 def channels_listall_v1(auth_user_id):
     store = data_store.get()
 
