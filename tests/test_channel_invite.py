@@ -38,16 +38,37 @@ def test_valid(reset):
     
     channel_invite_v1(auth_user_id, channel_id, auth_user_id_2)
 
-    channel_data = channel_details_v1(auth_user_id, channel_id)
-    members_list = channel_data['all_members']
+    assert channel_details_v1(auth_user_id, channel_id) == \
+    { 
+        'name': 'channel1_',   
+        'is_public': is_public, 
+        'owner_members': [
+            {
+                'u_id': auth_user_id, 
+                'email': 'realemail_812@outlook.edu.au', 
+                'name_first': 'John', 
+                'name_last': 'Smith',
+                'handle': 'johnsmith', 
+            }
+        ], 
+        'all_members': [
+            {
+                'u_id': auth_user_id, 
+                'email': 'realemail_812@outlook.edu.au', 
+                'name_first': 'John', 
+                'name_last': 'Smith',
+                'handle': 'johnsmith', 
+            },
+            {
+                'u_id': auth_user_id_2, 
+                'email': 'fakeemail_812@outlook.edu.au', 
+                'name_first': 'Chris', 
+                'name_last': 'Zell',
+                'handle': 'chriszell', 
+            }
+        ], 
 
-    member_in_channel = False
-    for members in members_list:
-        if members['u_id'] == auth_user_id_2:
-            member_in_channel = True
-
-    assert member_in_channel == True
-        
+    }
 
     
 def test_invalid_channel(reset):
@@ -164,7 +185,7 @@ def test_not_valid_user(reset):
     # Changing the channel id
     channel_id = result['channel_id']
 
-    auth_user_id = auth_user_id * 20
+    auth_user_id = auth_user_id + auth_user_id_2 + 1
     
     with pytest.raises(AccessError):
         channel_invite_v1(auth_user_id, channel_id, auth_user_id_2)
