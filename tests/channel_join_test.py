@@ -1,11 +1,12 @@
 import pytest
 
-from src.channel import channel_join_v1
+from src.channel import channel_join_v1, channel_details_v1
 from src.other import clear_v1
 from src.error import InputError
 from src.error import AccessError
 from src.auth import auth_register_v1, auth_login_v1 
-from src.channels import channels_create_v1
+from src.channels import channels_create_v1 
+
 
 # this runs before every test function.
 @pytest.fixture
@@ -19,7 +20,7 @@ def create_and_reset():
     clear_v1()
 
     # creates a real user before every test after clear_v1.
-    email = "Jack.jones@gmail.com.au"
+    email = "jack.jones@gmail.com"
     password = "Password1"
     name_first = "Jack"
     name_last = "Jones"
@@ -166,7 +167,7 @@ def test_channel_join_multi(create_and_reset):
     result2 = auth_login_v1(email, password) 
     user_id2 = result2['auth_user_id']
 
-    # Create 2nd user which can join the public channel
+    # Create 3nd user which can join the public channel
     email = "JackDean@hotmail.com"
     password = "qwedfg"
     name_first = "Jack "
@@ -177,4 +178,60 @@ def test_channel_join_multi(create_and_reset):
 
     assert(channel_join_v1(user_id2, channel_id)) == {}
     assert(channel_join_v1(user_id3, channel_id)) == {}
+
+def test_channel_details(create_and_reset):
+
+    # Create 1st user from the fixture 
+    user_id = create_and_reset
+
+    # 1st user creates a public channel
+    is_public = True
+    name = 'can_join_public'
+    channel = channels_create_v1(user_id ,name, is_public)
+    channel_id = channel['channel_id']
+
+    # Create 2nd user which can join the public channel
+    email = "jack.colback88@gmail.com"
+    password = "Nottingham"
+    name_first = "Jack"
+    name_last = "Colback"
+    auth_register_v1(email, password, name_first, name_last)
+    result2 = auth_login_v1(email, password) 
+    user_id2 = result2['auth_user_id']
+
+    channel_join_v1(user_id2, channel_id)
+
+    assert channel_details_v1(user_id2, channel_id) == \
+        {
+            'name': name, 
+            'is_public': is_public, 
+            'owner_members': [
+                {
+                    'u_id': user_id, 
+                    'email': "jack.jones@gmail.com", 
+                    'name_first': "Jack", 
+                    'name_last': "Jones",
+                    'handle': 'jackjones', 
+                }
+            ], 
+            'all_members': [
+                
+                {
+                    'u_id': user_id, 
+                    'email': "jack.jones@gmail.com", 
+                    'name_first': "Jack", 
+                    'name_last': "Jones",
+                    'handle': 'jackjones', 
+                },
+
+                {
+                    'u_id': user_id2, 
+                    'email': "jack.colback88@gmail.com", 
+                    'name_first': "Jack", 
+                    'name_last': "Colback",
+                    'handle': 'jackcolback', 
+                }
+            ], 
+        }
+
 
