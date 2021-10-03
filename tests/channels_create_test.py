@@ -1,6 +1,7 @@
 import pytest
 
 from src.channels import channels_create_v1 
+from src.channel import channel_details_v1
 from src.auth import auth_register_v1, auth_login_v1 
 from src.other import clear_v1
 from src.error import InputError 
@@ -32,6 +33,96 @@ def test_valid(reset):
     # take channel id from returned dictionary and check if its an int 
     channel_id = result['channel_id']
     assert type(channel_id) is int 
+
+def test_valid_store(reset): 
+    auth_user_id = reset 
+    channel_name = "channel1_"
+    is_public = True 
+    result = channels_create_v1(auth_user_id, channel_name, is_public)
+    channel_id = result['channel_id']
+
+    assert channel_details_v1(auth_user_id, channel_id) == \
+    { 
+        'name': channel_name, 
+        'is_public': is_public, 
+        'owner_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ], 
+        'all_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ],
+    }
+
+def test_multiple_create(reset): 
+    auth_user_id = reset 
+    channel_name = "channel1_"
+    is_public = True 
+    result = channels_create_v1(auth_user_id, channel_name, is_public)
+    channel_id = result['channel_id']
+
+    channel_name2 = "channel2" 
+    result = channels_create_v1(auth_user_id, channel_name2, is_public) 
+    channel_id2 = result['channel_id']
+
+    assert channel_details_v1(auth_user_id, channel_id) == \
+    { 
+        'name': channel_name, 
+        'is_public': is_public, 
+        'owner_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ], 
+        'all_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ],
+    }
+
+    assert channel_details_v1(auth_user_id, channel_id2) == \
+        { 
+        'name': channel_name2, 
+        'is_public': is_public, 
+        'owner_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ], 
+        'all_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ],
+    }
 
 def test_short_name(reset): 
 
