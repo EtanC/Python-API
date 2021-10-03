@@ -66,7 +66,8 @@ def test_long_list(reset_data):
     # person 1 creates a channel
     user_id = result['auth_user_id']
     name = 'Elon_public1'
-    c_create(user_id,name,is_public)
+    result = c_create(user_id,name,is_public)
+    channel_id1 = result['channel_id']
 
     # person 2
     email = "realemail_82@outlook.edu.au"
@@ -78,7 +79,8 @@ def test_long_list(reset_data):
     # person 2 creates a channel
     user_id = result['auth_user_id']
     name = 'Elon_public2'
-    c_create(user_id,name,is_public)
+    result = c_create(user_id,name,is_public)
+    channel_id2 = result['channel_id']
 
     # person 3
     email = "realemail_83@outlook.edu.au"
@@ -90,7 +92,8 @@ def test_long_list(reset_data):
     # person 3 creates a channel
     user_id = result['auth_user_id']
     name = 'Elon_public3'
-    c_create(user_id,name,is_public)
+    result = c_create(user_id,name,is_public)
+    channel_id3 = result['channel_id']
 
     # person 4
     email = "realemail_84@outlook.edu.au"
@@ -102,7 +105,8 @@ def test_long_list(reset_data):
     # person 4 creates a channel
     user_id = result['auth_user_id']
     name = 'Elon_public4'
-    c_create(user_id,name,is_public)
+    result = c_create(user_id,name,is_public)
+    channel_id4 = result['channel_id']
 
     # person 5
     email = "realemail_85@outlook.edu.au"
@@ -114,14 +118,15 @@ def test_long_list(reset_data):
     # person  creates a channel
     user_id = result['auth_user_id']
     name = 'Elon_public5'
-    c_create(user_id,name,is_public)
-  
+    result = c_create(user_id,name,is_public)
+    channel_id5 = result['channel_id']
+    
     assert c_listall(auth_user_id) == { 
         'channels' : [
-            {'channel_id': 1, 'name': 'Elon_public1'},
-            {'channel_id': 2, 'name': 'Elon_public2'},
-            {'channel_id': 3, 'name': 'Elon_public3'},
-            {'channel_id': 4, 'name': 'Elon_public4'},
-            {'channel_id': 5, 'name': 'Elon_public5'} 
+            {'channel_id': channel_id1, 'name': 'Elon_public1'},
+            {'channel_id': channel_id2, 'name': 'Elon_public2'},
+            {'channel_id': channel_id3, 'name': 'Elon_public3'},
+            {'channel_id': channel_id4, 'name': 'Elon_public4'},
+            {'channel_id': channel_id5, 'name': 'Elon_public5'} 
         ]
     }

@@ -73,31 +73,36 @@ def test_long_list(reset_data):
 
     # person 1
     name1 = 'Elon_public0'
-    c_create(auth_user_id,name1,is_public)
+    result = c_create(auth_user_id,name1,is_public)
+    channel_id1 = result['channel_id']
 
     # person 2
     name2 = 'Elon_public1'
-    c_create(auth_user_id,name2,is_public)
+    result = c_create(auth_user_id,name2,is_public)
+    channel_id2 = result['channel_id']
 
     # person 3 
     name3 = 'Elon_public2'
-    c_create(auth_user_id,name3,is_public)
+    result = c_create(auth_user_id,name3,is_public)
+    channel_id3 = result['channel_id']
 
     # person 4
     name4 = 'Elon_public3'
-    c_create(auth_user_id,name4,is_public)
+    result = c_create(auth_user_id,name4,is_public)
+    channel_id4 = result['channel_id']
 
     # person 5
     name5 = 'Elon_public4'
-    c_create(auth_user_id,name5,is_public)
+    result = c_create(auth_user_id,name5,is_public)
+    channel_id5 = result['channel_id']
 
     assert c_list(auth_user_id) == { 
         'channels' : [
-            {'channel_id': 1, 'name': 'Elon_public0'},
-            {'channel_id': 2, 'name': 'Elon_public1'},
-            {'channel_id': 3, 'name': 'Elon_public2'},
-            {'channel_id': 4, 'name': 'Elon_public3'},
-            {'channel_id': 5, 'name': 'Elon_public4'} 
+            {'channel_id': channel_id1, 'name': 'Elon_public0'},
+            {'channel_id': channel_id2, 'name': 'Elon_public1'},
+            {'channel_id': channel_id3, 'name': 'Elon_public2'},
+            {'channel_id': channel_id4, 'name': 'Elon_public3'},
+            {'channel_id': channel_id5, 'name': 'Elon_public4'} 
         ],
     }
 
