@@ -107,9 +107,10 @@ def channels_create_v1(auth_user_id, name, is_public):
 # check if user id is valid 
 def check_valid_user_id(auth_user_id, store): 
     result = False 
+
     # if auth_user_id exists, return true, else return false 
     for users in store['users']: 
         if auth_user_id == users['u_id']: 
             result = True
-    return result
 
+    return result
