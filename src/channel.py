@@ -85,7 +85,7 @@ def channel_join_v1(auth_user_id, channel_id):
     '''
     Given a channel_id of a channel that the authorised user can join, 
     adds them to that channel.
-    auth_user_id and channel_id are in integer form
+    auth_user_id and channel_id are in INT form
     ''' 
     
     store = data_store.get() # get the data

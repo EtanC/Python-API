@@ -21,7 +21,7 @@ def create_and_reset():
     clear_v1()
 
     # creates a real user before every test after clear_v1.
-    email = "Jackjones@gmail.com.au"
+    email = "Jack.jones@gmail.com.au"
     password = "Password1"
     name_first = "Jack"
     name_last = "Jones"
