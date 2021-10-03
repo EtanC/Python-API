@@ -21,6 +21,30 @@ def test_valid(reset_data):
     result = auth_register_v1(email, password, name_first, name_last)
     assert auth_login_v1(email, password) == result
 
+def test_valid_multiple_register(reset_data):
+    # Details for person 1
+    email1 = "realemail_812@outlook.edu.au"
+    password1 = "Password1"
+    name_first = "John"
+    name_last = "Smith"
+    result1 = auth_register_v1(email1, password1, name_first, name_last)
+    # Details for person 2
+    email2 = "realemail_318@outlook.edu.au"
+    password2 = "Password1"
+    name_first = "Bob"
+    name_last = "Johnson"
+    result2 = auth_register_v1(email2, password2, name_first, name_last)
+    # Details for person 3
+    email3 = "realemail_172@outlook.edu.au"
+    password3 = "Password1"
+    name_first = "Bill"
+    name_last = "Smith"
+    result3 = auth_register_v1(email3, password3, name_first, name_last)
+
+    assert auth_login_v1(email1, password1) == result1
+    assert auth_login_v1(email2, password2) == result2
+    assert auth_login_v1(email3, password3) == result3
+
 # Tests for error checking auth_register
 
 def test_invalid_email(reset_data):
