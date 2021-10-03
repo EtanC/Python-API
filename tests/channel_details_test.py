@@ -120,9 +120,6 @@ def test_invalid_user(reset):
     with pytest.raises(AccessError): 
         channel_details_v1(auth_user_id + 1, channel_id)
 
-'''
-TESTS FOR MORE THAN ONE MEMBER IN CHANNEL - REQUIRE CHANNEL_JOIN  
-
 def test_two_members(reset): 
     email_1 = "realemail_812@outlook.edu.au"
     password_1 = "Password1"
@@ -190,7 +187,7 @@ def test_two_members(reset):
     new_return_list = sorted(return_dict['all_members'], key = lambda k: k['u_id']) 
     new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 
-    assert new_return_list = new_mem_list 
+    assert new_return_list == new_mem_list 
 
 def test_three_members(reset): 
     email_1 = "realemail_812@outlook.edu.au"
@@ -270,7 +267,4 @@ def test_three_members(reset):
     new_return_list = sorted(return_dict['all_members'], key = lambda k: k['u_id']) 
     new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 
-    assert new_return_list = new_mem_list 
-
-
-'''
+    assert new_return_list == new_mem_list 
