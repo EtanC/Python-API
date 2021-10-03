@@ -8,8 +8,43 @@ import re
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
-    return {
-    }
+
+    store = data_store.get()
+
+    # check for invalid user id 
+    if check_valid_user_id(auth_user_id, store) == False: 
+        raise AccessError("Invalid auth_user_id")
+
+    # check for invalid channel id 
+    if check_valid_channel(channel_id, store) == False: 
+        raise InputError("Invalid channel id")
+
+    if check_member_in_channel(auth_user_id, channel_id, store) == False:
+        raise AccessError("Authorised user not a member of channel")
+
+    # check for invalid u_id
+    if check_valid_user_id(u_id, store) == False: 
+        raise InputError("Invalid u_id")
+
+    # check whether member is in the channel or not 
+    if check_member_in_channel(u_id, channel_id, store) == True: 
+        raise InputError("Authorised user is already a member of the channel")
+
+    new_member = {}
+
+    users_list = store['users']
+    for users in users_list:
+        if users['u_id'] == u_id:
+            new_member = users
+
+    channels_list = store['channels']
+    for channels in channels_list:
+        if  channels['channel_id'] == channel_id:
+            channels['all_members'].append(new_member)
+
+    data_store.set(store)
+
+    return {}
 
 def channel_details_v1(auth_user_id, channel_id):
 
