@@ -33,10 +33,10 @@ def create_and_reset():
 
 def test_invalid_user_error(create_and_reset):
 
-    # Create first user from the fixture
+    # Create 1st user from the fixture
     user_id1 = create_and_reset
 
-    # First user creates a public channel
+    # 1st user creates a public channel
     is_public = True
     name = 'JohnCena_public'
     channel = channels_create_v1(user_id1 ,name, is_public)
@@ -126,7 +126,7 @@ def test_private_channel(create_and_reset):
 
 def test_channel_join(create_and_reset):
 
-    # Get 1st user from the fixture
+    # Create 1st user from the fixture
     user_id = create_and_reset
 
     # 1st user creates a public channel
@@ -148,7 +148,7 @@ def test_channel_join(create_and_reset):
 
 def test_channel_join_multi(create_and_reset):
 
-    # Get 1st user from the fixture 
+    # Create 1st user from the fixture 
     user_id = create_and_reset
 
     # 1st user creates a public channel

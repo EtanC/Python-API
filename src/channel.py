@@ -95,8 +95,9 @@ def channel_join_v1(auth_user_id, channel_id):
 
     else: 
         # if the user is ALREADY part of the channel:
+        # includes the channel creator
         channel_user_list = channel['all_members']
-        if user in channel_user_list: #if a dictionary exists in a list of dictionaries
+        if user in channel_user_list: 
             raise InputError("User ALREADY in channel")
 
         # if the channel is a private channel:
