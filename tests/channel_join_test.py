@@ -12,8 +12,6 @@ from src.channels import channels_create_v1
 def reset_data():
     clear_v1()
 
-
-
 @pytest.fixture
 def create_and_reset():
 
@@ -35,26 +33,25 @@ def create_and_reset():
 
 def test_invalid_user_error(create_and_reset):
 
-    #get user_id from the fixture
-    user_id = create_and_reset
+    # Create first user from the fixture
+    user_id1 = create_and_reset
 
-    #create a public channel
+    # First user creates a public channel
     is_public = True
     name = 'JohnCena_public'
-    channel = channels_create_v1(user_id ,name, is_public)
+    channel = channels_create_v1(user_id1 ,name, is_public)
     channel_id = channel['channel_id']
 
-
+    # Invalid user error
     with pytest.raises(InputError):
-        channel_join_v1(user_id + 1, channel_id)
-        #user_id + 1 to a diff user
-
+        channel_join_v1(user_id1 + 1, channel_id)
+        
 def test_invalid_channel_error(create_and_reset):
 
-    #get user_id from the fixture
-    user_id = create_and_reset
+    # Create 1st user from the fixture
+    user_id1 = create_and_reset
 
-    # Create person 2
+    # Create 2nd user
     email = "jamessmith@gmail.com"
     password = "asdfgh"
     name_first = "James "
@@ -63,37 +60,28 @@ def test_invalid_channel_error(create_and_reset):
     result2 = auth_login_v1(email, password) 
     user_id2 = result2['auth_user_id']
 
-    #create a public channel
+    # 1st user creates a public channel
     is_public = True
     name = 'JohnCena_public'
-    channel = channels_create_v1(user_id ,name, is_public)
+    channel = channels_create_v1(user_id1 ,name, is_public)
     channel_id = channel['channel_id']
 
-
+    # Invalid channel error
     with pytest.raises(InputError):
-        channel_join_v1(user_id2, channel_id + 1)
-        #channel_id + 1 to a diff channel
+        channel_join_v1(user_id2, channel_id + 1)  
 
 def test_user_already_in_channel_error(create_and_reset):
 
-    #auth_user_id = create_and_reset
-    is_public = True
+    # Create 1st user from the fixture
+    user_id1 = create_and_reset
 
-    # person 1
-    email = "johnsmith@gmail.com"
-    password = "qwerty"
-    name_first = "John "
-    name_last = "Smith"
-    auth_register_v1(email, password, name_first, name_last)
-    result1 = auth_login_v1(email, password) 
-    
-    # person 1 creates a public channel
-    user_id1 = result1['auth_user_id']
+    # 1st user creates a public channel
+    is_public = True    
     name1 = 'JohnSmith_public'
     channel1 = channels_create_v1(user_id1 ,name1, is_public)
     channel_id_1 = channel1['channel_id']
 
-    # person 2
+    # Create 2nd user
     email = "jamessmith@gmail.com"
     password = "asdfgh"
     name_first = "James "
@@ -101,27 +89,29 @@ def test_user_already_in_channel_error(create_and_reset):
     auth_register_v1(email, password, name_first, name_last)
     result2 = auth_login_v1(email, password) 
     
-    # person 2 creates a public channel
+    # 2nd user creates a public channel
     user_id2 = result2['auth_user_id']
     name2 = 'JamesSmith_public'
     channel2 = channels_create_v1(user_id2, name2, is_public)
     channel_id_2 = channel2['channel_id']
 
+    # Both users already in channel as owners error
     with pytest.raises(InputError):
         channel_join_v1(user_id1, channel_id_1)
         channel_join_v1(user_id2, channel_id_2)
 
 def test_private_channel(create_and_reset):
-    user_id = create_and_reset
 
-    #create a private channel
+    # Create 1st user from fixture
+    user_id1 = create_and_reset
+
+    # 1st user creates a private channel
     is_public = False
     name = 'JohnCena_public'
-    channel = channels_create_v1(user_id ,name, is_public)
+    channel = channels_create_v1(user_id1 ,name, is_public)
     channel_id = channel['channel_id']
 
-
-    # Create person 2
+    # Create 2nd user
     email = "jamessmith@gmail.com"
     password = "asdfgh"
     name_first = "James "
@@ -130,5 +120,61 @@ def test_private_channel(create_and_reset):
     result2 = auth_login_v1(email, password) 
     user_id2 = result2['auth_user_id']
 
+    # Cannot join private channel error
     with pytest.raises(AccessError):
         channel_join_v1(user_id2, channel_id)
+
+def test_channel_join(create_and_reset):
+
+    # Get 1st user from the fixture
+    user_id = create_and_reset
+
+    # 1st user creates a public channel
+    is_public = True
+    name = 'can_join_public'
+    channel = channels_create_v1(user_id ,name, is_public)
+    channel_id = channel['channel_id']
+
+    # Create 2nd user which can join the public channel
+    email = "jamessmith@gmail.com"
+    password = "asdfgh"
+    name_first = "James "
+    name_last = "Smih"
+    auth_register_v1(email, password, name_first, name_last)
+    result2 = auth_login_v1(email, password) 
+    user_id2 = result2['auth_user_id']
+
+    assert(channel_join_v1(user_id2, channel_id)) == {}
+
+def test_channel_join_multi(create_and_reset):
+
+    # Get 1st user from the fixture 
+    user_id = create_and_reset
+
+    # 1st user creates a public channel
+    is_public = True
+    name = 'can_join_public'
+    channel = channels_create_v1(user_id ,name, is_public)
+    channel_id = channel['channel_id']
+
+    # Create 2nd user which can join the public channel
+    email = "jamessmith@gmail.com"
+    password = "asdfgh"
+    name_first = "James "
+    name_last = "Smih"
+    auth_register_v1(email, password, name_first, name_last)
+    result2 = auth_login_v1(email, password) 
+    user_id2 = result2['auth_user_id']
+
+    # Create 2nd user which can join the public channel
+    email = "JackDean@hotmail.com"
+    password = "qwedfg"
+    name_first = "Jack "
+    name_last = "Dean"
+    auth_register_v1(email, password, name_first, name_last)
+    result3 = auth_login_v1(email, password) 
+    user_id3 = result3['auth_user_id']
+
+    assert(channel_join_v1(user_id2, channel_id)) == {}
+    assert(channel_join_v1(user_id3, channel_id)) == {}
+

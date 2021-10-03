@@ -81,18 +81,12 @@ def get_channel(channel_id, store):
 
 
 def channel_join_v1(auth_user_id, channel_id):
-
-    '''
-    Given a channel_id of a channel that the authorised user can join, 
-    adds them to that channel.
-    auth_user_id and channel_id are in INT form
-    ''' 
     
     store = data_store.get() # get the data
     channel = get_channel(channel_id, store)
     user = get_user(auth_user_id, store)
 
-    # if channel dosent exist:
+    # if channel dosen't exist:
     if (channel == None):
         raise InputError("channel ID is INVALID")
 
@@ -105,7 +99,7 @@ def channel_join_v1(auth_user_id, channel_id):
         if user in channel_user_list: #if a dictionary exists in a list of dictionaries
             raise InputError("User ALREADY in channel")
 
-            # if the channel is a private channel:
+        # if the channel is a private channel:
         if channel['is_public'] == False:
             raise AccessError("This channel is PRIVATE")
             
