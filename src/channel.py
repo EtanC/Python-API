@@ -132,8 +132,6 @@ def channel_join_v1(auth_user_id, channel_id):
     }
 
 
-
-
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 
     user_data = {} 
