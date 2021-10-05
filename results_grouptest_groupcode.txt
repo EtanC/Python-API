@@ -1,0 +1,72 @@
+============================= test session starts ==============================
+platform linux -- Python 3.7.3, pytest-6.2.5, py-1.10.0, pluggy-1.0.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+hypothesis profile 'default' -> database=DirectoryBasedExampleDatabase('/tmp_amd/kamen/export/kamen/3/cs1531/project-automarking/tempstore/.hypothesis/examples')
+rootdir: /tmp_amd/kamen/export/kamen/3/cs1531/project-automarking/tempstore, configfile: pytest.ini
+plugins: forked-1.3.0, xdist-2.2.1, hypothesis-6.1.1, timeout-1.4.2
+collecting ... collected 59 items
+
+tests/auth_test.py::test_valid PASSED                                    [  1%]
+tests/auth_test.py::test_valid_multiple_register PASSED                  [  3%]
+tests/auth_test.py::test_handle_str PASSED                               [  5%]
+tests/auth_test.py::test_invalid_email PASSED                            [  6%]
+tests/auth_test.py::test_email_repeat PASSED                             [  8%]
+tests/auth_test.py::test_short_password PASSED                           [ 10%]
+tests/auth_test.py::test_long_firstname PASSED                           [ 11%]
+tests/auth_test.py::test_long_lastname PASSED                            [ 13%]
+tests/auth_test.py::test_wrong_password PASSED                           [ 15%]
+tests/auth_test.py::test_wrong_email PASSED                              [ 16%]
+tests/channel_details_test.py::test_one_member PASSED                    [ 18%]
+tests/channel_details_test.py::test_invalid_channel PASSED               [ 20%]
+tests/channel_details_test.py::test_non_member PASSED                    [ 22%]
+tests/channel_details_test.py::test_invalid_user PASSED                  [ 23%]
+tests/channel_details_test.py::test_two_members PASSED                   [ 25%]
+tests/channel_details_test.py::test_three_members PASSED                 [ 27%]
+tests/channel_join_test.py::test_invalid_user_error PASSED               [ 28%]
+tests/channel_join_test.py::test_invalid_channel_error PASSED            [ 30%]
+tests/channel_join_test.py::test_user_already_in_channel_error PASSED    [ 32%]
+tests/channel_join_test.py::test_private_channel PASSED                  [ 33%]
+tests/channel_join_test.py::test_channel_join PASSED                     [ 35%]
+tests/channel_join_test.py::test_channel_join_multi PASSED               [ 37%]
+tests/channel_join_test.py::test_channel_details PASSED                  [ 38%]
+tests/channels_create_test.py::test_valid PASSED                         [ 40%]
+tests/channels_create_test.py::test_valid_store PASSED                   [ 42%]
+tests/channels_create_test.py::test_multiple_create PASSED               [ 44%]
+tests/channels_create_test.py::test_short_name PASSED                    [ 45%]
+tests/channels_create_test.py::test_long_name PASSED                     [ 47%]
+tests/channels_create_test.py::test_invalid_user PASSED                  [ 49%]
+tests/channels_list_test.py::test_invalid_id PASSED                      [ 50%]
+tests/channels_list_test.py::test_empty_input1 PASSED                    [ 52%]
+tests/channels_list_test.py::test_halfEmpty_input2 PASSED                [ 54%]
+tests/channels_list_test.py::test_empty_list PASSED                      [ 55%]
+tests/channels_list_test.py::test_valid PASSED                           [ 57%]
+tests/channels_list_test.py::test_valid_list_all PASSED                  [ 59%]
+tests/channels_list_test.py::test_long_list PASSED                       [ 61%]
+tests/channels_listall_test.py::test_invalid_id PASSED                   [ 62%]
+tests/channels_listall_test.py::test_empty_input1 PASSED                 [ 64%]
+tests/channels_listall_test.py::test_halfEmpty_input2 PASSED             [ 66%]
+tests/channels_listall_test.py::test_valid PASSED                        [ 67%]
+tests/channels_listall_test.py::test_empty_list PASSED                   [ 69%]
+tests/channels_listall_test.py::test_long_list PASSED                    [ 71%]
+tests/channels_messages_test.py::test_valid PASSED                       [ 72%]
+tests/channels_messages_test.py::test_invalid_channel_id PASSED          [ 74%]
+tests/channels_messages_test.py::test_invalid_start PASSED               [ 76%]
+tests/channels_messages_test.py::test_invalid_user PASSED                [ 77%]
+tests/channels_messages_test.py::test_invalid_user_id PASSED             [ 79%]
+tests/channels_test.py::test_invalid_id PASSED                           [ 81%]
+tests/channels_test.py::test_empty_input1 PASSED                         [ 83%]
+tests/channels_test.py::test_halfEmpty_input2 PASSED                     [ 84%]
+tests/channels_test.py::test_valid_list_all PASSED                       [ 86%]
+tests/channels_test.py::test_long_list PASSED                            [ 88%]
+tests/channels_test.py::test_empty_list PASSED                           [ 89%]
+tests/test_channel_invite.py::test_valid PASSED                          [ 91%]
+tests/test_channel_invite.py::test_invalid_channel PASSED                [ 93%]
+tests/test_channel_invite.py::test_invalid_u_id PASSED                   [ 94%]
+tests/test_channel_invite.py::test_already_in_channel PASSED             [ 96%]
+tests/test_channel_invite.py::test_not_valid_user PASSED                 [ 98%]
+tests/test_channel_invite.py::test_not_valid_member PASSED               [100%]
+
+====== Marks recorded: 59.00 ======
+
+
+============================== 59 passed in 0.29s ==============================
