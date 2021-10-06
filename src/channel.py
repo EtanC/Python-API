@@ -200,7 +200,7 @@ def channel_join_v1(auth_user_id, channel_id):
         raise InputError("channel ID is INVALID")
 
     if (user == None):
-        raise InputError("user is INVALID")
+        raise AccessError("user is INVALID")
 
     else: 
         # if the user is ALREADY part of the channel:

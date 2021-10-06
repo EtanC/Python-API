@@ -140,7 +140,7 @@ def auth_register_v1(email, password, name_first, name_last):
         'password' : password,
         'name_first' : name_first,
         'name_last' : name_last,
-        'handle' : user_handle,
+        'handle_str' : user_handle,
     }
     store_datastore(user, 'users')
     return {
