@@ -211,7 +211,7 @@ def test_channel_details(create_and_reset):
                     'email': "jack.jones@gmail.com", 
                     'name_first': "Jack", 
                     'name_last': "Jones",
-                    'handle': 'jackjones', 
+                    'handle_str': 'jackjones', 
                 }
             ], 
             'all_members': [
@@ -221,7 +221,7 @@ def test_channel_details(create_and_reset):
                     'email': "jack.jones@gmail.com", 
                     'name_first': "Jack", 
                     'name_last': "Jones",
-                    'handle': 'jackjones', 
+                    'handle_str': 'jackjones', 
                 },
 
                 {
@@ -229,7 +229,7 @@ def test_channel_details(create_and_reset):
                     'email': "jack.colback88@gmail.com", 
                     'name_first': "Jack", 
                     'name_last': "Colback",
-                    'handle': 'jackcolback', 
+                    'handle_str': 'jackcolback', 
                 }
             ], 
         }
