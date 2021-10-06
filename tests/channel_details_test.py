@@ -51,7 +51,7 @@ def test_one_member(reset):
                 'email': email_1, 
                 'name_first': name_first_1, 
                 'name_last': name_last_1,
-                'handle_str: 'johnsmith', 
+                'handle_str': 'johnsmith', 
             }
         ], 
     }

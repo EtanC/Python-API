@@ -44,7 +44,7 @@ def test_invalid_user_error(create_and_reset):
     channel_id = channel['channel_id']
 
     # Invalid user error
-    with pytest.raises(InputError):
+    with pytest.raises(AccessError):
         channel_join_v1(user_id1 + 1, channel_id)
         
 def test_invalid_channel_error(create_and_reset):
