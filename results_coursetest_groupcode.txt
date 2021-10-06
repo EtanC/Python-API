@@ -300,4 +300,4 @@ FAILED tests/channel_tests/channel_details_test.py::test_handles_generated_corre
 FAILED tests/channel_tests/channel_details_test.py::test_handles_generated_correctly[abc-def0-abcdef0-abc-def-abcdef1]
 FAILED tests/channel_tests/channel_join_test.py::test_global_owner_can_join_private_channel
 FAILED tests/channel_tests/channel_join_test.py::test_invalid_token - src.err...
-========================= 6 failed, 65 passed in 0.79s =========================
+========================= 6 failed, 65 passed in 1.07s =========================
