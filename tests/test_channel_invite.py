@@ -48,7 +48,7 @@ def test_valid(reset):
                 'email': 'realemail_812@outlook.edu.au', 
                 'name_first': 'John', 
                 'name_last': 'Smith',
-                'handle': 'johnsmith', 
+                'handle_str': 'johnsmith', 
             }
         ], 
         'all_members': [
@@ -57,14 +57,14 @@ def test_valid(reset):
                 'email': 'realemail_812@outlook.edu.au', 
                 'name_first': 'John', 
                 'name_last': 'Smith',
-                'handle': 'johnsmith', 
+                'handle_str': 'johnsmith', 
             },
             {
                 'u_id': auth_user_id_2, 
                 'email': 'fakeemail_812@outlook.edu.au', 
                 'name_first': 'Chris', 
                 'name_last': 'Zell',
-                'handle': 'chriszell', 
+                'handle_str': 'chriszell', 
             }
         ], 
 

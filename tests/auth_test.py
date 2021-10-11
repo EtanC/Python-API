@@ -65,7 +65,7 @@ def test_handle_str(reset_data):
                 'email' : "realemail_812@outlook.edu.au",
                 'name_first' : "John",
                 'name_last' : "Smith",
-                'handle' : "johnsmith"
+                'handle_str' : "johnsmith"
             },
         ],
         'all_members' : [
@@ -74,7 +74,7 @@ def test_handle_str(reset_data):
                 'email' : "realemail_812@outlook.edu.au",
                 'name_first' : "John",
                 'name_last' : "Smith",
-                'handle' : "johnsmith"
+                'handle_str' : "johnsmith"
             },
         ],
     }
