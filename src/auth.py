@@ -30,7 +30,7 @@ def auth_login_v1(email, password):
     '''
     user_id = verify_login(email, password)
     if user_id == None:
-        raise InputError("Invalid email or password")
+        raise InputError(description="Invalid email or password")
     return {
         'auth_user_id': user_id,
     }
@@ -42,7 +42,7 @@ def valid_email(email):
     store = data_store.get()
     for user in store['users']:
         if email == user['email']:
-            raise InputError("Email already in use")
+            raise InputError(description="Email already in use")
             # return False
             # ------------------------------------------------
             # NOTE: Could also use return False here, but
@@ -120,16 +120,16 @@ def auth_register_v1(email, password, name_first, name_last):
     '''
     # Check valid email
     if valid_email(email) == False:
-        raise InputError("Invalid email")
+        raise InputError(description="Invalid email")
     # Check valid password
     if valid_password(password) == False:
-        raise InputError("Password too short")
+        raise InputError(description="Password too short")
     # Check valid first name
     if valid_name(name_first) == False:
-        raise InputError("First name must contain 1-50 characters")
+        raise InputError(description="First name must contain 1-50 characters")
     # Check valid last name
     if valid_name(name_last) == False:
-        raise InputError("Last name must contain 1-50 characters")
+        raise InputError(description="Last name must contain 1-50 characters")
     # Generate user handle
     user_handle = handle(name_first, name_last)
     # Store user details
