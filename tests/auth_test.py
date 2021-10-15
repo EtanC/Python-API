@@ -8,26 +8,59 @@ from src import config
 def reset_data():
     requests.delete(f"{config.url}clear/v1")
 
-def test_valid(reset_data):
-    data_register = {
-        "email" : "realemail_812@outlook.edu.au",
-        "password" : "Password1",
-        "name_first" : "John",
-        "name_last" : "Smith",
-    }
-    response_register = requests.post(
-        f"{config.url}auth/register/v2",
-        json=data_register
-    )
-    data_login = {
-        "email" : "realemail_812@outlook.edu.au",
-        "password" : "Password1",
-    }
-    response_login = requests.post(
-        f"{config.url}auth/login/v2",
-        json=data_login
-    )
-    assert response_login.json() == response_register.json()
+# Testing token
+## TODO: need channels/create/v2 fully implemented to test token
+# def test_valid_register(reset_data):
+#     data_register = {
+#         "email" : "realemail_812@outlook.edu.au",
+#         "password" : "Password1",
+#         "name_first" : "John",
+#         "name_last" : "Smith",
+#     }
+#     response_register = requests.post(
+#         f"{config.url}auth/register/v2",
+#         json=data_register
+#     )
+#     data_create = {
+#         'token' : response_register.json()['token'],
+#         'name' : "channel",
+#         'is_public' : True,
+#     }
+#     response_create = requests.post(
+#         f"{config.url}channels/create/v2",
+#         json=data_create,
+#     )
+#     assert response_create.status_code == 200
+
+# def test_valid_two_sessions_register(reset_data):
+#     data_register = {
+#         "email" : "realemail_812@outlook.edu.au",
+#         "password" : "Password1",
+#         "name_first" : "John",
+#         "name_last" : "Smith",
+#     }
+#     requests.post(
+#         f"{config.url}auth/register/v2",
+#         json=data_register
+#     )
+#     data_login = {
+#         "email" : "realemail_812@outlook.edu.au",
+#         "password" : "Password1",
+#     }
+#     response_login = {
+#         f"{config.url}auth/login/v2",
+#         json=data_login
+#     }
+#     data_create = {
+#         'token' : response_login.json()['token'],
+#         'name' : "channel",
+#         'is_public' : True,
+#     }
+#     response_create = requests.post(
+#         f"{config.url}channels/create/v2",
+#         json=data_create,
+#     )
+#     assert response_create.status_code == 200
 
 # Testing handle_str
 
@@ -146,7 +179,7 @@ def test_valid(reset_data):
 
 # Tests for error checking auth_register
 
-def test_invalid_email(reset_data):
+def test_invalid_email_register(reset_data):
     data_register = {
         "email": "uhh, im also a real email?",
         "password": "asdfghjkl",
@@ -159,7 +192,7 @@ def test_invalid_email(reset_data):
     )
     assert response_register.status_code == 400
 
-def test_email_repeat(reset_data):
+def test_email_repeat_register(reset_data):
     data_register = {
         "email": "realemail_812@outlook.edu.au",
         "password": "Password1",
@@ -185,7 +218,7 @@ def test_email_repeat(reset_data):
     )
     assert response_register.status_code == 400
 
-def test_short_password(reset_data):
+def test_short_password_register(reset_data):
     data_register = {
         "email": "realemail_812@outlook.edu.au",
         "password": "short",
@@ -198,7 +231,7 @@ def test_short_password(reset_data):
     )
     assert response_register.status_code == 400
 
-def test_long_firstname(reset_data):
+def test_long_firstname_register(reset_data):
     data_register = {
         "email": "realemail_812@outlook.edu.au",
         "password": "Password1",
@@ -211,7 +244,7 @@ def test_long_firstname(reset_data):
     )
     assert response_register.status_code == 400
 
-def test_long_lastname(reset_data):
+def test_long_lastname_register(reset_data):
     data_register = {
         "email": "realemail_812@outlook.edu.au",
         "password": "Password1",
@@ -226,7 +259,7 @@ def test_long_lastname(reset_data):
 
 # Test for error checking auth_login
 
-def test_wrong_password(reset_data):
+def test_wrong_password_login(reset_data):
     data_register = {
         "email" : "realemail_812@outlook.edu.au",
         "password" : "Password1",
@@ -248,7 +281,7 @@ def test_wrong_password(reset_data):
     )
     assert response_login.status_code == 400
 
-def test_wrong_email(reset_data):
+def test_wrong_email_login(reset_data):
     data_register = {
         "email": "realemail_812@outlook.edu.au",
         "password": "Password1",
