@@ -87,27 +87,6 @@ def channel_details_v1(auth_user_id, channel_id):
         'all_members': mem_list,
     }
 
-def get_user(auth_user_id, store):
-    '''
-    Searches for a user in the data_store with the given user_id
-    Returns None if the user was not found
-    '''
-    for user in store['users']:
-        if auth_user_id == user['u_id']:
-            return user
-    return None
-
-
-def get_channel(channel_id, store):
-    '''
-    Searches for a channel in the data_store with the given channel_id
-    Returns None if the channel was not found
-    '''
-    for channel in store['channels']:
-        if channel['channel_id'] == channel_id:
-            return channel
-    return None
-
 def is_channel_member(auth_user_id, members):
     '''
     Verifies if the auth_user_id is in the list of members for a channel
@@ -161,7 +140,7 @@ def get_user(auth_user_id, store):
 
     store = data_store.get()
 
-    # if the user is valid, return the user otherise return NOTHING
+    # if the user is valid, return the user otherwise return NOTHING
     if check_valid_user_id(auth_user_id, store) == True:
         return store['users'][auth_user_id - 1]   
     
@@ -182,7 +161,7 @@ def check_valid_channel(channel_id, store):
 def get_channel(channel_id, store):
 
     store = data_store.get()
-    # if the channel is valid, return the channel otherise return NOTHING
+    # if the channel is valid, return the channel otherwise return NOTHING
     if check_valid_channel(channel_id, store) == True:
         return store['channels'][channel_id - 1]   
     
@@ -219,15 +198,6 @@ def channel_join_v1(auth_user_id, channel_id):
 
     return {
     }
-
-def check_valid_channel(channel_id, store): 
-    result = False 
-
-    # if channel_id exists return True, else return False 
-    for channel in store['channels']: 
-        if channel_id == channel['channel_id']: 
-            result = True
-    return result 
 
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 
