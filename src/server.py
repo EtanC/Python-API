@@ -4,6 +4,8 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError
+from src.auth import auth_login_v1, auth_register_v1
+from src.other import clear_v1
 from src import config
 
 def quit_gracefully(*args):
@@ -38,6 +40,103 @@ def echo():
     return dumps({
         'data': data
     })
+
+#AUTH
+@APP.route("/auth/login/v2", methods=['POST'])
+def auth_login_v2():
+    '''
+    Logs the user in after authenticating their identity
+    Arguments:
+        email    (str)      - The email belonging to the user logging in
+        password (str)      - The password corresponding to the email
+    Exceptions:
+        InputError  - Occurs when email does not belong to a user
+                    - Occurs when password is not correct
+    Return Value:
+        Returns {'auth_user_id': user_id} on successful login
+    '''
+    data = request.get_json()
+    user_id = auth_login_v1(data['email'], data['password'])
+    return dumps(user_id)
+
+@APP.route("/auth/register/v2", methods=['POST'])
+def auth_register_v2():
+    '''
+    Registers the user into Streams when provided with valid details
+
+    Arguments:
+        email       (str)      - The user's email, must not be already in use
+        password    (str)      - The password chosen by the user
+        name_first  (str)      - The first name of the user
+        name_last   (str)      - The last name of the user
+
+    Exceptions:
+        InputError  - Occurs when email is not a valid email
+                    - Occurs when email is already being used by another user
+                    - Occurs when password is less than 6 characters
+                    - Length of name_first is not between 1 and 50
+                    - Length of name_last is not between 1 and 50
+
+    Return Value:
+        Returns {'auth_user_id': user_id} on successful register
+    '''
+    data = request.get_json()
+    user_id = auth_register_v1(
+        data['email'],
+        data['password'],
+        data['name_first'],
+        data['name_last']
+    )
+    return dumps(user_id)
+
+@APP.route("/clear/v1", methods=['DELETE'])
+def clear():
+    '''
+    Resets the internal data of the application to its initial state
+
+    Arguments:
+        None
+
+    Exceptions:
+        None
+
+    Return Value:
+        Returns {} on successful call
+    '''
+    clear_v1()
+    return dumps({})
+
+#MESSAGE
+@APP.route("/message/send/v1", methods=['POST'])
+def message_send_v1():
+
+    data = request.get_json()
+    message = message_send_v1(
+        data['token'],
+        data['channel_id'],
+        data['message']
+    )
+    return dumps(message)
+
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit_v1():
+    pass
+
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_remove_v1():
+    pass
+
+@APP.route("/message/senddm/v1", methods=['POST'])
+def message_senddm_v1():
+    pass
+
+
+
+
+
+
+
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
