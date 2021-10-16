@@ -13,7 +13,7 @@ MIN_PASSWORD_LENGTH = 6
 MIN_NAME_LENGTH = 1
 MAX_NAME_LENGTH = 50
 STARTING_SESSION_ID = 1
-SECRET = "L-L>V\y3f4]fEH\;haf/"
+SECRET = "L-L>V\\y3f4]fEH\\;haf/"
 
 def encode_token(data):
     return jwt.encode(data, SECRET, algorithm="HS256")
