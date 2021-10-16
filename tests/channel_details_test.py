@@ -42,7 +42,7 @@ def test_one_member(reset):
                 'email': email_1, 
                 'name_first': name_first_1, 
                 'name_last': name_last_1,
-                'handle': 'johnsmith', 
+                'handle_str': 'johnsmith', 
             }
         ], 
         'all_members': [
@@ -51,7 +51,7 @@ def test_one_member(reset):
                 'email': email_1, 
                 'name_first': name_first_1, 
                 'name_last': name_last_1,
-                'handle': 'johnsmith', 
+                'handle_str': 'johnsmith', 
             }
         ], 
     }
@@ -160,7 +160,7 @@ def test_two_members(reset):
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1,
-            'handle': 'johnsmith', 
+            'handle_str': 'johnsmith', 
         }
     ]
     # check owner and members list is correct, returned list can be in any order 
@@ -170,14 +170,14 @@ def test_two_members(reset):
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1, 
-            'handle': 'johnsmith', 
+            'handle_str': 'johnsmith', 
         }, 
         { 
             'u_id': auth_user_id_2, 
             'email': email_2, 
             'name_first': name_first_2, 
             'name_last': name_last_2, 
-            'handle': 'johnesmithe', 
+            'handle_str': 'johnesmithe', 
         },
     ]
 
@@ -236,7 +236,7 @@ def test_three_members(reset):
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1,
-            'handle': 'johnsmith', 
+            'handle_str': 'johnsmith', 
         }
     ]
 
@@ -246,21 +246,21 @@ def test_three_members(reset):
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1, 
-            'handle': 'johnsmith', 
+            'handle_str': 'johnsmith', 
         }, 
         { 
             'u_id': auth_user_id_2, 
             'email': email_2, 
             'name_first': name_first_2, 
             'name_last': name_last_2, 
-            'handle': 'johnesmithe', 
+            'handle_str': 'johnesmithe', 
         }, 
         { 
             'u_id': auth_user_id_3, 
             'email': email_3, 
             'name_first': name_first_3, 
             'name_last': name_last_3, 
-            'handle': 'johnnysmithy', 
+            'handle_str': 'johnnysmithy', 
         }, 
     ]
 

@@ -59,7 +59,6 @@ def test_invalid_start(reset_data, messages_data):
         channel_messages_v1(user_id, channel_id, 1000)
 
 def test_invalid_user(reset_data, messages_data, extra_user):
-    user_id = messages_data[0]
     channel_id = messages_data[1]
     another_user_id = extra_user
     with pytest.raises(AccessError):

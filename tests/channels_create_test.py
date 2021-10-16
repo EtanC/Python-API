@@ -51,7 +51,7 @@ def test_valid_store(reset):
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
-                'handle': "johnsmith"
+                'handle_str': "johnsmith"
             }
         ], 
         'all_members': [
@@ -60,7 +60,7 @@ def test_valid_store(reset):
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
-                'handle': "johnsmith"
+                'handle_str': "johnsmith"
             }
         ],
     }
@@ -86,7 +86,7 @@ def test_multiple_create(reset):
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
-                'handle': "johnsmith"
+                'handle_str': "johnsmith"
             }
         ], 
         'all_members': [
@@ -95,7 +95,7 @@ def test_multiple_create(reset):
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
-                'handle': "johnsmith"
+                'handle_str': "johnsmith"
             }
         ],
     }
@@ -110,7 +110,7 @@ def test_multiple_create(reset):
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
-                'handle': "johnsmith"
+                'handle_str': "johnsmith"
             }
         ], 
         'all_members': [
@@ -119,7 +119,7 @@ def test_multiple_create(reset):
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
-                'handle': "johnsmith"
+                'handle_str': "johnsmith"
             }
         ],
     }
