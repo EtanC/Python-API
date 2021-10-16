@@ -2,7 +2,6 @@ from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
 from src.channels import channels_list_v1, check_valid_user_id
-from copy import deepcopy
 import re
 
 
@@ -64,22 +63,30 @@ def channel_details_v1(auth_user_id, channel_id):
 
     # copying member and owner list into temporary lists 
     channel = find_channel(channel_id, store) 
-    #mem_list = channel['all_members'].copy() 
-    #own_list = channel['owner_members'].copy() 
 
-    # run deepcopy to keep original data store untouched 
-    mem_list = deepcopy(channel['all_members'])
-    own_list = deepcopy(channel['owner_members'])
+    # go through the members and owners and copy everything required 
+    # into a new list to return 
+    mem_list = [] 
+    own_list = [] 
     
-
-    # go through list of members in temp list and remove their password info 
-    for member in mem_list: 
-        del member['password'] 
+    for member in channel['all_members']: 
+        mem_list.append({
+            'u_id': member['u_id'], 
+            'email': member['email'], 
+            'name_first': member['name_first'], 
+            'name_last': member['name_last'], 
+            'handle_str': member['handle_str'], 
+        })
     
-    # go through list of owners in temp list and remove their password info 
-    for owner in own_list: 
-        del owner['password']
-    
+    for owner in channel['owner_members']: 
+        own_list.append({
+            'u_id': owner['u_id'], 
+            'email': owner['email'], 
+            'name_first': owner['name_first'], 
+            'name_last': owner['name_last'], 
+            'handle_str': owner['handle_str'], 
+        })
+   
     return {
         'name': channel['name'],
         'is_public': channel['is_public'], 
