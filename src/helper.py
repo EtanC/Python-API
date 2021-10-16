@@ -30,3 +30,12 @@ def decode_token(token):
         return jwt.decode(token, SECRET, algorithms=["HS256"])
     except jwt.InvalidSignatureError:
         return None
+
+def valid_email(email, store):
+    '''
+    Checks if the email is already taken and if the email format is valid
+    '''
+    for user in store['users']:
+        if email == user['email']:
+            raise InputError(description="Email already in use")
+    return bool(re.match(EMAIL_REGEX, email))
