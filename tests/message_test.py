@@ -3,6 +3,9 @@ import requests
 from src.channel import channel_messages_v1
 from src.message import message_send_v1
 from datetime import timezone, datetime
+import json
+from src.channels import channels_create_v1, channels_create_v2
+
 from src import config
 '''
 port = 8080
@@ -107,7 +110,7 @@ def test_invalid_length_send(reset_data, user1, channel1): #POST
     json=data_register)
     assert response_register.status_code == 400
 
-    # >1000 length message (InputError)
+    # >1000 length message
     data_register['message'] = 'x' * 1001
     response_register = requests.post(f"{config.url}message/send/v1",\
     json=data_register)

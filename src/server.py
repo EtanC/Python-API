@@ -277,16 +277,26 @@ def user_profile():
     return dumps({'user': user})
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #MESSAGE
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send():
 
     data = request.get_json()
     message_id = message_send_v1(
+=======
+#MESSAGE
+@APP.route("/message/send/v1", methods=['POST'])
+def message_send_v1():
+
+    data = request.get_json()
+    message = message_send_v1(
+>>>>>>> added some functions as placeholders
         data['token'],
         data['channel_id'],
         data['message']
     )
+<<<<<<< HEAD
     return dumps(message_id)
 
 '''
@@ -314,6 +324,29 @@ def message_senddm():
 
 =======
 >>>>>>> Implemented wrapper function for user profile in server.py and also added function for user_profile_v1 in user.py
+=======
+    return dumps(message)
+
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit_v1():
+    pass
+
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_remove_v1():
+    pass
+
+@APP.route("/message/senddm/v1", methods=['POST'])
+def message_senddm_v1():
+    pass
+
+
+
+
+
+
+
+>>>>>>> added some functions as placeholders
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
