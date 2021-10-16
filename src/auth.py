@@ -7,13 +7,12 @@ from src.data_store import data_store
 from src.error import InputError
 import jwt
 import re
+from src.config import SECRET, EMAIL_REGEX
 
-EMAIL_REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 MIN_PASSWORD_LENGTH = 6
 MIN_NAME_LENGTH = 1
 MAX_NAME_LENGTH = 50
 STARTING_SESSION_ID = 1
-SECRET = "L-L>V\\y3f4]fEH\\;haf/"
 
 def encode_token(data):
     return jwt.encode(data, SECRET, algorithm="HS256")

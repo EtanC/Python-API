@@ -1,4 +1,7 @@
 import jwt
+import re
+from src.error import InputError
+from src.config import SECRET, EMAIL_REGEX
 
 def get_user(auth_user_id, store):
     '''
@@ -20,7 +23,6 @@ def get_channel(channel_id, store):
             return channel
     return None
 
-SECRET = "L-L>V\\y3f4]fEH\\;haf/"
 def decode_token(token):
     '''
     Returns the data inside the jwt token.
