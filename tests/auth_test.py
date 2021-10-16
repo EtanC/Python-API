@@ -203,7 +203,7 @@ def test_email_repeat_register(reset_data):
         f"{config.url}auth/register/v2",
         json=data_register
     )
-    assert response_login.json() == 200
+    assert response_register.status_code == 200
     response_register = requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
