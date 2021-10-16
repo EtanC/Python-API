@@ -199,19 +199,11 @@ def test_email_repeat_register(reset_data):
         "name_first": "John",
         "name_last": "Smith",
     }
-    data_login = {
-        "email": "realemail_812@outlook.edu.au",
-        "password": "Password1",
-    }
     response_register = requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
     )
-    response_login = requests.post(
-        f"{config.url}auth/login/v2",
-        json=data_login
-    )
-    assert response_login.json() == response_register.json()
+    assert response_login.json() == 200
     response_register = requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
@@ -266,7 +258,7 @@ def test_wrong_password_login(reset_data):
         "name_first" : "John",
         "name_last" : "Smith",
     }
-    response_register = requests.post(
+    requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
     )
@@ -288,7 +280,7 @@ def test_wrong_email_login(reset_data):
         "name_first": "John",
         "name_last": "Smith",
     }
-    response_register = requests.post(
+    requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
     )
