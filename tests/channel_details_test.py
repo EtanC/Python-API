@@ -1,3 +1,4 @@
+'''
 import pytest 
 
 from src.channels import channels_create_v1 
@@ -268,3 +269,4 @@ def test_three_members(reset):
     new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 
     assert new_return_list == new_mem_list 
+'''
