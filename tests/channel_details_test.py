@@ -1,42 +1,65 @@
-'''
 import pytest 
-
-from src.channels import channels_create_v1 
-from src.auth import auth_register_v1, auth_login_v1
-from src.other import clear_v1 
-from src.error import InputError
-from src.error import AccessError 
-from src.channel import channel_details_v1 
-from src.channel import channel_join_v1 
-
+import requests 
+from src import config
 
 # Clear all data before testing 
+
 @pytest.fixture
 def reset(): 
-    clear_v1()
-# ----------------------------------------------------------------------------------
-# NOTE: COULD USE .str.lower() TO TURN FIRST AND LAST NAME TO LOWERCASE
-# AND THE DO handle = first + last STRING ADDITION TO GENERATE HANDLE FOR DIFF NAMES
-# ----------------------------------------------------------------------------------
+    requests.delete(f"{config.url}clear/v1")
+
+    data_register = {
+        "email" : "realemail_812@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "John",
+        "name_last" : "Smith",
+    }
+
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+
+    data_login = { 
+        'email': 'realemail_812@outlook.edu.au', 
+        'password': 'Password1', 
+    }
+    
+    response = requests.post(f'{config.url}auth/login/v2', json=data_login)
+
+    return (response.json()['token'], response.json()['auth_user_id'])
+
 def test_one_member(reset): 
     email_1 = "realemail_812@outlook.edu.au"
-    password_1 = "Password1"
     name_first_1 = "John"
     name_last_1 = "Smith"
-    auth_register_v1(email_1, password_1, name_first_1, name_last_1)
-    result = auth_login_v1(email_1, password_1) 
-    # take auth user id from returned dictionary 
-    auth_user_id = result['auth_user_id']
+    token = reset[0]
+    auth_user_id = reset[1] 
 
-    channel_name = "channel1"
-    is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
+    data_create = { 
+        'token': token, 
+        'name': "channel1",
+        'is_public': True, 
+    }
 
-    assert channel_details_v1(auth_user_id, channel_id) == \
+    response = requests.post(f"{config.url}channels/create/v2",\
+        json=data_create)
+    
+    channel_id = response.json()['channel_id'] 
+
+    data_details = { 
+        'token': token, 
+        'channel_id': channel_id, 
+    }
+
+    response = requests.get(f"{config.url}channel/details/v2", \
+        json=data_details)
+    response_details = response.json() 
+
+    assert response_details == \
     {
-        'name': channel_name, 
-        'is_public': is_public, 
+        'name': data_create['channel_name'], 
+        'is_public': data_create['is_public'], 
         'owner_members': [
             {
                 'u_id': auth_user_id, 
@@ -58,97 +81,158 @@ def test_one_member(reset):
     }
 
 def test_invalid_channel(reset): 
-    email_1 = "realemail_812@outlook.edu.au"
-    password_1 = "Password1"
-    name_first_1 = "John"
-    name_last_1 = "Smith"
-    auth_register_v1(email_1, password_1, name_first_1, name_last_1)
-    result = auth_login_v1(email_1, password_1) 
+    token = reset[0] 
 
-    auth_user_id = result['auth_user_id']
+    data_create = { 
+        'token': token, 
+        'name': 'channel1', 
+        'is_public': True, 
+    }
+
+    response = requests.post(f"{config.url}channels/create/v2",\
+        json=data_create)
     
-    channel_name = "channel1"
-    is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
+    channel_id = response.json()['channel_id']
 
-    with pytest.raises(InputError): 
-        channel_details_v1(auth_user_id, channel_id + 1)
+    data_details = { 
+        'token': token,
+        'channel_id': channel_id + 1, 
+    }
+
+    response = requests.get(f'{config.url}channel/details/v2', \
+        json=data_details)
+
+    assert response.status_code == 400 
 
 def test_non_member(reset): 
-    email_1 = "realemail_812@outlook.edu.au"
-    password_1 = "Password1"
-    name_first_1 = "John"
-    name_last_1 = "Smith"
-    auth_register_v1(email_1, password_1, name_first_1, name_last_1)
-    result = auth_login_v1(email_1, password_1) 
-
-    auth_user_id = result['auth_user_id']
+    token_1 = reset[0]
     
+    # create 2nd user
     email_2 = "realemail_813@outlook.edu.au"
     password_2 = "Password2"
     name_first_2 = "Johne"
     name_last_2 = "Smithe"
-    auth_register_v1(email_2, password_2, name_first_2, name_last_2)
-    result = auth_login_v1(email_2, password_2) 
 
-    auth_user_id_2 = result['auth_user_id']
 
-    channel_name = "channel1"
-    is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
+    data_register = {
+        "email" : email_2,
+        "password" : password_2,
+        "name_first" : name_first_2,
+        "name_last" : name_last_2,
+    }
 
-    with pytest.raises(AccessError): 
-        channel_details_v1(auth_user_id_2, channel_id)
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+
+    data_login = { 
+        'email': email_2, 
+        'password': password_2, 
+    }
+    
+    response = requests.post(f'{config.url}auth/login/v2', json=data_login)
+    token_2 = response.json()['token']
+
+    # 1st user creates channel, 2nd user not part of it 
+    data_create = { 
+        'token': token_1, 
+        'name': 'channel1', 
+        'is_public': True, 
+    }
+    
+    response = requests.post(f'{config.url}channels/create/v2', json=data_create)
+    channel_id = response.json()['channel_id']
+    
+    # 2nd user tries to call channel details of channel created by 1st user 
+    data_details = { 
+        'token': token_2, 
+        'channel_id': channel_id, 
+    }
+    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+
+    assert response.status_code == 403 
 
 
 def test_invalid_user(reset): 
-    email_1 = "realemail_812@outlook.edu.au"
-    password_1 = "Password1"
-    name_first_1 = "John"
-    name_last_1 = "Smith"
-    auth_register_v1(email_1, password_1, name_first_1, name_last_1)
-    result = auth_login_v1(email_1, password_1) 
 
-    auth_user_id = result['auth_user_id']
+    data_create = { 
+        'token': reset[0], 
+        'name': 'channel1', 
+        'is_public': True, 
+    }
 
-    channel_name = "channel1"
-    is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
+    response = requests.post(f'{config.url}channels/create/v2', json=data_create)
+    channel_id = response.json()['channel_id']
 
-    with pytest.raises(AccessError): 
-        channel_details_v1(auth_user_id + 1, channel_id)
+    data_details = { 
+        'token': '', 
+        'channel_id': channel_id, 
+    }
 
+    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+
+    assert response.status_code == 403 
+
+''' REQUIRE CHANNEL JOIN 
 def test_two_members(reset): 
     email_1 = "realemail_812@outlook.edu.au"
-    password_1 = "Password1"
     name_first_1 = "John"
     name_last_1 = "Smith"
-    auth_register_v1(email_1, password_1, name_first_1, name_last_1)
-    result = auth_login_v1(email_1, password_1) 
 
-    auth_user_id = result['auth_user_id']
+    token_1 = reset[0]
+    auth_user_id_1 = reset[1]
     
     email_2 = "realemail_813@outlook.edu.au"
     password_2 = "Password2"
     name_first_2 = "Johne"
     name_last_2 = "Smithe"
-    auth_register_v1(email_2, password_2, name_first_2, name_last_2)
-    result = auth_login_v1(email_2, password_2) 
+    
+    data_register = {
+        "email" : email_2,
+        "password" : password_2,
+        "name_first" : name_first_2,
+        "name_last" : name_last_2,
+    }
 
-    auth_user_id_2 = result['auth_user_id']
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
 
+    data_login = { 
+        'email': email_2, 
+        'password': password_2, 
+    }
+    
+    response = requests.post(f'{config.url}auth/login/v2', json=data_login)
+    auth_user_id_2 = response.json()['auth_user_id']
+    token_2 = response.json()['token']
 
+    data_create = { 
+        'token': token_1, 
+        'name': 'channel1', 
+        'is_public': True, 
+    }
     channel_name = "channel1"
     is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
+    
+    response = requests.post(f'{config.url}channels/create/v2', json=data_create)
+    channel_id = response.json()['channel_id']
 
-    channel_join_v1(auth_user_id_2, channel_id)
+    data_join = { 
+        'token': token_2, 
+        'channel_id': channel_id, 
+    }
+    requests.post(f'{config.url}channel/join/v2', json=data_join)
 
-    return_dict = channel_details_v1(auth_user_id_2, channel_id)
+    data_details = { 
+        'token': token_2, 
+        'channel_id': channel_id, 
+    }
+
+    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+    return_dict = response.json() 
 
     # check channel name and public / private status is correct 
     assert return_dict['name'] == channel_name 
@@ -157,7 +241,7 @@ def test_two_members(reset):
     # only 1 owner in this iteration, so checking for only one owner
     assert return_dict['owner_members'] ==  [
         {
-            'u_id': auth_user_id, 
+            'u_id': auth_user_id_1, 
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1,
@@ -167,7 +251,7 @@ def test_two_members(reset):
     # check owner and members list is correct, returned list can be in any order 
     mem_list = [ 
         {
-            'u_id': auth_user_id, 
+            'u_id': auth_user_id_1, 
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1, 
@@ -192,48 +276,106 @@ def test_two_members(reset):
 
 def test_three_members(reset): 
     email_1 = "realemail_812@outlook.edu.au"
-    password_1 = "Password1"
     name_first_1 = "John"
     name_last_1 = "Smith"
-    auth_register_v1(email_1, password_1, name_first_1, name_last_1)
-    result = auth_login_v1(email_1, password_1) 
 
-    auth_user_id = result['auth_user_id']
+    auth_user_id_1 = reset[1]
+    token_1 = reset[0]
+
     
     email_2 = "realemail_813@outlook.edu.au"
     password_2 = "Password2"
     name_first_2 = "Johne"
     name_last_2 = "Smithe"
-    auth_register_v1(email_2, password_2, name_first_2, name_last_2)
-    result = auth_login_v1(email_2, password_2) 
+    
+    data_register = {
+        "email" : email_2,
+        "password" : password_2,
+        "name_first" : name_first_2,
+        "name_last" : name_last_2,
+    }
 
-    auth_user_id_2 = result['auth_user_id']
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+
+    data_login = { 
+        'email': email_2, 
+        'password': password_2, 
+    }
+    
+    response = requests.post(f'{config.url}auth/login/v2', json=data_login)
+    auth_user_id_2 = response.json()['auth_user_id']
+    token_2 = response.json()['token']
+
 
     email_3 = "realemail_814@outlook.edu.au"
     password_3 = "Password3"
     name_first_3 = "Johnny"
     name_last_3 = "Smithy"
-    auth_register_v1(email_3, password_3, name_first_3, name_last_3)
-    result = auth_login_v1(email_3, password_3) 
+    
+    data_register = {
+        "email" : email_3,
+        "password" : password_3,
+        "name_first" : name_first_3,
+        "name_last" : name_last_3,
+    }
 
-    auth_user_id_3 = result['auth_user_id']
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+
+    data_login = { 
+        'email': email_3, 
+        'password': password_3, 
+    }
+    
+    response = requests.post(f'{config.url}auth/login/v2', json=data_login)
+    auth_user_id_3 = response.json()['auth_user_id']
+    token_3 = response.json()['token']
+
 
     channel_name = "channel1"
     is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
 
-    channel_join_v1(auth_user_id_2, channel_id)
-    channel_join_v1(auth_user_id_3, channel_id) 
+    data_create = { 
+        'token': token_1, 
+        'name': channel_name, 
+        'is_public': is_public, 
+    }
 
-    return_dict = channel_details_v1(auth_user_id_3, channel_id)
+    response = requests.post(f'{config.url}channels/create/v2', json=data_create)
+    channel_id = response.json()['channel_id']
+
+    data_join = { 
+        'token': token_2, 
+        'channel_id': channel_id, 
+    }
+    requests.post(f'{config.url}channel/join/v2', json=data_join)
+
+    data_join = { 
+        'token': token_3, 
+        'channel_id': channel_id, 
+    }
+    requests.post(f'{config.url}channel/join/v2', json=data_join)
+
+    data_details = { 
+        'token': token_3, 
+        'channel_id': channel_id, 
+    }
+
+    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+
+    return_dict = response.json() 
 
     assert return_dict['name'] == channel_name 
     assert return_dict['is_public'] == is_public 
 
     assert return_dict['owner_members'] ==  [
         {
-            'u_id': auth_user_id, 
+            'u_id': auth_user_id_1, 
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1,
@@ -243,7 +385,7 @@ def test_three_members(reset):
 
     mem_list = [ 
         {
-            'u_id': auth_user_id, 
+            'u_id': auth_user_id_1, 
             'email': email_1, 
             'name_first': name_first_1, 
             'name_last': name_last_1, 
@@ -269,4 +411,5 @@ def test_three_members(reset):
     new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 
     assert new_return_list == new_mem_list 
-'''
+
+''' 
