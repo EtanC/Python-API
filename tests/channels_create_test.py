@@ -80,3 +80,97 @@ def test_invalid_user(reset):
     
     assert response_create.status_code == 403 
 
+# REQUIRE MORE WITH CHANNEL DETAILS
+'''
+def test_data_store(reset): 
+    auth_user_id = reset 
+    channel_name = "channel1_"
+    is_public = True 
+    result = channels_create_v1(auth_user_id, channel_name, is_public)
+    channel_id = result['channel_id']
+
+    assert channel_details_v1(auth_user_id, channel_id) == \
+    { 
+        'name': channel_name, 
+        'is_public': is_public, 
+        'owner_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ], 
+        'all_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ],
+    }
+
+def test_multiple_create(reset): 
+    auth_user_id = reset 
+    channel_name = "channel1_"
+    is_public = True 
+    result = channels_create_v1(auth_user_id, channel_name, is_public)
+    channel_id = result['channel_id']
+
+    channel_name2 = "channel2" 
+    result = channels_create_v1(auth_user_id, channel_name2, is_public) 
+    channel_id2 = result['channel_id']
+
+    assert channel_details_v1(auth_user_id, channel_id) == \
+    { 
+        'name': channel_name, 
+        'is_public': is_public, 
+        'owner_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ], 
+        'all_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ],
+    }
+
+    assert channel_details_v1(auth_user_id, channel_id2) == \
+        { 
+        'name': channel_name2, 
+        'is_public': is_public, 
+        'owner_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ], 
+        'all_members': [
+            { 
+                'u_id': auth_user_id, 
+                'email': "realemail_812@outlook.edu.au", 
+                'name_first': "John", 
+                'name_last': "Smith", 
+                'handle': "johnsmith"
+            }
+        ],
+    }
+
+
+'''
