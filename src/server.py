@@ -55,7 +55,7 @@ def auth_login_v2():
                     - Occurs when password is not correct
 
     Return Value:
-        Returns {'auth_user_id': user_id} on successful login
+        Returns {'token' : token, 'auth_user_id': user_id} on successful call
     '''
     data = request.get_json()
     user_id = auth_login_v1(data['email'], data['password'])
@@ -80,7 +80,7 @@ def auth_register_v2():
                     - Length of name_last is not between 1 and 50
 
     Return Value:
-        Returns {'auth_user_id': user_id} on successful register
+        Returns {'token' : token, 'auth_user_id': user_id} on successful call
     '''
     data = request.get_json()
     user_id = auth_register_v1(
