@@ -3,10 +3,12 @@ import signal
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
-from src.error import InputError
+from src.error import InputError, AccessError 
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
+from src.helper import decode_token 
+from src.channels import channels_create_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -107,6 +109,32 @@ def clear():
     '''
     clear_v1()
     return dumps({})
+
+
+@APP.route("/channels/create/v2", methods=['POST'])
+def channels_create_v2(): 
+    '''
+    Creates a channel with the given name, channel can me public or private. 
+    Creator of channel is immediately added to the channel. 
+
+    Arguments:
+        token (str): token identifying user 
+        name (str): name of channel 
+        is_public (bool): whether channel is public (True) or private (False)
+    
+    Exceptions: 
+        InputError  - Channel name not between 1 and 20 characters 
+        AccessError - User not authorised 
+
+    Returns: 
+        Returns {channel_id} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    channel_id = channels_create_v1(data['token'], data['name'], data['is_public'])
+
+    return dumps(channel_id)
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
