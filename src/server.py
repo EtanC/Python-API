@@ -11,7 +11,7 @@ from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
 from src.message import message_send_v1
-
+from src.helper import decode_token 
 
 def quit_gracefully(*args):
     '''For coverage'''
