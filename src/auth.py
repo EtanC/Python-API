@@ -5,59 +5,87 @@ Stores data about users when they register
 '''
 from src.data_store import data_store
 from src.error import InputError
+import jwt
 import re
+import hashlib
+from src.config import SECRET, EMAIL_REGEX
 
-EMAIL_REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+MIN_PASSWORD_LENGTH = 6
+MIN_NAME_LENGTH = 1
+MAX_NAME_LENGTH = 50
+STARTING_SESSION_ID = 1
 
-def verify_login(email, password):
+def encode_token(data):
+    return jwt.encode(data, SECRET, algorithm="HS256")
+
+def decode_token(token):
+    return jwt.decode(token, SECRET, algorithms=["HS256"])
+
+def hash(string):
+    return hashlib.sha256(string.encode()).hexdigest()
+
+def verify_login(email, password, store):
     '''
-    Returns the user's user_id if the email and matching password is stored
+    Returns the user if the email and matching password is stored
     in the system. Returns None otherwise.
     '''
-    store = data_store.get()
     for user in store['users']:
         if email == user['email']:
-            if password == user['password']:
-                return user['u_id']
+            if hash(password) == user['password']:
+                return user
             else:
                 return None
     return None
 
 def auth_login_v1(email, password):
     '''
-    Returns a dictionary with the user's user_id if the login is succesful.
-    Raises an InputError otherwise.
+    Returns the user's user id and a token for the current session if login is
+    successful
+
+    Arguments:
+        email       (str)    - The email the user registered with
+        password    (str)    - The password the user registered with
+
+    Exceptions:
+        InputError  - Email does not belong to any user
+                    - Password is incorrect
+
+    Return Value:
+        Returns {'token' : token, 'auth_user_id' : user_id} on successful call
     '''
-    user_id = verify_login(email, password)
-    if user_id == None:
-        raise InputError("Invalid email or password")
+    store = data_store.get()
+    user = verify_login(email, password, store)
+    if user == None:
+        raise InputError(description="Invalid email or password")
+    ## TODO: write a test for logout then login
+    if len(user['active_session_ids']) < 1:
+        session_id = STARTING_SESSION_ID
+    else:
+        session_id = user['active_session_ids'][-1] + 1
+    user['active_session_ids'].append(session_id)
     return {
-        'auth_user_id': user_id,
+        'token' : encode_token(
+            {'auth_user_id' : user['u_id'], 'session_id' : session_id}
+        ),
+        'auth_user_id': user['u_id'],
     }
 
-def valid_email(email):
+def valid_email(email, store):
     '''
     Checks if the email is already taken and if the email format is valid
     '''
-    store = data_store.get()
     for user in store['users']:
         if email == user['email']:
-            raise InputError("Email already in use")
-            # return False
-            # ------------------------------------------------
-            # NOTE: Could also use return False here, but
-            # raising error provides more context on the error
-            # Might change this later
-            # ------------------------------------------------
+            raise InputError(description="Email already in use")
     return bool(re.match(EMAIL_REGEX, email))
 
 def valid_password(password):
-    return len(password) >= 6
+    return len(password) >= MIN_PASSWORD_LENGTH
 
 def valid_name(name):
-    return 1 <= len(name) <= 50
+    return MIN_NAME_LENGTH <= len(name) <= MAX_NAME_LENGTH
 
-def handle(name_first, name_last):
+def handle(name_first, name_last, store):
     '''
     Returns a handle based on the first and last name provided.
     Also checks if the handle is already taken.
@@ -81,68 +109,69 @@ def handle(name_first, name_last):
         else:
             break
 
-    # Checking if handle is taken (using dictionary for efficiency purposes)
-    store = data_store.get()
-    if handle in store['handle_append_no']:
-        # If handle is taken, append appropiate number, increment number by 1
-        store['handle_append_no'][handle] += 1
-        handle += str(store['handle_append_no'][handle] - 1)
-        data_store.set(store)
-    else:
-        # If handle is not taken, enter handle into list of used handles
-        store['handle_append_no'][handle] = 0
-        data_store.set(store)
+    append_number = -1
+    for user in store['users']:
+        # Check if handle is taken
+        if user['handle_str'] == handle:
+            # Increment number if handle is taken
+            append_number += 1
+    # If number has been increased, append number to make handle unique
+    if append_number != -1:
+        handle += str(append_number)
     return handle
-
-def store_datastore(data, key):
-    store = data_store.get()
-    if key in store:
-        store[key].append(data)
-        data_store.set(store)
-
-def get_user_id():
-    store = data_store.get()
-    user_id = store['user_id_number']
-    store['user_id_number'] += 1
-    return user_id
-
 
 def auth_register_v1(email, password, name_first, name_last):
     '''
     Registers a user if email, password, name_first and name_last
-    are all valid. Raises an InputError if they are not.
-    The conditions being checked are:
-        - email must not already be in use
-        - email must be a valid email
-        - password must be longer than 6 characters
-        - name_first must be between 1-50 characters
-        - name_last must be between 1-50 characters
+    are all valid
+
+    Arguments:
+        email       (str)   - The user's email
+        password    (str)   - The user's password
+        name_first  (str)   - The user's first name
+        name_last   (str)   - The user's last name
+
+    Exceptions:
+        InputError  - email is already in use
+                    - email is not a valid email
+                    - password is shorter than 6 characters
+                    - name_first is not between 1-50 characters
+                    - name_last is not between 1-50 characters
+
+    Return Value:
+        Returns {'token' : token, 'auth_user_id' : user_id} on successful call
     '''
+    store = data_store.get()
     # Check valid email
-    if valid_email(email) == False:
-        raise InputError("Invalid email")
+    if valid_email(email, store) == False:
+        raise InputError(description="Invalid email")
     # Check valid password
     if valid_password(password) == False:
-        raise InputError("Password too short")
+        raise InputError(description="Password too short")
     # Check valid first name
     if valid_name(name_first) == False:
-        raise InputError("First name must contain 1-50 characters")
+        raise InputError(description="First name must contain 1-50 characters")
     # Check valid last name
     if valid_name(name_last) == False:
-        raise InputError("Last name must contain 1-50 characters")
+        raise InputError(description="Last name must contain 1-50 characters")
     # Generate user handle
-    user_handle = handle(name_first, name_last)
+    user_handle = handle(name_first, name_last, store)
     # Store user details
-    user_id = get_user_id()
+    user_id = len(store['users']) + 1
     user = {
         'u_id' : user_id,
         'email' : email,
-        'password' : password,
+        'password' : hash(password),
         'name_first' : name_first,
         'name_last' : name_last,
         'handle_str' : user_handle,
+        'active_session_ids' : [STARTING_SESSION_ID]
     }
-    store_datastore(user, 'users')
+    store['users'].append(user)
+    data_store.set(store)
     return {
+        'token' : encode_token(
+            {'auth_user_id' : user_id, 'session_id' : STARTING_SESSION_ID}
+        ),
         'auth_user_id': user_id,
     }
