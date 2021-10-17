@@ -69,6 +69,7 @@ def test_long_name(reset):
     assert response_create.status_code == 400 
 
 def test_invalid_user(reset): 
+    # token provided is {"name": "Kevin"}
     data_create = { 
         'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA', 
         'name': 'channel1', 
