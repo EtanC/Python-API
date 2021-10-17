@@ -72,7 +72,7 @@ def test_valid_addowner(reset_data, two_member_channel):
         'channel_id': two_member_channel['channel_id'],
         'u_id': two_member_channel['member'],
     }
-    response_addowner = requests.post(
+    requests.post(
         f"{config.url}channel/addowner/v1",
         json=data_addowner
     )
