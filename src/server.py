@@ -7,6 +7,7 @@ from src.error import InputError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
+from src.user import users_all_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -108,6 +109,27 @@ def clear():
     clear_v1()
     return dumps({})
 
+@APP.route("/users/all/v1", methods=['GET'])
+def users_all(): 
+    '''
+    Given a user's token, return a list of all users and their associated details, 
+    including: u_id, email, name_first, name_last, handle_str
+    
+    Arguments:
+        token (str): token identifying user
+        
+    Exceptions: 
+        AccessError - User not authorised 
+
+    Returns: 
+        Returns {users} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    users = users_all_v1(data['token'])
+
+    return dumps({'users': users}) 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
