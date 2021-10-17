@@ -78,7 +78,7 @@ def two_owner_channel(channel1, user2):
         'channel_id': channel1['channel_id'],
         'u_id': user2,
     }
-    response_addowner = requests.post(
+    requests.post(
         f"{config.url}channel/addowner/v1",
         json=data_addowner
     )
@@ -96,7 +96,7 @@ def test_valid_removeowner(reset_data, two_owner_channel):
         'channel_id': two_owner_channel['channel_id'],
         'u_id': two_owner_channel['owner2'],
     }
-    response_removeowner = requests.post(
+    requests.post(
         f"{config.url}channel/removeowner/v1",
         json=data_removeowner
     )
