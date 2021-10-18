@@ -135,10 +135,10 @@ def channel_messages():
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
     '''
-    Returns up to 50 messages from (start), given a channel_id and user_id
+    Returns up to 50 messages from (start), given a channel_id and token
 
     Arguments:
-        user_id     (int)      - The user's id, used to identify users
+        token       (str)      - The token used to verify the user's identity
         channel_id  (int)      - The channel's id, used to identify channel
         start       (int)      - The number of the first message to return
                                  eg. The most recent message would be 0
