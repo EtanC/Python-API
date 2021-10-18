@@ -1,3 +1,4 @@
+'''
 import pytest
 
 from src.channel import channel_join_v1, channel_details_v1
@@ -235,3 +236,4 @@ def test_channel_details(create_and_reset):
         }
 
 
+'''
