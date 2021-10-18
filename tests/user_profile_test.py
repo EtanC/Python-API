@@ -92,9 +92,9 @@ def test_invalid_uid(reset):
     assert response.status_code == 400 
 
 def test_invalid_user(reset): 
-    # token provided is {"name": "Kevin"}
+
     data_profile = {
-        'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA',
+        'token': 'invalid_token',
         'u_id': reset['auth_user_id']
     }
     response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
