@@ -5,7 +5,7 @@ from src.channels import channels_list_v1, check_valid_user_id
 from copy import deepcopy
 from src.helper import decode_token, token_to_user, get_channel, get_user
 import re
-from src.helper import decode_token
+from src.helper import decode_token, token_to_user
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
@@ -128,7 +128,7 @@ def channel_messages_v1(token, channel_id, start):
     if user == None:
         raise AccessError("token is not valid")
     # Checking channel_id is valid
-    channel = get_channel(store, channel_id)
+    channel = get_channel(channel_id, store)
     if channel == None:
         raise InputError("Invalid channel")
     # Checking auth_user_id is part of channel
