@@ -30,7 +30,7 @@ def decode_token(token):
     '''
     try:
         return jwt.decode(token, SECRET, algorithms=["HS256"])
-    except jwt.InvalidSignatureError:
+    except (jwt.InvalidSignatureError, jwt.DecodeError):
         return None
 
 def token_to_user(token, store):
