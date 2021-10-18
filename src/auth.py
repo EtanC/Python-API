@@ -7,6 +7,7 @@ from src.data_store import data_store
 from src.error import InputError
 import jwt
 import re
+import hashlib
 from src.config import SECRET, EMAIL_REGEX
 
 MIN_PASSWORD_LENGTH = 6
@@ -20,6 +21,9 @@ def encode_token(data):
 def decode_token(token):
     return jwt.decode(token, SECRET, algorithms=["HS256"])
 
+def hash(string):
+    return hashlib.sha256(string.encode()).hexdigest()
+
 def verify_login(email, password, store):
     '''
     Returns the user if the email and matching password is stored
@@ -27,7 +31,7 @@ def verify_login(email, password, store):
     '''
     for user in store['users']:
         if email == user['email']:
-            if password == user['password']:
+            if hash(password) == user['password']:
                 return user
             else:
                 return None
@@ -35,8 +39,19 @@ def verify_login(email, password, store):
 
 def auth_login_v1(email, password):
     '''
-    Returns a dictionary with the user's user_id if the login is succesful.
-    Raises an InputError otherwise.
+    Returns the user's user id and a token for the current session if login is
+    successful
+
+    Arguments:
+        email       (str)    - The email the user registered with
+        password    (str)    - The password the user registered with
+
+    Exceptions:
+        InputError  - Email does not belong to any user
+                    - Password is incorrect
+
+    Return Value:
+        Returns {'token' : token, 'auth_user_id' : user_id} on successful call
     '''
     store = data_store.get()
     user = verify_login(email, password, store)
@@ -108,13 +123,23 @@ def handle(name_first, name_last, store):
 def auth_register_v1(email, password, name_first, name_last):
     '''
     Registers a user if email, password, name_first and name_last
-    are all valid. Raises an InputError if they are not.
-    The conditions being checked are:
-        - email must not already be in use
-        - email must be a valid email
-        - password must be longer than 6 characters
-        - name_first must be between 1-50 characters
-        - name_last must be between 1-50 characters
+    are all valid
+
+    Arguments:
+        email       (str)   - The user's email
+        password    (str)   - The user's password
+        name_first  (str)   - The user's first name
+        name_last   (str)   - The user's last name
+
+    Exceptions:
+        InputError  - email is already in use
+                    - email is not a valid email
+                    - password is shorter than 6 characters
+                    - name_first is not between 1-50 characters
+                    - name_last is not between 1-50 characters
+
+    Return Value:
+        Returns {'token' : token, 'auth_user_id' : user_id} on successful call
     '''
     store = data_store.get()
     # Check valid email
@@ -136,7 +161,7 @@ def auth_register_v1(email, password, name_first, name_last):
     user = {
         'u_id' : user_id,
         'email' : email,
-        'password' : password,
+        'password' : hash(password),
         'name_first' : name_first,
         'name_last' : name_last,
         'handle_str' : user_handle,

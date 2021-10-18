@@ -1,3 +1,4 @@
+'''
 import pytest
 
 from src.channels import channels_listall_v1 as c_listall, channels_create_v1 as c_create
@@ -130,3 +131,4 @@ def test_long_list(reset_data):
             {'channel_id': channel_id5, 'name': 'Elon_public5'} 
         ]
     }
+'''
