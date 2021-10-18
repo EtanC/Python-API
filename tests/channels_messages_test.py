@@ -106,7 +106,7 @@ def test_invalid_user(reset_data, channel1, user2):
         f'{config.url}channel/messages/v1',
         json=data_messages
     )
-    assert response_messages.status_code == 400
+    assert response_messages.status_code == 403
 
 def test_invalid_user_id(reset_data, channel1):
     data_messages = {
@@ -118,7 +118,7 @@ def test_invalid_user_id(reset_data, channel1):
         f'{config.url}channel/messages/v1',
         json=data_messages
     )
-    assert response_messages.status_code == 400
+    assert response_messages.status_code == 403
 
 
 ## TODO: test edge cases for the number of messages that are returned
