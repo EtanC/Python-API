@@ -58,7 +58,7 @@ def test_one_member(reset):
 
     assert response_details == \
     {
-        'name': data_create['channel_name'], 
+        'name': data_create['name'], 
         'is_public': data_create['is_public'], 
         'owner_members': [
             {
@@ -166,7 +166,8 @@ def test_invalid_user(reset):
     channel_id = response.json()['channel_id']
 
     data_details = { 
-        'token': '', 
+        # token provided is {"name": "Kevin"} hashed without secret in HS256
+        'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA', 
         'channel_id': channel_id, 
     }
 
