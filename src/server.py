@@ -7,7 +7,7 @@ from src.error import InputError, AccessError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
-from src.user import users_all_v1
+from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
@@ -152,15 +152,15 @@ def channels_create_v2():
     Creator of channel is immediately added to the channel. 
 
     Arguments:
-        token (str): token identifying user 
-        name (str): name of channel 
-        is_public (bool): whether channel is public (True) or private (False)
+        token       (str)     - token identifying user 
+        name        (str)     - name of channel 
+        is_public   (bool)    - whether channel is public (True) or private (False)
     
     Exceptions: 
         InputError  - Channel name not between 1 and 20 characters 
         AccessError - User not authorised 
 
-    Returns: 
+    Return Value: 
         Returns {channel_id} on successful creation 
     '''
 
@@ -177,15 +177,15 @@ def channel_details_v2():
     provide basic details about the channel 
 
     Arguments:
-        token (str): token identifying user
-        channel_id (int): id of channel 
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
         
     Exceptions: 
         InputError  - Channel_id not valid 
         AccessError - Authorised user not member of existing channel 
                     - User not authorised 
 
-    Returns: 
+    Return Value: 
         Returns {name, is_public, owner_members, all_members} on successful creation 
     '''
 
@@ -201,18 +201,42 @@ def users_all():
     including: u_id, email, name_first, name_last, handle_str
     
     Arguments:
-        token (str): token identifying user
+        token (str) - Token identifying user
         
     Exceptions: 
         AccessError - User not authorised 
 
-    Returns: 
-        Returns {users} on successful creation 
+    Return Value: 
+        Returns { users } on successful call  
     ''' 
     data = request.get_json() 
 
     users = users_all_v1(data['token'])
     return dumps({'users': users}) 
+
+@APP.route("/user/profile/v1", methods=['GET'])
+def user_profile(): 
+    '''
+    For a valid user, returns information about their u_id, email, first name, 
+    last name and handle_str.
+
+    Arguments: 
+        token   (str) - token idenfifying user1 (accessing the route) 
+        u_id    (int) - user id of the target / user2
+    
+    Exceptions: 
+        InputError  - u_id does not refer to a valid user2 
+        AccessError - user1 not authorised 
+    
+    Return Value: 
+        Returns { user } on successfull call
+    '''
+
+    data = request.get_json() 
+
+    user = user_profile_v1(data['token'], data['u_id'])
+
+    return dumps({'user': user})
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
