@@ -14,25 +14,24 @@ def reset():
         "name_last" : "Smith",
     }
 
-    response = requests.post(
+    requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
     )
-    '''
+
     data_login = { 
         "email": "realemail_812@outlook.edu.au", 
         "password": "Password1", 
     }
     
     response = requests.post(f'{config.url}auth/login/v2', json=data_login)
-    ''' 
-    response_data = response.json()
-    return response_data['token']
+
+    return response.json()
 
 
 def test_valid(reset): 
     data_create = {
-        "token": reset, 
+        "token": reset['token'], 
         "name": "channel1", 
         "is_public": True,
     }
@@ -46,7 +45,7 @@ def test_valid(reset):
 
 def test_short_name(reset): 
     data_create = { 
-        'token': reset,
+        'token': reset['token'],
         'name': '', 
         'is_public': True, 
     }
@@ -58,7 +57,7 @@ def test_short_name(reset):
 
 def test_long_name(reset): 
     data_create = { 
-        'token': reset, 
+        'token': reset['token'], 
         'name': 'hello'*20, 
         'is_public': True, 
     }
@@ -81,22 +80,30 @@ def test_invalid_user(reset):
     
     assert response_create.status_code == 403 
 
-# REQUIRE MORE WITH CHANNEL DETAILS
-'''
-def test_data_store(reset): 
-    auth_user_id = reset 
-    channel_name = "channel1_"
-    is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
+def test_stored_data(reset): 
+    data_create = {
+        'token': reset['token'], 
+        'name': 'channel1', 
+        'is_public': True, 
+    }
 
-    assert channel_details_v1(auth_user_id, channel_id) == \
+    response = requests.post(f"{config.url}channels/create/v2", json=data_create)
+    channel_id = response.json()['channel_id']
+
+    data_details = {
+        'token': reset['token'], 
+        'channel_id': channel_id,
+    }
+
+    response = requests.get(f"{config.url}channel/details/v2", json=data_details)
+
+    assert response.json() == \
     { 
-        'name': channel_name, 
-        'is_public': is_public, 
+        'name': 'channel1', 
+        'is_public': True, 
         'owner_members': [
             { 
-                'u_id': auth_user_id, 
+                'u_id': reset['auth_user_id'], 
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
@@ -105,7 +112,7 @@ def test_data_store(reset):
         ], 
         'all_members': [
             { 
-                'u_id': auth_user_id, 
+                'u_id': reset['auth_user_id'], 
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
@@ -115,23 +122,40 @@ def test_data_store(reset):
     }
 
 def test_multiple_create(reset): 
-    auth_user_id = reset 
-    channel_name = "channel1_"
-    is_public = True 
-    result = channels_create_v1(auth_user_id, channel_name, is_public)
-    channel_id = result['channel_id']
 
-    channel_name2 = "channel2" 
-    result = channels_create_v1(auth_user_id, channel_name2, is_public) 
-    channel_id2 = result['channel_id']
+    data_create = { 
+        'token': reset['token'], 
+        'name': 'channel1', 
+        'is_public': True, 
+    }
 
-    assert channel_details_v1(auth_user_id, channel_id) == \
+    response = requests.post(f"{config.url}channels/create/v2", json=data_create)
+
+    channel_id = response.json()['channel_id']
+    data_create = { 
+        'token': reset['token'], 
+        'name': 'channel2', 
+        'is_public': True, 
+    }
+
+    response = requests.post(f"{config.url}channels/create/v2", json=data_create)
+    channel_id_2 = response.json()['channel_id']
+
+    data_details = { 
+        'token': reset['token'], 
+        'channel_id': channel_id, 
+    }
+
+    response = requests.get(f"{config.url}channel/details/v2", json=data_details)
+
+
+    assert response.json() == \
     { 
-        'name': channel_name, 
-        'is_public': is_public, 
+        'name': 'channel1', 
+        'is_public': True, 
         'owner_members': [
             { 
-                'u_id': auth_user_id, 
+                'u_id': reset['auth_user_id'], 
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
@@ -140,7 +164,7 @@ def test_multiple_create(reset):
         ], 
         'all_members': [
             { 
-                'u_id': auth_user_id, 
+                'u_id': reset['auth_user_id'], 
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
@@ -149,13 +173,20 @@ def test_multiple_create(reset):
         ],
     }
 
-    assert channel_details_v1(auth_user_id, channel_id2) == \
+    data_details = { 
+        'token': reset['token'], 
+        'channel_id': channel_id_2, 
+    }
+
+    response = requests.get(f"{config.url}channel/details/v2", json=data_details)
+
+    assert response.json() == \
         { 
-        'name': channel_name2, 
-        'is_public': is_public, 
+        'name': 'channel2', 
+        'is_public': True, 
         'owner_members': [
             { 
-                'u_id': auth_user_id, 
+                'u_id': reset['auth_user_id'], 
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
@@ -164,7 +195,7 @@ def test_multiple_create(reset):
         ], 
         'all_members': [
             { 
-                'u_id': auth_user_id, 
+                'u_id': reset['auth_user_id'], 
                 'email': "realemail_812@outlook.edu.au", 
                 'name_first': "John", 
                 'name_last': "Smith", 
@@ -172,6 +203,3 @@ def test_multiple_create(reset):
             }
         ],
     }
-
-
-'''

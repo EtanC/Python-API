@@ -9,7 +9,7 @@ from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1
-from src.channel import channel_details_v1
+from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -93,6 +93,40 @@ def auth_register_v2():
         data['name_last']
     )
     return dumps(user_id)
+
+@APP.route("/channel/messages/v2", methods=['GET'])
+def channel_messages():
+    '''
+    Returns up to 50 messages from (start), given a channel_id and token
+
+    Arguments:
+        token       (str)      - The token used to verify the user's identity
+        channel_id  (int)      - The channel's id, used to identify channel
+        start       (int)      - The number of the first message to return
+                                 eg. The most recent message would be 0
+                                     The second most recent message would be 1
+                                     And so on
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Start is greater than number of messages in the channel
+        AccessError - channel_id is valid and authorised user is not a member
+                      of the channel
+                    - user_id does not refer to a valid user
+
+
+    Return Value:
+        Returns
+        {'messages' : messages, 'start' : start, 'end': end}
+        on successful call
+    '''
+    data = request.get_json()
+    messages = channel_messages_v1(
+        data['token'],
+        data['channel_id'],
+        data['start']
+    )
+    return dumps(messages)
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
