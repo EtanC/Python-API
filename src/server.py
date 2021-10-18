@@ -9,7 +9,7 @@ from src.other import clear_v1
 from src import config
 from src.helper import decode_token 
 from src.channels import channels_create_v1
-from src.channel import channel_details_v1
+from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -94,7 +94,7 @@ def auth_register_v2():
     )
     return dumps(user_id)
 
-@APP.route("/channel/messages/v2", methods=['POST'])
+@APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
     '''
     Returns up to 50 messages from (start), given a channel_id and user_id
@@ -122,7 +122,7 @@ def channel_messages():
     '''
     data = request.get_json()
     messages = channel_messages_v1(
-        data['auth_user_id'],
+        data['token'],
         data['channel_id'],
         data['start']
     )

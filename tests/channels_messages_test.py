@@ -18,7 +18,7 @@ def user1():
         f'{config.url}auth/register/v2',
         json=data_register
     )
-    return response_register.json()['auth_user_id']
+    return response_register.json()
 
 @pytest.fixture
 def user2():
@@ -32,12 +32,12 @@ def user2():
         f'{config.url}auth/register/v2',
         json=data_register2
     )
-    return response_register2.json()['auth_user_id']
+    return response_register2.json()
 
 @pytest.fixture
 def channel1(user1):
     data_create = {
-        'auth_user_id': user1,
+        'token': user1['token'],
         'name': 'Channel1',
         'is_public': True,
     }
@@ -46,76 +46,72 @@ def channel1(user1):
         json=data_create
     )
     channel_id = response_create.json()['channel_id']
-    return {'user_id' : user1, 'channel_id' : channel_id}
+    return {'user' : user1, 'channel_id' : channel_id}
 
 
 # Testing valid 
 
 def test_valid(reset_data, channel1):
     data_messages = {
-        'auth_user_id' : channel1['user_id'],
+        'token' : channel1['user']['token'],
         'channel_id' : channel1['channel_id'],
         'start' : 0,
     }
     response_messages = requests.get(
-        f'{config.url}channel/messages/v1',
+        f'{config.url}channel/messages/v2',
         json=data_messages
     )
     assert response_messages.json() == {'messages' : [], 'start': 0, 'end': -1}
 
 # def test_valid_nonowner(reset_data, messages_data, extra_user):
-#     user_id = messages_data[0]
-#     channel_id = messages_data[1]
-#     another_user_id = extra_user
-#     channel_join_v1(another_user_id, channel_id)
-#     assert channel_messages_v1(another_user_id, channel_id, 0) == {'messages' : [], 'start': 0, 'end': -1}
+#     pass
 
 # Testing errors
 
 def test_invalid_channel_id_messages(reset_data, channel1):
     data_messages = {
-        'auth_user_id' : channel1['user_id'],
+        'token' : channel1['user']['token'],
         'channel_id' : channel1['channel_id'] + 1,
         'start' : 0,
     }
     response_messages = requests.get(
-        f'{config.url}channel/messages/v1',
+        f'{config.url}channel/messages/v2',
         json=data_messages
     )
     assert response_messages.status_code == 400
 
 def test_invalid_start_messages(reset_data, channel1):
     data_messages = {
-        'auth_user_id' : channel1['user_id'],
+        'token' : channel1['user']['token'],
         'channel_id' : channel1['channel_id'],
         'start' : 1000,
     }
     response_messages = requests.get(
-        f'{config.url}channel/messages/v1',
+        f'{config.url}channel/messages/v2',
         json=data_messages
     )
     assert response_messages.status_code == 400
 
 def test_invalid_user(reset_data, channel1, user2):
     data_messages = {
-        'auth_user_id' : channel1['user_id'],
-        'channel_id' : user2,
+        'token' : user2['token'],
+        'channel_id' : channel1['channel_id'],
         'start' : 0,
     }
     response_messages = requests.get(
-        f'{config.url}channel/messages/v1',
+        f'{config.url}channel/messages/v2',
         json=data_messages
     )
     assert response_messages.status_code == 403
 
 def test_invalid_user_id(reset_data, channel1):
     data_messages = {
-        'auth_user_id' : channel1['user_id'] + 1,
+        'token' : "INVALID_TOKEN",
         'channel_id' : channel1['channel_id'],
         'start' : 0,
     }
     response_messages = requests.get(
-        f'{config.url}channel/messages/v1',
+        f'{config.url}channel/messages/v2',
         json=data_messages
     )
     assert response_messages.status_code == 403
