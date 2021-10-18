@@ -32,7 +32,7 @@ def users_all_v1(token):
             valid_token = True 
 
     if not valid_token: 
-        raise AccessError(descrption='Invalid token')
+        raise AccessError(description='Invalid token')
 
     # if token is valid, go through every user in the data store and add their 
     # 'associated details' to the users_list in a dictionary, then return the list 
