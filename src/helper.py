@@ -30,8 +30,26 @@ def decode_token(token):
     '''
     try:
         return jwt.decode(token, SECRET, algorithms=["HS256"])
-    except jwt.InvalidSignatureError:
+    except (jwt.InvalidSignatureError, jwt.DecodeError):
         return None
+
+def token_to_user(token, store):
+    '''
+    Returns the user that the token refers to if the token is valid
+    Returns none if the token is invalid
+    '''
+    payload = decode_token(token)
+    # Invalid token or signature, return none
+    if payload == None:
+        return None
+    user = get_user(payload['auth_user_id'], store)
+    # Invalid user id, return none
+    if user == None:
+        return None
+    # Invalid session id, return none
+    if payload['session_id'] not in user['active_session_ids']:
+        return None
+    return user
 
 def valid_email(email, store):
     '''
