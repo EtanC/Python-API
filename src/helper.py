@@ -33,6 +33,24 @@ def decode_token(token):
     except jwt.InvalidSignatureError:
         return None
 
+def token_to_user(token, store):
+    '''
+    Returns the user that the token refers to if the token is valid
+    Returns none if the token is invalid
+    '''
+    payload = decode_token(token)
+    # Invalid token or signature, return none
+    if payload == None:
+        return None
+    user = get_user(payload['auth_user_id'], store)
+    # Invalid user id, return none
+    if user == None:
+        return None
+    # Invalid session id, return none
+    if payload['session_id'] not in user['active_session_ids']:
+        return None
+    return user
+
 def valid_email(email, store):
     '''
     Checks if the email is already taken and if the email format is valid

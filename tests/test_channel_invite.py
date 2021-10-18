@@ -1,3 +1,4 @@
+'''
 import pytest
 
 from src.auth import auth_register_v1, auth_login_v1 
@@ -228,3 +229,4 @@ def test_not_valid_member(reset):
         channel_invite_v1(auth_user_id_2, channel_id, auth_user_id_3)
 
 
+'''

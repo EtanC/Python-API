@@ -1,3 +1,4 @@
+'''
 from src.channel import channel_messages_v1
 from src.channels import channels_create_v1
 from src.auth import auth_register_v1
@@ -74,3 +75,4 @@ def test_invalid_user_id(reset_data, messages_data):
 ## TODO: test edge cases for the number of messages that are returned
 # Eg. does channel_messages_v1(user_id, channel_id, 1) break if it has 1 message
 # message_create/send required
+'''
