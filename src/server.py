@@ -9,6 +9,7 @@ from src.other import clear_v1
 from src import config
 from src.helper import decode_token 
 from src.channels import channels_create_v1
+from src.channel import channel_details_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -110,7 +111,6 @@ def clear():
     clear_v1()
     return dumps({})
 
-
 @APP.route("/channels/create/v2", methods=['POST'])
 def channels_create_v2(): 
     '''
@@ -135,6 +135,30 @@ def channels_create_v2():
     channel_id = channels_create_v1(data['token'], data['name'], data['is_public'])
 
     return dumps(channel_id)
+
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details_v2(): 
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
+
+    Arguments:
+        token (str): token identifying user
+        channel_id (int): id of channel 
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - User not authorised 
+
+    Returns: 
+        Returns {name, is_public, owner_members, all_members} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    return_dict = channel_details_v1(data['token'], data['channel_id'])
+    return dumps(return_dict) 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
