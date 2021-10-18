@@ -3,10 +3,13 @@ import signal
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
-from src.error import InputError
+from src.error import InputError, AccessError 
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
+from src.helper import decode_token 
+from src.channels import channels_create_v1
+from src.channel import channel_details_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -55,7 +58,7 @@ def auth_login_v2():
                     - Occurs when password is not correct
 
     Return Value:
-        Returns {'auth_user_id': user_id} on successful login
+        Returns {'token' : token, 'auth_user_id': user_id} on successful call
     '''
     data = request.get_json()
     user_id = auth_login_v1(data['email'], data['password'])
@@ -80,7 +83,7 @@ def auth_register_v2():
                     - Length of name_last is not between 1 and 50
 
     Return Value:
-        Returns {'auth_user_id': user_id} on successful register
+        Returns {'token' : token, 'auth_user_id': user_id} on successful call
     '''
     data = request.get_json()
     user_id = auth_register_v1(
@@ -107,6 +110,55 @@ def clear():
     '''
     clear_v1()
     return dumps({})
+
+@APP.route("/channels/create/v2", methods=['POST'])
+def channels_create_v2(): 
+    '''
+    Creates a channel with the given name, channel can me public or private. 
+    Creator of channel is immediately added to the channel. 
+
+    Arguments:
+        token (str): token identifying user 
+        name (str): name of channel 
+        is_public (bool): whether channel is public (True) or private (False)
+    
+    Exceptions: 
+        InputError  - Channel name not between 1 and 20 characters 
+        AccessError - User not authorised 
+
+    Returns: 
+        Returns {channel_id} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    channel_id = channels_create_v1(data['token'], data['name'], data['is_public'])
+
+    return dumps(channel_id)
+
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details_v2(): 
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
+
+    Arguments:
+        token (str): token identifying user
+        channel_id (int): id of channel 
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - User not authorised 
+
+    Returns: 
+        Returns {name, is_public, owner_members, all_members} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    return_dict = channel_details_v1(data['token'], data['channel_id'])
+    return dumps(return_dict) 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
