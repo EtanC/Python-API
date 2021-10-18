@@ -276,6 +276,7 @@ def user_profile():
 
     return dumps({'user': user})
 
+<<<<<<< HEAD
 #MESSAGE
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send():
@@ -311,6 +312,8 @@ def message_senddm():
 '''
 
 
+=======
+>>>>>>> Implemented wrapper function for user profile in server.py and also added function for user_profile_v1 in user.py
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 

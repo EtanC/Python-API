@@ -1,6 +1,7 @@
-from src.helper import decode_token 
-from src.error import AccessError 
+from src.helper import token_to_user, decode_token
+from src.error import AccessError, InputError
 from src.data_store import data_store
+from src.channel import get_user
 
 def users_all_v1(token): 
     '''
@@ -48,3 +49,40 @@ def users_all_v1(token):
         })
     
     return users_list
+
+def user_profile_v1(token, u_id): 
+    '''
+    For a valid user, returns information about their u_id, email, first name, 
+    last name and handle_str.
+
+    Arguments: 
+        token   (str) - token idenfifying user1 (accessing the route) 
+        u_id    (int) - user id of the target / user2
+    
+    Exceptions: 
+        InputError  - u_id does not refer to a valid user2 
+        AccessError - user1 not authorised 
+    
+    Return Value: 
+        Returns user2 dictionary on successfull call 
+    '''
+
+    store = data_store.get() 
+    token_user = token_to_user(token, store)
+    if token_user is None: 
+        raise AccessError(description='Invalid token')
+
+    user_data = get_user(u_id, store)
+
+    if user_data == None: 
+        raise InputError(description='Invalid u_id')
+
+    user = { 
+        'u_id': user_data['u_id'], 
+        'email': user_data['email'], 
+        'name_first': user_data['name_first'], 
+        'name_last': user_data['name_last'], 
+        'handle_str': user_data['handle_str'], 
+    }
+
+    return user
