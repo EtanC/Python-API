@@ -132,7 +132,7 @@ def channel_messages():
     return dumps(messages)
 
 
-@APP.route("/channel/messages/v2", methods=['POST'])
+@APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
     '''
     Returns up to 50 messages from (start), given a channel_id and user_id
@@ -160,7 +160,7 @@ def channel_messages():
     '''
     data = request.get_json()
     messages = channel_messages_v1(
-        data['auth_user_id'],
+        data['token'],
         data['channel_id'],
         data['start']
     )
