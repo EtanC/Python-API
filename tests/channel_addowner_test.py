@@ -18,7 +18,7 @@ def user1():
         f"{config.url}auth/register/v2",
         json=data_register
     )
-    return response_register.json()['auth_user_id']
+    return response_register.json()
 
 @pytest.fixture
 def user2():
@@ -32,12 +32,12 @@ def user2():
         f"{config.url}auth/register/v2",
         json=data_register2
     )
-    return response_register2.json()['auth_user_id']
+    return response_register2.json()
 
 @pytest.fixture
 def channel1(user1):
     data_create = {
-        'auth_user_id': user1,
+        'token': user1['token'],
         'name': "Channel1",
         'is_public': True,
     }
@@ -46,12 +46,12 @@ def channel1(user1):
         json=data_create
     )
     channel_id = response_create.json()['channel_id']
-    return {'user_id' : user1, 'channel_id' : channel_id}
+    return {'user' : user1, 'channel_id' : channel_id}
 
 @pytest.fixture
 def two_member_channel(channel1, user2):
     data_join = {
-        'auth_user_id': user2,
+        'token': user2['token'],
         'channel_id': channel1['channel_id'],
     }
     requests.post(
@@ -59,7 +59,7 @@ def two_member_channel(channel1, user2):
         json=data_join
     )
     return {
-        'owner' : channel1['user_id'],
+        'owner' : channel1['user'],
         'member' : user2,
         'channel_id' : channel1['channel_id']
     }
@@ -68,16 +68,16 @@ def two_member_channel(channel1, user2):
 # Test valid addowner
 def test_valid_addowner(reset_data, two_member_channel):
     data_addowner = {
-        'auth_user_id': two_member_channel['owner'],
+        'token': two_member_channel['owner']['token'],
         'channel_id': two_member_channel['channel_id'],
-        'u_id': two_member_channel['member'],
+        'u_id': two_member_channel['member']['auth_user_id'],
     }
-    requests.post(
+    response_addowner = requests.post(
         f"{config.url}channel/addowner/v1",
         json=data_addowner
     )
     data_details = {
-        'auth_user_id': two_member_channel['owner'],
+        'token': two_member_channel['owner']['token'],
         'channel_id': two_member_channel['channel_id'],
     }
     response_details = requests.get(
@@ -90,14 +90,14 @@ def test_valid_addowner(reset_data, two_member_channel):
         'is_public': True,
         'owner_members': [
             {
-                'u_id': two_member_channel['owner'],
+                'u_id': two_member_channel['owner']['auth_user_id'],
                 'email': "realemail_812@outlook.edu.au",
                 'name_first': "John",
                 'name_last': "Smith",
                 'handle_str': "johnsmith",
             },
             {
-                'u_id': two_member_channel['member'],
+                'u_id': two_member_channel['member']['auth_user_id'],
                 'email': "realemail_127@outlook.edu.au",
                 'name_first': "Smith",
                 'name_last': "John",
@@ -106,14 +106,14 @@ def test_valid_addowner(reset_data, two_member_channel):
         ],
         'all_members': [
             {
-                'u_id': two_member_channel['owner'],
+                'u_id': two_member_channel['owner']['auth_user_id'],
                 'email': "realemail_812@outlook.edu.au",
                 'name_first': "John",
                 'name_last': "Smith",
                 'handle_str': "johnsmith",
             },
             {
-                'u_id': two_member_channel['member'],
+                'u_id': two_member_channel['member']['auth_user_id'],
                 'email': "realemail_127@outlook.edu.au",
                 'name_first': "Smith",
                 'name_last': "John",
@@ -127,9 +127,9 @@ def test_valid_addowner(reset_data, two_member_channel):
 
 def test_invalid_channel_id_addowner(reset_data, two_member_channel):
     data_addowner = {
-        'auth_user_id': two_member_channel['owner'],
+        'token': two_member_channel['owner']['token'],
         'channel_id': two_member_channel['channel_id'] + 1,
-        'u_id': two_member_channel['member'],
+        'u_id': two_member_channel['member']['auth_user_id'],
     }
     response_addowner = requests.post(
         f"{config.url}channel/addowner/v1",
@@ -139,9 +139,10 @@ def test_invalid_channel_id_addowner(reset_data, two_member_channel):
 
 def test_invalid_u_id_addowner(reset_data, two_member_channel):
     data_addowner = {
-        'auth_user_id': two_member_channel['owner'],
+        'token': two_member_channel['owner']['token'],
         'channel_id': two_member_channel['channel_id'],
-        'u_id': two_member_channel['member'] + two_member_channel['owner'] + 1,
+        'u_id': two_member_channel['member']['auth_user_id'] +
+                two_member_channel['owner']['auth_user_id'] + 1,
     }
     response_addowner = requests.post(
         f"{config.url}channel/addowner/v1",
@@ -151,9 +152,9 @@ def test_invalid_u_id_addowner(reset_data, two_member_channel):
 
 def test_nonmember_addowner(reset_data, channel1, user2):
     data_addowner = {
-        'auth_user_id': channel1['user_id'],
+        'token': channel1['user']['token'],
         'channel_id': channel1['channel_id'],
-        'u_id': user2,
+        'u_id': user2['auth_user_id'],
     }
     response_addowner = requests.post(
         f"{config.url}channel/addowner/v1",
@@ -163,9 +164,9 @@ def test_nonmember_addowner(reset_data, channel1, user2):
 
 def test_already_owner_addowner(reset_data, channel1):
     data_addowner = {
-        'auth_user_id': channel1['user_id'],
+        'token': channel1['user']['token'],
         'channel_id': channel1['channel_id'],
-        'u_id': channel1['user_id'],
+        'u_id': channel1['user']['auth_user_id'],
     }
     response_addowner = requests.post(
         f"{config.url}channel/addowner/v1",
@@ -175,9 +176,9 @@ def test_already_owner_addowner(reset_data, channel1):
 
 def test_no_owner_permissions_addowner(reset_data, two_member_channel):
     data_addowner = {
-        'auth_user_id': two_member_channel['member'],
+        'token': two_member_channel['member']['token'],
         'channel_id': two_member_channel['channel_id'],
-        'u_id': two_member_channel['member'],
+        'u_id': two_member_channel['member']['auth_user_id'],
     }
     response_addowner = requests.post(
         f"{config.url}channel/addowner/v1",
@@ -187,10 +188,9 @@ def test_no_owner_permissions_addowner(reset_data, two_member_channel):
 
 def test_invalid_user_id_addowner(reset_data, two_member_channel):
     data_addowner = {
-        'auth_user_id': two_member_channel['owner'] + 
-                        two_member_channel['member'] + 1,
+        'token': "INVALID_TOKEN",
         'channel_id': two_member_channel['channel_id'],
-        'u_id': two_member_channel['member'],
+        'u_id': two_member_channel['member']['auth_user_id'],
     }
     response_addowner = requests.post(
         f"{config.url}channel/addowner/v1",
