@@ -91,6 +91,40 @@ def auth_register_v2():
     )
     return dumps(user_id)
 
+@APP.route("/channel/messages/v2", methods=['POST'])
+def channel_messages():
+    '''
+    Returns up to 50 messages from (start), given a channel_id and user_id
+
+    Arguments:
+        user_id     (int)      - The user's id, used to identify users
+        channel_id  (int)      - The channel's id, used to identify channel
+        start       (int)      - The number of the first message to return
+                                 eg. The most recent message would be 0
+                                     The second most recent message would be 1
+                                     And so on
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Start is greater than number of messages in the channel
+        AccessError - channel_id is valid and authorised user is not a member
+                      of the channel
+                    - user_id does not refer to a valid user
+
+
+    Return Value:
+        Returns
+        {'messages' : messages, 'start' : start, 'end': end}
+        on successful call
+    '''
+    data = request.get_json()
+    messages = channel_messages_v1(
+        data['auth_user_id'],
+        data['channel_id'],
+        data['start']
+    )
+    return dumps(messages)
+
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
     '''
