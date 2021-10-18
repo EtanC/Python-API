@@ -1,3 +1,4 @@
+'''
 import pytest
 
 from src.channels import channels_list_v1 as c_list, channels_create_v1 as c_create
@@ -109,3 +110,4 @@ def test_long_list(reset_data):
 
 
 
+'''
