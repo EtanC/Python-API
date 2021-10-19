@@ -60,22 +60,7 @@ def test_same_email(reset):
 
     response = requests.put(f'{config.url}user/profile/setemail/v1', json=data_setemail)
 
-    assert response.json() == {} 
-
-    data_profile = { 
-        'token': reset['token'], 
-        'u_id': reset['auth_user_id'],
-    }
-
-    response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
-
-    assert response.json()['user'] == { 
-        'u_id': reset['auth_user_id'], 
-        'email': 'realemail_812@outlook.edu.au', 
-        'name_first': 'John', 
-        'name_last': 'Smith', 
-        'handle_str': 'johnsmith',
-    }
+    assert response.status_code == 400
 
 def test_invalid_email(reset): 
     data_setemail = { 
