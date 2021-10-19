@@ -254,7 +254,7 @@ def user_profile_setname():
         AccessError - invalid token 
     
     Return Value: 
-        Returns {} on successfull call 
+        Returns {} on successful call 
     '''
 
     data = request.get_json() 
