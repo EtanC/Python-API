@@ -107,6 +107,8 @@ def user_profile_setname_v1(token, name_first, name_last):
     if valid_name(name_last) == False: 
         raise InputError(description='Last name must contain 1-50 characters')
     
+    # by this point, both the first and last name should be within character range
+    # so we just save them into the data_store 
     user['name_first'] = name_first
     user['name_last'] = name_last
     data_store.set(store)
