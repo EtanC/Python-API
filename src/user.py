@@ -2,6 +2,7 @@ from src.helper import token_to_user, decode_token
 from src.error import AccessError, InputError
 from src.data_store import data_store
 from src.channel import get_user
+from src.auth import valid_name 
 
 def users_all_v1(token): 
     '''
@@ -12,7 +13,7 @@ def users_all_v1(token):
         token (str): token identifying user
         
     Exceptions: 
-        AccessError - User not authorised 
+        AccessError - invalid token 
 
     Returns: 
         Returns users_list on successful creation 
@@ -51,7 +52,7 @@ def user_profile_v1(token, u_id):
     
     Exceptions: 
         InputError  - u_id does not refer to a valid user2 
-        AccessError - user1 not authorised 
+        AccessError - user1 invalid token 
     
     Return Value: 
         Returns user2 dictionary on successfull call 
@@ -76,3 +77,38 @@ def user_profile_v1(token, u_id):
     }
 
     return user
+
+def user_profile_setname_v1(token, name_first, name_last): 
+    '''
+    Update the authorised user's first and last name
+
+    Arguments: 
+        token       (str) - token identifying the user 
+        name_first  (str) - first name to change to if valid
+        name_last   (str) - last name to change to if valid
+    
+    Exceptions: 
+        InputError  - length of name_first not between 1 and 50 chars inclusive
+                    - length of name_last not between 1 and 50 chars inclusive
+        AccessError - invalid token 
+    
+    Return Value: 
+        Nothing
+    '''
+    store = data_store.get() 
+    user = token_to_user(token, store)
+
+    if user is None: 
+        raise AccessError(description='Invalid token')
+
+    if valid_name(name_first) == False: 
+        raise InputError(description='First name must contain 1-50 characters')
+    
+    if valid_name(name_last) == False: 
+        raise InputError(description='Last name must contain 1-50 characters')
+    
+    user['name_first'] = name_first
+    user['name_last'] = name_last
+    data_store.set(store)
+
+    pass 

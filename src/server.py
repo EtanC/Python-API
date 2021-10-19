@@ -7,7 +7,7 @@ from src.error import InputError, AccessError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
-from src.user import users_all_v1, user_profile_v1
+from src.user import users_all_v1, user_profile_v1, user_profile_setname_v1
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
@@ -158,7 +158,7 @@ def channels_create_v2():
     
     Exceptions: 
         InputError  - Channel name not between 1 and 20 characters 
-        AccessError - User not authorised 
+        AccessError - Invalid token 
 
     Return Value: 
         Returns {channel_id} on successful creation 
@@ -183,7 +183,7 @@ def channel_details_v2():
     Exceptions: 
         InputError  - Channel_id not valid 
         AccessError - Authorised user not member of existing channel 
-                    - User not authorised 
+                    - Invalid token 
 
     Return Value: 
         Returns {name, is_public, owner_members, all_members} on successful creation 
@@ -204,7 +204,7 @@ def users_all():
         token (str) - Token identifying user
         
     Exceptions: 
-        AccessError - User not authorised 
+        AccessError - Invalid token 
 
     Return Value: 
         Returns { users } on successful call  
@@ -226,7 +226,7 @@ def user_profile():
     
     Exceptions: 
         InputError  - u_id does not refer to a valid user2 
-        AccessError - user1 not authorised 
+        AccessError - user1 invalid token 
     
     Return Value: 
         Returns { user } on successfull call
@@ -237,6 +237,31 @@ def user_profile():
     user = user_profile_v1(data['token'], data['u_id'])
 
     return dumps({'user': user})
+
+@APP.route("/user/profile/setname/v1", methods=['PUT'])
+def user_profile_setname(): 
+    '''
+    Update the authorised user's first and last name
+
+    Arguments: 
+        token       (str) - token identifying the user 
+        name_first  (str) - first name to change to if valid
+        name_last   (str) - last name to change to if valid
+    
+    Exceptions: 
+        InputError  - length of name_first not between 1 and 50 chars inclusive
+                    - length of name_last not between 1 and 50 chars inclusive
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successfull call 
+    '''
+
+    data = request.get_json() 
+
+    user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
+
+    return dumps({})
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
