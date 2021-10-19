@@ -190,7 +190,7 @@ def channel_details_v2():
     return dumps(return_dict) 
 
 
-
+'''
 #MESSAGE
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send_v1():
@@ -214,7 +214,7 @@ def message_remove_v1():
 @APP.route("/message/senddm/v1", methods=['POST'])
 def message_senddm_v1():
     pass
-
+'''
 
 
 
