@@ -3,7 +3,7 @@ import requests
 from src.channel import channel_messages_v1
 from datetime import timezone, datetime
 import json
-from src.channels import channels_create_v1, channels_create_v2
+from src.channels import channels_create_v1
 from src.message import message_send_v1
 from datetime import timezone, datetime
 from src import config
