@@ -89,6 +89,9 @@ def user_profile_setemail_v1(token, email):
         InpurError  - Email entered is not in valid format 
                     - Email already used by someone else 
         AccessError - Invalid token
+    
+    Return Value: 
+        Nothing 
     '''
     store = data_store.get() 
 
