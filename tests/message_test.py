@@ -189,7 +189,8 @@ def test_valid_send(reset_data, channel1): #POST
 
     assert response_channel_messages_details.json() == expected
 
-#message/edit/v1 tests
+'''
+#message/edit/v1 tests 
 def test_invalid_length_edit(reset_data): #PUT
     
     # >1000 length message (InputError)
@@ -280,11 +281,9 @@ def test_non_owner_message_edit(reset_data, user1, channel1, user2): #PUT
     # might need channel/details/v2 since it includes 'owner_members'
     # in the dict
 
-
-
-
     pass
 
+'''
 '''
 def test_heroes():
     response = requests.get(f'{BASE_URL}/heroes')

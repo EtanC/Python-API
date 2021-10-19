@@ -7,7 +7,7 @@ from flask import Flask, request
 from src.helper import token_to_user, get_channel
 from datetime import timezone, datetime
 
-
+######
 def message_send_v1(token, channel_id, message):
 
     store = data_store.get()
@@ -58,17 +58,6 @@ def message_send_v1(token, channel_id, message):
     return {
         'message_id': message_id
     }
-
-
-
-
-
-def message_edit_v1(token, message_id, message):
-    pass
-def message_remove_v1(token, message_id):
-    pass
-def message_senddm_v1(token, dm_id, message):
-    pass
 
 
 
