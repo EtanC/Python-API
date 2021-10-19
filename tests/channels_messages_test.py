@@ -1,3 +1,4 @@
+'''
 import pytest
 import requests
 from src import config
@@ -120,3 +121,4 @@ def test_invalid_user_id(reset_data, channel1):
 ## TODO: test edge cases for the number of messages that are returned
 # Eg. does channel_messages_v1(user_id, channel_id, 1) break if it has 1 message
 # message_create/send required
+'''
