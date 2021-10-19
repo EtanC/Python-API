@@ -96,7 +96,6 @@ def auth_register_v2():
         data['name_last']
     )
     return dumps(user_id)
-   #or reurn dumps({"...", ...}) 
 
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
