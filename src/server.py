@@ -7,7 +7,7 @@ from src.error import InputError, AccessError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
-from src.user import users_all_v1, user_profile_v1
+from src.user import users_all_v1, user_profile_v1, user_profile_sethandle_v1
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
@@ -221,7 +221,7 @@ def user_profile():
     last name and handle_str.
 
     Arguments: 
-        token   (str) - token idenfifying user1 (accessing the route) 
+        token   (str) - token identifying user1 (accessing the route) 
         u_id    (int) - user id of the target / user2
     
     Exceptions: 
@@ -229,7 +229,7 @@ def user_profile():
         AccessError - user1 not authorised 
     
     Return Value: 
-        Returns { user } on successfull call
+        Returns { user } on successful call
     '''
 
     data = request.get_json() 
@@ -238,7 +238,30 @@ def user_profile():
 
     return dumps({'user': user})
 
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_profile_sethandle(): 
+    '''
+    Update the user's handle (display name)
 
+    Arguments: 
+        token       (str)       -   token identifying user 
+        handle_str  (str)       -   handle user wants to change to 
+    
+    Exceptions: 
+        InputError  - length of handle_str not between 3-20 chars inclusive
+                    - handle_str contains non-alphanumeric chars 
+                    - handle already used by another user 
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+
+    data = request.get_json() 
+
+    user_profile_sethandle_v1(data['token'], data['handle_str'])
+
+    return dumps({})
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
