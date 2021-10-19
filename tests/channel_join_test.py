@@ -69,7 +69,6 @@ def channel1_private(user1):
 
     return {'user_id' : user_id, 'channel_id' : channel_id}
 
-
 # create user2 which we will use to join channel1
 @pytest.fixture
 def user2():
