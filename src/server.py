@@ -7,6 +7,7 @@ from src.error import InputError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
+from src.message import message_send_v1, message_edit_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -88,6 +89,7 @@ def auth_register_v2():
         data['name_last']
     )
     return dumps(user_id)
+   #or reurn dumps({"...", ...}) 
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
@@ -108,27 +110,35 @@ def clear():
 
 #MESSAGE
 @APP.route("/message/send/v1", methods=['POST'])
-def message_send_v1():
+def message_send():
 
     data = request.get_json()
-    message = message_send_v1(
+    message_id = message_send_v1(
         data['token'],
         data['channel_id'],
+        data['message']
+    )
+    return dumps(message_id)
+
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit():
+
+    data = request.get_json()
+    message = message_edit_v1(
+        data['token'],
+        data['message_id'],
         data['message']
     )
     return dumps(message)
 
 
-@APP.route("/message/edit/v1", methods=['PUT'])
-def message_edit_v1():
-    pass
-
 @APP.route("/message/remove/v1", methods=['DELETE'])
-def message_remove_v1():
+def message_remove():
     pass
 
 @APP.route("/message/senddm/v1", methods=['POST'])
-def message_senddm_v1():
+def message_senddm():
     pass
 
 

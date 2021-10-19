@@ -5,8 +5,6 @@ from src.channels import channels_list_v1, check_valid_user_id
 from copy import deepcopy
 import re
 
-
-
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     store = data_store.get()
@@ -97,7 +95,6 @@ def get_user(auth_user_id, store):
             return user
     return None
 
-
 def get_channel(channel_id, store):
     '''
     Searches for a channel in the data_store with the given channel_id
@@ -117,7 +114,6 @@ def is_channel_member(auth_user_id, members):
             return True
     return False
             
-
 def channel_messages_v1(auth_user_id, channel_id, start):
     '''
     Returns up to 50 messages from the specified channel given a starting index

@@ -2,6 +2,7 @@ import pytest
 import requests
 import json
 from src.channels import channels_create_v1, channels_create_v2
+from src.message import message_send_v1
 from datetime import timezone, datetime
 
 from src import config
@@ -47,6 +48,24 @@ def user2():
     return {'token' : token, 'auth_user_id' : auth_user_id}
 
 @pytest.fixture
+def user3():
+    data_register = {
+        'email': "josh.jenkins10@gmail.com",
+        'password': "joshjenkins",
+        'name_first': "Josh",
+        'name_last': "Jenkins",
+    }
+    response_register = requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+
+    auth_user_id = response_register.json()['auth_user_id']
+    token = response_register.json()['token']
+    return {'token' : token, 'auth_user_id' : auth_user_id}
+
+
+@pytest.fixture
 def channel1(user1):
     data_create = {
         'auth_user_id': user1,
@@ -73,7 +92,8 @@ def test_invalid_email_register(reset_data):
     assert response_register.status_code == 400
 '''
 
-def test_invalid_length_message(reset_data): #POST
+#message/send/v1 tests
+def test_invalid_length_send(reset_data): #POST
 
     # <1 length message
     data_register = {
@@ -91,17 +111,19 @@ def test_invalid_length_message(reset_data): #POST
     json=data_register)
     assert response_register.status_code == 400
 
-def test_invalid_channelID_message(reset_data): #POST
+def test_invalid_channelID_send(reset_data, user1, channel1): #POST
 
-   #  get channel_id from channels/create/v2 (returns that)
-
+    # get channel_id from channels/create/v2 (returns as dict)
+    token = user1['token']
+    name = "channel_one"
+    is_public = True
     channel_id = channels_create_v2(token, name, is_public)
 
     data_register = {
-      "token": "TOKEN",
+      "token": token,
        "message": "valid_message",
+       "channel_id": channel_id
     }
-    data_register.update(channel_id) 
     data_register['channel_id'] += 1
 
     # invalid channel ID test (InputError)
@@ -109,10 +131,10 @@ def test_invalid_channelID_message(reset_data): #POST
     json=data_register)
     assert response_register.status_code == 400
 
-def test_invalid_token_message(reset_data): #POST
+def test_invalid_token_send(reset_data): #POST
     pass
 
-def test_nonmember_channel_message(reset_data, channel1, user2): # POST
+def test_nonmember_channel_send(reset_data, channel1, user2): # POST
 
     data_register = {
        "token": user2['token'],
@@ -124,7 +146,7 @@ def test_nonmember_channel_message(reset_data, channel1, user2): # POST
     json=data_register)
     assert response_register.status_code == 403
 
-def test_valid_send_message(reset_data, channel1): #POST
+def test_valid_send(reset_data, channel1): #POST
 
     data_send_message = {
        #"token": user['token'], PLACEHOLDER - token not done yet
@@ -143,16 +165,15 @@ def test_valid_send_message(reset_data, channel1): #POST
 
     expected = {
         'messages': [
-        {
+            {
             'message_id': response_send_message_data['message_id'],
             'u_id': channel1['user_id'],
             'message': "valid_message",
             'time_created': time_created,
-        }
-    ], 
+            }
+        ], 
         'start': 0,
         'end': -1 # -1 : no more messages to load
-
     }
 
     data_details = {
@@ -168,9 +189,101 @@ def test_valid_send_message(reset_data, channel1): #POST
 
     assert response_channel_messages_details.json() == expected
 
+#message/edit/v1 tests
+def test_invalid_length_edit(reset_data): #PUT
+    
+    # >1000 length message (InputError)
+    data_register = {
+        "token": "TOKEN",
+        "message_id": 0,
+        "message": "",
+    }
+
+    data_register['message'] = 'x' * 1001
+    response_register = requests.put(f"{config.url}message/edit/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+def test_invalid_messageID_edit(reset_data, user1, channel1): #PUT
+
+    # get message_id from message/send/v1 (returns as dict)
+    token = user1['token']
+    channel_id = channel1['channel_id']
+    message = "valid_message"
+    message_id = message_send_v1(token, channel_id, message)
+
+    data_register = {
+        "token": token,
+        "message_id": message_id,
+        "message": message
+    }
+    data_register['message_id'] += 1
+
+    # InputError
+    response_register = requests.put(f"{config.url}message/edit/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+def test_invalid_user_message_edit(reset_data, user1, channel1, user2): #PUT
+
+    # message_send_v1(token, channel_id, message): return {message_id}
+    # user1: return {'token' : token, 'auth_user_id' : auth_user_id}
+    # channel1: return {'user_id' : user1['auth_user_id'], 'channel_id' : channel_id} 
+    # user2: return {'token' : token, 'auth_user_id' : auth_user_id}
+
+    # messageID is valid BUT:
+    # the message was NOT sent by the user making the request (user2)
+    # the user does not have owner permissions in the channel/DM
+
+    # channel1 contains user1
+    token = user1['token']
+    channel_id = channel1['channel_id']
+
+    data_send_message = {
+      "token": token,
+       "message": "valid_message",
+       "channel_id": channel_id
+    }
+
+    response_send_message = requests.post(f"{config.url}message/send/v1",\
+        json=data_send_message
+    )
+    response_send_message_data = response_send_message.json()
+
+    token = user2['token']
+    message_id = response_send_message_data['message_id']
+    message = "valid_message"
+
+    data_edit_message = {
+        "token": token,
+        "message_id": message_id,
+        "message": message,
+    }
+
+    response_edit_message = requests.post(f"{config.url}message/edit/v1",\
+    json=data_edit_message)
+    assert response_edit_message.status_code == 403 
+
+def test_non_owner_message_edit(reset_data, user1, channel1, user2): #PUT
+
+    # add user2 to channel 1 which already has user1
+    channel_id = channel1['channel_id']
+    token = user2['token']
+    data_register = {
+        "channel_id": channel_id,
+        "token": token,
+    }
+    requests.post(f"{config.url}channel/join/v2",\
+    json=data_register)
+
+    # ASK HOW TO CHECK THE OWNERS OF THE CHANNEL
+    # might need channel/details/v2 since it includes 'owner_members'
+    # in the dict
 
 
 
+
+    pass
 
 '''
 def test_heroes():
