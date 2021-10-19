@@ -5,6 +5,8 @@ from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError
 from src.auth import auth_login_v1, auth_register_v1
+from src.channels import channels_create_v1
+from src.channel import channel_join_v1, channel_details_v1
 from src.other import clear_v1
 from src import config
 
@@ -106,6 +108,89 @@ def clear():
     clear_v1()
     return dumps({})
 
+
+@APP.route("/channels/create/v2", methods=['POST'])
+def channels_create_v2(): 
+    '''
+    Creates a channel with the given name, channel can me public or private. 
+    Creator of channel is immediately added to the channel. 
+
+    Arguments:
+        token (str): token identifying user 
+        name (str): name of channel 
+        is_public (bool): whether channel is public (True) or private (False)
+    
+    Exceptions: 
+        InputError  - Channel name not between 1 and 20 characters 
+        AccessError - User not authorised 
+
+    Returns: 
+        Returns {channel_id} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    channel_id = channels_create_v1(data['token'], data['name'], data['is_public'])
+
+    return dumps(channel_id)
+
+
+
+#channel/join/v2
+@APP.route("/channel/join/v2", methods = ['POST'])
+def channel_join_v2():
+    '''
+        Given a channel_id of a channel that the authorised user can join, 
+        adds them to that channel.
+        Arguments:
+
+            token (str): token identifying user 
+            channel_id (int): id of channel 
+
+        Exceptions: 
+
+            InputError  - Invalid channel id
+                        - User already in channel
+
+            AccessError - User is not a member and owner of a private channel
+
+        Returns: 
+            Returns {} on successful creation 
+    '''
+    data = request.get_json() 
+
+    token = data['token'] 
+    channel_id = data['channel_id'] 
+
+    empty_dict = channel_join_v1(token, channel_id)
+    return dumps(empty_dict)
+
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details_v2(): 
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
+
+    Arguments:
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - User not authorised 
+
+    Return Value: 
+        Returns {name, is_public, owner_members, all_members} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    return_dict = channel_details_v1(data['token'], data['channel_id'])
+    return dumps(return_dict) 
+
+
+
 #MESSAGE
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send_v1():
@@ -117,7 +202,6 @@ def message_send_v1():
         data['message']
     )
     return dumps(message)
-
 
 @APP.route("/message/edit/v1", methods=['PUT'])
 def message_edit_v1():

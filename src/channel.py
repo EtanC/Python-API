@@ -1,10 +1,9 @@
 from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
-from src.channels import channels_list_v1, check_valid_user_id
 from copy import deepcopy
 import re
-
+from src.helper import decode_token, get_user, get_channel, check_valid_channel, check_valid_user_id
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -46,7 +45,14 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     return {}
 
-def channel_details_v1(auth_user_id, channel_id):
+def channel_details_v1(token, channel_id):
+    token_data = decode_token(token)
+    
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
 
     store = data_store.get() 
 
@@ -63,23 +69,31 @@ def channel_details_v1(auth_user_id, channel_id):
         raise AccessError("Authorised user is not a member of the channel")
 
     # copying member and owner list into temporary lists 
-    channel = find_channel(channel_id, store) 
-    #mem_list = channel['all_members'].copy() 
-    #own_list = channel['owner_members'].copy() 
+    channel = get_channel(channel_id, store) 
 
-    # run deepcopy to keep original data store untouched 
-    mem_list = deepcopy(channel['all_members'])
-    own_list = deepcopy(channel['owner_members'])
+    # go through the members and owners and copy everything required 
+    # into a new list to return 
+    mem_list = [] 
+    own_list = [] 
     
-
-    # go through list of members in temp list and remove their password info 
-    for member in mem_list: 
-        del member['password'] 
+    for member in channel['all_members']: 
+        mem_list.append({
+            'u_id': member['u_id'], 
+            'email': member['email'], 
+            'name_first': member['name_first'], 
+            'name_last': member['name_last'], 
+            'handle_str': member['handle_str'], 
+        })
     
-    # go through list of owners in temp list and remove their password info 
-    for owner in own_list: 
-        del owner['password']
-    
+    for owner in channel['owner_members']: 
+        own_list.append({
+            'u_id': owner['u_id'], 
+            'email': owner['email'], 
+            'name_first': owner['name_first'], 
+            'name_last': owner['name_last'], 
+            'handle_str': owner['handle_str'], 
+        })
+   
     return {
         'name': channel['name'],
         'is_public': channel['is_public'], 
@@ -87,26 +101,7 @@ def channel_details_v1(auth_user_id, channel_id):
         'all_members': mem_list,
     }
 
-def get_user(auth_user_id, store):
-    '''
-    Searches for a user in the data_store with the given user_id
-    Returns None if the user was not found
-    '''
-    for user in store['users']:
-        if auth_user_id == user['u_id']:
-            return user
-    return None
 
-
-def get_channel(channel_id, store):
-    '''
-    Searches for a channel in the data_store with the given channel_id
-    Returns None if the channel was not found
-    '''
-    for channel in store['channels']:
-        if channel['channel_id'] == channel_id:
-            return channel
-    return None
 
 def is_channel_member(auth_user_id, members):
     '''
@@ -117,7 +112,6 @@ def is_channel_member(auth_user_id, members):
             return True
     return False
             
-
 def channel_messages_v1(auth_user_id, channel_id, start):
     '''
     Returns up to 50 messages from the specified channel given a starting index
@@ -155,42 +149,18 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         'end': end,
     }
 
-#helper function that returns the user
-#returns user_id (dictionary) or None
-def get_user(auth_user_id, store):
+# ITERATION2 VERSION
+def channel_join_v1(token, channel_id):
 
-    store = data_store.get()
+    token_data = decode_token(token)
 
-    # if the user is valid, return the user otherise return NOTHING
-    if check_valid_user_id(auth_user_id, store) == True:
-        return store['users'][auth_user_id - 1]   
-    
-    return None
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
 
-#helper function to check if the channel_id is valid
-def check_valid_channel(channel_id, store): 
-    result = False 
-
-    # if channel_id exists return True, else return False 
-    for channel in store['channels']: 
-        if channel_id == channel['channel_id']: 
-            result = True
-    return result     
-
-#helper function that return the channel
-#returns channel_id (dictionary) or None
-def get_channel(channel_id, store):
-
-    store = data_store.get()
-    # if the channel is valid, return the channel otherise return NOTHING
-    if check_valid_channel(channel_id, store) == True:
-        return store['channels'][channel_id - 1]   
-    
-    return None
+    auth_user_id = token_data['auth_user_id']
 
 
-def channel_join_v1(auth_user_id, channel_id):
-    
     store = data_store.get() # get the data
     channel = get_channel(channel_id, store)
     user = get_user(auth_user_id, store)
@@ -220,14 +190,6 @@ def channel_join_v1(auth_user_id, channel_id):
     return {
     }
 
-def check_valid_channel(channel_id, store): 
-    result = False 
-
-    # if channel_id exists return True, else return False 
-    for channel in store['channels']: 
-        if channel_id == channel['channel_id']: 
-            result = True
-    return result 
 
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 
@@ -250,9 +212,3 @@ def check_member_in_channel(auth_user_id, channel_id, store):
     else: 
         return False 
 
-def find_channel(channel_id, store): 
-
-    for channel in store['channels']: 
-        if channel_id == channel['channel_id']: 
-            return channel 
-    return None 

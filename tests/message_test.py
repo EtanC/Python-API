@@ -12,7 +12,7 @@ url = f"http://localhost:{port}/"
 
 @pytest.fixture
 def reset_data():
-    requests.delete(f"{config.url}clearmessage/v1")
+    requests.delete(f"{config.url}clear/v1")
 
 @pytest.fixture
 def user1():

@@ -59,3 +59,23 @@ def valid_email(email, store):
         if email == user['email']:
             raise InputError(description="Email already in use")
     return bool(re.match(EMAIL_REGEX, email))
+
+def check_valid_channel(channel_id, store): 
+    result = False 
+
+    # if channel_id exists return True, else return False 
+    for channel in store['channels']: 
+        if channel_id == channel['channel_id']: 
+            result = True
+    return result     
+
+# check if user id is valid 
+def check_valid_user_id(auth_user_id, store): 
+    result = False 
+
+    # if auth_user_id exists, return true, else return false 
+    for users in store['users']: 
+        if auth_user_id == users['u_id']: 
+            result = True
+
+    return result
