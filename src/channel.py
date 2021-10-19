@@ -5,7 +5,7 @@ from src.channels import channels_list_v1, check_valid_user_id
 from copy import deepcopy
 from src.helper import decode_token, token_to_user, get_channel, get_user
 import re
-from src.helper import decode_token, token_to_user
+from src.helper import decode_token, token_to_user, get_user, get_channel
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
