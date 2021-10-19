@@ -69,7 +69,7 @@ def channel_details_v1(token, channel_id):
         raise AccessError("Authorised user is not a member of the channel")
 
     # copying member and owner list into temporary lists 
-    channel = find_channel(channel_id, store) 
+    channel = get_channel(channel_id, store) 
 
     # go through the members and owners and copy everything required 
     # into a new list to return 
@@ -158,8 +158,18 @@ def check_valid_channel(channel_id, store):
             result = True
     return result     
 
-def channel_join_v1(auth_user_id, channel_id):
-    
+# ITERATION2 VERSION
+def channel_join_v1(token, channel_id):
+
+    token_data = decode_token(token)
+
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
+
+
     store = data_store.get() # get the data
     channel = get_channel(channel_id, store)
     user = get_user(auth_user_id, store)
@@ -189,6 +199,7 @@ def channel_join_v1(auth_user_id, channel_id):
     return {
     }
 
+
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 
     user_data = {} 
@@ -210,9 +221,3 @@ def check_member_in_channel(auth_user_id, channel_id, store):
     else: 
         return False 
 
-def find_channel(channel_id, store): 
-
-    for channel in store['channels']: 
-        if channel_id == channel['channel_id']: 
-            return channel 
-    return None 
