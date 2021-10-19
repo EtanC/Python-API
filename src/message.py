@@ -10,6 +10,10 @@ from datetime import timezone, datetime
 ######
 def message_send_v1(token, channel_id, message):
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> implented and tested message/send/v1
     token_data = decode_token(token)
     auth_user_id = token_data['auth_user_id']
 

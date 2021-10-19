@@ -10,12 +10,9 @@ from src import config
 from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
-<<<<<<< HEAD
-from src.message import message_send_v1
 from src.helper import decode_token 
-=======
 from src.message import message_send_v1, message_edit_v1
->>>>>>> added tests and some implementation
+
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -100,7 +97,6 @@ def auth_register_v2():
     )
     return dumps(user_id)
    #or reurn dumps({"...", ...}) 
-<<<<<<< HEAD
 
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
@@ -136,8 +132,6 @@ def channel_messages():
     )
     return dumps(messages)
 
-=======
->>>>>>> added tests and some implementation
 
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
@@ -283,32 +277,17 @@ def user_profile():
 
     return dumps({'user': user})
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 #MESSAGE
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send():
 
     data = request.get_json()
     message_id = message_send_v1(
-=======
-#MESSAGE
-@APP.route("/message/send/v1", methods=['POST'])
-def message_send():
-
-    data = request.get_json()
-<<<<<<< HEAD
-    message = message_send_v1(
->>>>>>> added some functions as placeholders
-=======
-    message_id = message_send_v1(
->>>>>>> added tests and some implementation
         data['token'],
         data['channel_id'],
         data['message']
     )
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     return dumps(message_id)
 
 '''
@@ -334,15 +313,7 @@ def message_senddm():
 '''
 
 
-=======
->>>>>>> Implemented wrapper function for user profile in server.py and also added function for user_profile_v1 in user.py
-=======
-    return dumps(message)
-=======
-    return dumps(message_id)
->>>>>>> added tests and some implementation
-
-
+'''
 @APP.route("/message/edit/v1", methods=['PUT'])
 def message_edit():
 
@@ -362,14 +333,7 @@ def message_remove():
 @APP.route("/message/senddm/v1", methods=['POST'])
 def message_senddm():
     pass
-
-
-
-
-
-
-
->>>>>>> added some functions as placeholders
+'''
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
