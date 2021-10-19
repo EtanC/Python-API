@@ -7,7 +7,10 @@ from src.error import InputError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
-from src.message import message_send_v1, message_edit_v1
+from src.message import message_send_v1
+from src.channels import channels_create_v1
+from src.channel import channel_messages_v1
+
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -91,6 +94,41 @@ def auth_register_v2():
     return dumps(user_id)
    #or reurn dumps({"...", ...}) 
 
+@APP.route("/channel/messages/v2", methods=['GET'])
+def channel_messages():
+    '''
+    Returns up to 50 messages from (start), given a channel_id and token
+
+        Arguments:
+            token       (str)      - The token used to verify the user's identity
+            channel_id  (int)      - The channel's id, used to identify channel
+            start       (int)      - The number of the first message to return
+                                     eg. The most recent message would be 0
+                                         The second most recent message would be 1
+                                         And so on
+
+        Exceptions:
+            InputError  - Occurs when channel_id does not refer to a valid channel
+                        - Start is greater than number of messages in the channel
+            AccessError - channel_id is valid and authorised user is not a member
+                          of the channel
+                        - user_id does not refer to a valid user
+
+
+        Return Value:
+            Returns
+            {'messages' : messages, 'start' : start, 'end': end}
+            on successful call
+    '''
+    data = request.get_json()
+    messages = channel_messages_v1(
+        data['token'],
+        data['channel_id'],
+        data['start']
+    )
+    return dumps(messages)
+
+
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
     '''
@@ -108,6 +146,31 @@ def clear():
     clear_v1()
     return dumps({})
 
+@APP.route("/channels/create/v2", methods=['POST'])
+def channels_create_v2(): 
+    '''
+    Creates a channel with the given name, channel can me public or private. 
+    Creator of channel is immediately added to the channel. 
+
+    Arguments:
+        token (str): token identifying user 
+        name (str): name of channel 
+        is_public (bool): whether channel is public (True) or private (False)
+    
+    Exceptions: 
+        InputError  - Channel name not between 1 and 20 characters 
+        AccessError - User not authorised 
+
+    Returns: 
+        Returns {channel_id} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    channel_id = channels_create_v1(data['token'], data['name'], data['is_public'])
+
+    return dumps(channel_id)
+
 #MESSAGE
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send():
@@ -120,7 +183,7 @@ def message_send():
     )
     return dumps(message_id)
 
-
+'''
 @APP.route("/message/edit/v1", methods=['PUT'])
 def message_edit():
 
@@ -140,7 +203,7 @@ def message_remove():
 @APP.route("/message/senddm/v1", methods=['POST'])
 def message_senddm():
     pass
-
+'''
 
 
 

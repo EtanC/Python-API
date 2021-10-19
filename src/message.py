@@ -4,15 +4,27 @@ from src.error import InputError
 from src.error import AccessError
 from json import dumps
 from flask import Flask, request
-from src.helper import token_to_user, get_channel
+from src.helper import token_to_user, get_channel, decode_token, get_user
 from datetime import timezone, datetime
 
 ######
 def message_send_v1(token, channel_id, message):
 
+
+    token_data = decode_token(token)
+    auth_user_id = token_data['auth_user_id']
+
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
     store = data_store.get()
     channel = get_channel(channel_id, store)
     user = token_to_user(token, store)
+
+    # Checking if auth_user_id is valid
+    if get_user(auth_user_id, store) == None:
+        raise AccessError("auth_user_id is not valid")
 
     # check the token's validity:
     if user == None:
