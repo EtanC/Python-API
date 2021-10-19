@@ -8,7 +8,7 @@ from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
-from src.channels import channels_create_v1
+from src.channels import channels_create_v1, channels_list_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
@@ -43,6 +43,14 @@ def echo():
     return dumps({
         'data': data
     })
+
+
+'''
+
+Auth.py section 
+
+'''
+
 
 @APP.route("/auth/login/v2", methods=['POST'])
 def auth_login_v2():
@@ -94,6 +102,14 @@ def auth_register_v2():
     )
     return dumps(user_id)
 
+
+'''
+
+channel.py section 
+
+'''
+
+
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
     '''
@@ -128,22 +144,37 @@ def channel_messages():
     )
     return dumps(messages)
 
-@APP.route("/clear/v1", methods=['DELETE'])
-def clear():
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details_v2(): 
     '''
-    Resets the internal data of the application to its initial state
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
 
     Arguments:
-        None
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - User not authorised 
 
-    Exceptions:
-        None
-
-    Return Value:
-        Returns {} on successful call
+    Return Value: 
+        Returns {name, is_public, owner_members, all_members} on successful creation 
     '''
-    clear_v1()
-    return dumps({})
+
+    data = request.get_json() 
+
+    return_dict = channel_details_v1(data['token'], data['channel_id'])
+    return dumps(return_dict) 
+
+
+'''
+
+channels.py section 
+
+'''
+
 
 @APP.route("/channels/create/v2", methods=['POST'])
 def channels_create_v2(): 
@@ -170,29 +201,25 @@ def channels_create_v2():
 
     return dumps(channel_id)
 
-@APP.route("/channel/details/v2", methods=['GET'])
-def channel_details_v2(): 
+@APP.route("/channels/list/v2", methods=['GET'])
+def channels_list_v2(): 
     '''
-    Given a channel with ID channel_id that the authorised user is a member of, 
-    provide basic details about the channel 
-
     Arguments:
-        token       (str) - token identifying user
-        channel_id  (int) - id of channel 
-        
+        token       (str)     - token identifying user 
+
     Exceptions: 
-        InputError  - Channel_id not valid 
-        AccessError - Authorised user not member of existing channel 
-                    - User not authorised 
+        AccessError - User not authorised 
 
     Return Value: 
-        Returns {name, is_public, owner_members, all_members} on successful creation 
+        Returns {channels} on successful creation 
     '''
 
     data = request.get_json() 
 
-    return_dict = channel_details_v1(data['token'], data['channel_id'])
-    return dumps(return_dict) 
+    channels = channels_list_v1(data['token'])
+
+    return dumps(channels)
+
 
 @APP.route("/users/all/v1", methods=['GET'])
 def users_all(): 
@@ -237,6 +264,24 @@ def user_profile():
     user = user_profile_v1(data['token'], data['u_id'])
 
     return dumps({'user': user})
+
+@APP.route("/clear/v1", methods=['DELETE'])
+def clear():
+    '''
+    Resets the internal data of the application to its initial state
+
+    Arguments:
+        None
+
+    Exceptions:
+        None
+
+    Return Value:
+        Returns {} on successful call
+    '''
+    clear_v1()
+    return dumps({})
+
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
