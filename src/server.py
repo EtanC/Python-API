@@ -9,7 +9,7 @@ from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1
-from src.channel import channel_details_v1, channel_messages_v1
+from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.helper import decode_token 
 from src.message import message_send_v1
 
@@ -174,6 +174,34 @@ def channels_create_v2():
     channel_id = channels_create_v1(data['token'], data['name'], data['is_public'])
 
     return dumps(channel_id)
+
+@APP.route("/channel/join/v2", methods = ['POST'])
+def channel_join_v2():
+    '''
+        Given a channel_id of a channel that the authorised user can join, 
+        adds them to that channel.
+        Arguments:
+
+            token (str): token identifying user 
+            channel_id (int): id of channel 
+
+        Exceptions: 
+
+            InputError  - Invalid channel id
+                        - User already in channel
+
+            AccessError - User is not a member and owner of a private channel
+
+        Returns: 
+            Returns {} on successful creation 
+    '''
+    data = request.get_json() 
+
+    token = data['token'] 
+    channel_id = data['channel_id'] 
+
+    empty_dict = channel_join_v1(token, channel_id)
+    return dumps(empty_dict)
 
 @APP.route("/channel/details/v2", methods=['GET'])
 def channel_details_v2(): 
