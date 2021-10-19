@@ -148,19 +148,6 @@ def channel_messages_v1(token, channel_id, start):
         'end': end,
     }
 
-
-#helper function that returns the user
-#returns user_id (dictionary) or None
-def get_user(auth_user_id, store):
-
-    store = data_store.get()
-
-    # if the user is valid, return the user otherwise return NOTHING
-    if check_valid_user_id(auth_user_id, store) == True:
-        return store['users'][auth_user_id - 1]   
-    
-    return None
-
 #helper function to check if the channel_id is valid
 def check_valid_channel(channel_id, store): 
     result = False 
@@ -170,18 +157,6 @@ def check_valid_channel(channel_id, store):
         if channel_id == channel['channel_id']: 
             result = True
     return result     
-
-#helper function that return the channel
-#returns channel_id (dictionary) or None
-def get_channel(channel_id, store):
-
-    store = data_store.get()
-    # if the channel is valid, return the channel otherwise return NOTHING
-    if check_valid_channel(channel_id, store) == True:
-        return store['channels'][channel_id - 1]   
-    
-    return None
-
 
 def channel_join_v1(auth_user_id, channel_id):
     
