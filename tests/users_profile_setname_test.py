@@ -127,6 +127,28 @@ def test_long_last_name(reset):
 
     assert response.status_code == 400 
 
+def test_long_first_and_last_name(reset): 
+    data_setname = { 
+        'token': reset['token'],
+        'name_first': 'Tim'*50, 
+        'name_last': 'Lee'*50, 
+    }
+
+    response = requests.put(f"{config.url}user/profile/setname/v1", json=data_setname)
+
+    assert response.status_code == 400 
+
+def test_short_first_and_last_name(reset): 
+    data_setname = { 
+        'token': reset['token'],
+        'name_first': '', 
+        'name_last': '', 
+    }
+
+    response = requests.put(f"{config.url}user/profile/setname/v1", json=data_setname)
+
+    assert response.status_code == 400 
+
 def test_invalid_token(reset): 
     data_setname = { 
         'token': 'invalid_token',
