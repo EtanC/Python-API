@@ -100,7 +100,17 @@ def test_long_handle(reset):
 def test_non_alphanumeric_handle(reset): 
     data_sethandle = { 
         'token': reset['token'], 
-        'handle_str': '!@#$%^&*()'
+        'handle_str': 'DONOTTOUCH!'
+    }
+
+    response = requests.put(f'{config.url}user/profile/sethandle/v1', json=data_sethandle)
+
+    assert response.status_code == 400 
+
+def test_full_non_alphanumeric_handle(reset): 
+    data_sethandle = { 
+        'token': reset['token'], 
+        'handle_str': '!@#$%^&*()!'
     }
 
     response = requests.put(f'{config.url}user/profile/sethandle/v1', json=data_sethandle)
