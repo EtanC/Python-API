@@ -140,11 +140,11 @@ def channel_messages():
         {'messages' : messages, 'start' : start, 'end': end}
         on successful call
     '''
-    data = request.get_json()
+    data = request.args
     messages = channel_messages_v1(
         data['token'],
-        data['channel_id'],
-        data['start']
+        int(data['channel_id']),
+        int(data['start'])
     )
     return dumps(messages)
 
