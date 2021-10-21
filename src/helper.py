@@ -23,6 +23,19 @@ def get_channel(channel_id, store):
             return channel
     return None
 
+def get_message(message_id, store):
+    '''
+    Searches for the message in the data_store with the given message_id
+    Returns None if the message id was not found
+    '''
+
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                return message
+    return None
+
+
 def decode_token(token):
     '''
     Returns the data inside the jwt token.

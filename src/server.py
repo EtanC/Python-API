@@ -11,7 +11,7 @@ from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.helper import decode_token 
-from src.message import message_send_v1
+from src.message import message_send_v1, message_edit_v1
 
 
 def quit_gracefully(*args):
@@ -284,7 +284,7 @@ def message_send():
 
     return dumps(message_id)
 
-'''
+
 @APP.route("/message/edit/v1", methods=['PUT'])
 def message_edit():
 
@@ -296,7 +296,7 @@ def message_edit():
     )
     return dumps(message)
 
-
+'''
 @APP.route("/message/remove/v1", methods=['DELETE'])
 def message_remove():
     pass
