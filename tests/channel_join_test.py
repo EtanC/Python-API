@@ -104,7 +104,7 @@ def test_valid_channel_join(reset_data, channel1_public, user2):
 
     # get the channel1 details to check
     response_join_register = requests.get(
-        f"{config.url}channel/details/v2", json=join_register
+        f"{config.url}channel/details/v2", params=join_register
     )
 
     response_join_register_data = response_join_register.json()
