@@ -92,7 +92,7 @@ def user_profile_sethandle_v1(token, handle_str):
         AccessError - invalid token 
     
     Return Value: 
-        Nothing
+        Returns {} on successful call 
     '''
     store = data_store.get()
 
@@ -116,4 +116,4 @@ def user_profile_sethandle_v1(token, handle_str):
     token_user['handle_str'] = handle_str 
     data_store.set(store)
 
-    pass
+    return {} 
