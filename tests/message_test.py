@@ -209,6 +209,7 @@ def test_valid_send(reset_data, channel1, user1): #POST
     assert response_data == expected_data
 
 # message/edit/v1 tests
+'''
 
 def test_invalid_token_edit(reset_data, user1, channel1): 
 
@@ -323,7 +324,6 @@ def test_invalid_user_message_edit(reset_data, user1, channel1, user2): #PUT
 
 # owner permissions test (not done yet)
 
-'''
 def test_valid_message_edit(reset_data, user1, channel1): #PUT
 
     # user1 sends a mesage in channel1
