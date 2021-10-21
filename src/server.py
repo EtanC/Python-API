@@ -7,7 +7,10 @@ from src.error import InputError, AccessError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
-from src.user import users_all_v1, user_profile_v1
+
+from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
+    user_profile_setname_v1, user_profile_sethandle_v1
+
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.helper import decode_token 
@@ -163,7 +166,7 @@ def channels_create_v2():
     
     Exceptions: 
         InputError  - Channel name not between 1 and 20 characters 
-        AccessError - User not authorised 
+        AccessError - Invalid token 
 
     Return Value: 
         Returns {channel_id} on successful creation 
@@ -216,15 +219,15 @@ def channel_details_v2():
     Exceptions: 
         InputError  - Channel_id not valid 
         AccessError - Authorised user not member of existing channel 
-                    - User not authorised 
+                    - Invalid token 
 
     Return Value: 
         Returns {name, is_public, owner_members, all_members} on successful creation 
     '''
 
-    data = request.get_json() 
+    data = request.args
 
-    return_dict = channel_details_v1(data['token'], data['channel_id'])
+    return_dict = channel_details_v1(data['token'], int(data['channel_id']))
     return dumps(return_dict) 
 
 @APP.route("/users/all/v1", methods=['GET'])
@@ -237,12 +240,12 @@ def users_all():
         token (str) - Token identifying user
         
     Exceptions: 
-        AccessError - User not authorised 
+        AccessError - Invalid token 
 
     Return Value: 
         Returns { users } on successful call  
     ''' 
-    data = request.get_json() 
+    data = request.args
 
     users = users_all_v1(data['token'])
     return dumps({'users': users}) 
@@ -254,20 +257,20 @@ def user_profile():
     last name and handle_str.
 
     Arguments: 
-        token   (str) - token idenfifying user1 (accessing the route) 
+        token   (str) - token identifying user1 (accessing the route) 
         u_id    (int) - user id of the target / user2
     
     Exceptions: 
         InputError  - u_id does not refer to a valid user2 
-        AccessError - user1 not authorised 
+        AccessError - user1 invalid token 
     
     Return Value: 
-        Returns { user } on successfull call
+        Returns { user } on successful call
     '''
 
-    data = request.get_json() 
+    data = request.args
 
-    user = user_profile_v1(data['token'], data['u_id'])
+    user = user_profile_v1(data['token'], int(data['u_id']))
 
     return dumps({'user': user})
 
@@ -306,28 +309,79 @@ def message_senddm():
     pass
 '''
 
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_profile_sethandle(): 
+    '''
+    Update the user's handle (display name)
 
-'''
-@APP.route("/message/edit/v1", methods=['PUT'])
-def message_edit():
+    Arguments: 
+        token       (str)       -   token identifying user 
+        handle_str  (str)       -   handle user wants to change to 
+    
+    Exceptions: 
+        InputError  - length of handle_str not between 3-20 chars inclusive
+                    - handle_str contains non-alphanumeric chars 
+                    - handle already used by another user 
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+
+    data = request.get_json() 
+
+    user_profile_sethandle_v1(data['token'], data['handle_str'])
+
+    return dumps({})
+
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_profile_setemail(): 
+    '''
+    Update the authorised user's email address 
+
+    Arguments: 
+        token (str) - token identifting user 
+        email (str) - email user wants to change to if valid
+    
+    Exceptions: 
+        InpurError  - Email entered is not in valid format 
+                    - Email already used by someone else 
+        AccessError - Invalid token
+    
+    Return Value: 
+        Returns {} on successful call  
+    '''
 
     data = request.get_json()
-    message = message_edit_v1(
-        data['token'],
-        data['message_id'],
-        data['message']
-    )
-    return dumps(message)
 
+    user_profile_setemail_v1(data['token'], data['email'])
 
-@APP.route("/message/remove/v1", methods=['DELETE'])
-def message_remove():
-    pass
+    return dumps({})
 
-@APP.route("/message/senddm/v1", methods=['POST'])
-def message_senddm():
-    pass
-'''
+@APP.route("/user/profile/setname/v1", methods=['PUT'])
+def user_profile_setname(): 
+    '''
+    Update the authorised user's first and last name
+
+    Arguments: 
+        token       (str) - token identifying the user 
+        name_first  (str) - first name to change to if valid
+        name_last   (str) - last name to change to if valid
+    
+    Exceptions: 
+        InputError  - length of name_first not between 1 and 50 chars inclusive
+                    - length of name_last not between 1 and 50 chars inclusive
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+
+    data = request.get_json() 
+
+    user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
+
+    return dumps({})
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 

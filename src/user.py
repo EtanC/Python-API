@@ -1,7 +1,8 @@
-from src.helper import token_to_user, decode_token
+from src.helper import token_to_user, decode_token, valid_email
 from src.error import AccessError, InputError
 from src.data_store import data_store
 from src.channel import get_user
+from src.auth import valid_name 
 
 def users_all_v1(token): 
     '''
@@ -12,7 +13,7 @@ def users_all_v1(token):
         token (str): token identifying user
         
     Exceptions: 
-        AccessError - User not authorised 
+        AccessError - invalid token 
 
     Returns: 
         Returns {users} on successful creation 
@@ -61,7 +62,7 @@ def user_profile_v1(token, u_id):
     
     Exceptions: 
         InputError  - u_id does not refer to a valid user2 
-        AccessError - user1 not authorised 
+        AccessError - user1 invalid token 
     
     Return Value: 
         Returns user2 dictionary on successfull call 
@@ -86,3 +87,116 @@ def user_profile_v1(token, u_id):
     }
 
     return user
+
+def user_profile_sethandle_v1(token, handle_str): 
+    '''
+    Update the user's handle (display name)
+
+    Arguments: 
+        token       (str)       -   token identifying user 
+        handle_str  (str)       -   handle user wants to change to 
+    
+    Exceptions: 
+        InputError  - length of handle_str not between 3-20 chars inclusive
+                    - handle_str contains non-alphanumeric chars 
+                    - handle already used by another user 
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+    store = data_store.get()
+
+    # token to user returns None if token is invalid 
+    token_user = token_to_user(token, store)
+    if token_user is None: 
+        raise AccessError(description='Invalid token')
+    
+    if (len(handle_str) < 3) or (len(handle_str) > 20): 
+        raise InputError(description='Handle must contain 3-20 characters')
+    
+    if handle_str.isalnum() == False: 
+        raise InputError(description='Handle must be alphanumeric')
+    
+    for user in store['users']: 
+        if handle_str == user['handle_str']: 
+            raise InputError(description='Handle already in use')
+
+    # by this point, handle should be within char range, alphanumeric, not used by
+    # anyone else and token should be valid, so store the new handle 
+    token_user['handle_str'] = handle_str 
+    data_store.set(store)
+
+    return {} 
+
+def user_profile_setname_v1(token, name_first, name_last): 
+    '''
+    Update the authorised user's first and last name
+
+    Arguments: 
+        token       (str) - token identifying the user 
+        name_first  (str) - first name to change to if valid
+        name_last   (str) - last name to change to if valid
+    
+    Exceptions: 
+        InputError  - length of name_first not between 1 and 50 chars inclusive
+                    - length of name_last not between 1 and 50 chars inclusive
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+    store = data_store.get() 
+    user = token_to_user(token, store)
+
+    if user is None: 
+        raise AccessError(description='Invalid token')
+
+    if valid_name(name_first) == False: 
+        raise InputError(description='First name must contain 1-50 characters')
+    
+    if valid_name(name_last) == False: 
+        raise InputError(description='Last name must contain 1-50 characters')
+    
+    # by this point, both the first and last name should be within character range
+    # so we just save them into the data_store 
+    user['name_first'] = name_first
+    user['name_last'] = name_last
+    data_store.set(store)
+
+    return {}  
+
+def user_profile_setemail_v1(token, email): 
+    '''
+    Update the authorised user's email address 
+
+    Arguments: 
+        token (str) - token identifting user 
+        email (str) - email user wants to change to if valid
+    
+    Exceptions: 
+        InpurError  - Email entered is not in valid format 
+                    - Email already used by someone else 
+        AccessError - Invalid token
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+    store = data_store.get() 
+
+    user = token_to_user(token, store)
+
+    if user is None: 
+        raise AccessError(description='Invalid token')
+
+    # valid email will raise InputError if email is already in use 
+    # return True / False based on whether email follows valid format or not 
+    if valid_email(email, store) == False: 
+        raise InputError(description='Invalid email format')
+    
+    # by this point email follows valid format and is not used by anyone else
+    # so save it 
+    user['email'] = email 
+    data_store.set(store)
+
+    return {}  

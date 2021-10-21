@@ -53,7 +53,7 @@ def test_one_member(reset):
     }
 
     response = requests.get(f"{config.url}channel/details/v2", \
-        json=data_details)
+        params=data_details)
     response_details = response.json() 
 
     assert response_details == \
@@ -100,7 +100,7 @@ def test_invalid_channel(reset):
     }
 
     response = requests.get(f'{config.url}channel/details/v2', \
-        json=data_details)
+        params=data_details)
 
     assert response.status_code == 400 
 
@@ -149,7 +149,7 @@ def test_non_member(reset):
         'token': token_2, 
         'channel_id': channel_id, 
     }
-    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+    response = requests.get(f'{config.url}channel/details/v2', params=data_details)
 
     assert response.status_code == 403 
 
@@ -171,7 +171,7 @@ def test_invalid_user(reset):
         'channel_id': channel_id, 
     }
 
-    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+    response = requests.get(f'{config.url}channel/details/v2', params=data_details)
 
     assert response.status_code == 403 
 
@@ -232,7 +232,7 @@ def test_two_members(reset):
         'channel_id': channel_id, 
     }
 
-    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+    response = requests.get(f'{config.url}channel/details/v2', params=data_details)
     return_dict = response.json() 
 
     # check channel name and public / private status is correct 
@@ -367,7 +367,7 @@ def test_three_members(reset):
         'channel_id': channel_id, 
     }
 
-    response = requests.get(f'{config.url}channel/details/v2', json=data_details)
+    response = requests.get(f'{config.url}channel/details/v2', params=data_details)
 
     return_dict = response.json() 
 
