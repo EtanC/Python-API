@@ -189,9 +189,9 @@ def channel_details_v2():
         Returns {name, is_public, owner_members, all_members} on successful creation 
     '''
 
-    data = request.get_json() 
+    data = request.args
 
-    return_dict = channel_details_v1(data['token'], data['channel_id'])
+    return_dict = channel_details_v1(data['token'], int(data['channel_id']))
     return dumps(return_dict) 
 
 @APP.route("/users/all/v1", methods=['GET'])
@@ -209,7 +209,7 @@ def users_all():
     Return Value: 
         Returns { users } on successful call  
     ''' 
-    data = request.get_json() 
+    data = request.args
 
     users = users_all_v1(data['token'])
     return dumps({'users': users}) 
@@ -232,9 +232,9 @@ def user_profile():
         Returns { user } on successfull call
     '''
 
-    data = request.get_json() 
+    data = request.args
 
-    user = user_profile_v1(data['token'], data['u_id'])
+    user = user_profile_v1(data['token'], int(data['u_id']))
 
     return dumps({'user': user})
 
