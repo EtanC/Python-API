@@ -73,9 +73,6 @@ def test_empty(reset):
         json=register_person2
     )
 
-    id_1 = reset[1]['auth_user_id']
-    id_2 = response_person2.json()['auth_user_id']
-
     data = {
         'token': reset[0]['token'],
         'u_ids': []
