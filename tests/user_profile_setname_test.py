@@ -36,7 +36,7 @@ def test_valid(reset):
         'u_id': reset['auth_user_id'], 
     }
 
-    response = requests.get(f"{config.url}user/profile/v1", json=data_profile)
+    response = requests.get(f"{config.url}user/profile/v1", params=data_profile)
 
     assert response.json() == { 
         'user': {
@@ -64,7 +64,7 @@ def test_same_name(reset):
         'u_id': reset['auth_user_id'], 
     }
 
-    response = requests.get(f"{config.url}user/profile/v1", json=data_profile)
+    response = requests.get(f"{config.url}user/profile/v1", params=data_profile)
 
     assert response.json() == { 
         'user': {
