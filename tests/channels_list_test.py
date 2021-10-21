@@ -56,6 +56,19 @@ def test_return_type(reset_data):
     assert type(response_data) is dict
 
 
+def test_no_channel(reset_data): 
+    user_data = {
+        'token': reset_data['token'], 
+    }
+    listall_response = requests.get(
+        f"{config.url}channels/list/v2",
+        json=user_data
+    )
+    assert listall_response.json() == \
+    {
+        'channels' : []
+    }
+
 def test_valid_user(reset_data): 
     data_create = {
         "token": reset_data['token'], 
