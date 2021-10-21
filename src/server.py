@@ -15,7 +15,9 @@ from src.channels import channels_create_v1, channels_list_v1, channels_listall_
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.message import message_edit_v1, message_send_v1
 from src.helper import decode_token 
-from src.dm import dm_create_v2
+from src.channels import channels_create_v1
+from src.channel import channel_details_v1
+from src.dm import dm_create_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -472,7 +474,7 @@ dms.py section
 '''
 
 
-@APP.route("/dms/create/v2", methods=['POST'])
+@APP.route("/dms/create/v1", methods=['POST'])
 def dm_create_v2(): 
     '''
     Given a channel with ID channel_id that the authorised user is a member of, 
@@ -491,7 +493,7 @@ def dm_create_v2():
 
     data = request.get_json() 
 
-    return_dict = dm_create_v2(data['token'], data['u_ids'])
+    return_dict = dm_create_v1(data['token'], data['u_ids'])
     
     return dumps(return_dict) 
 
