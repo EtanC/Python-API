@@ -5,7 +5,7 @@ from src.channel import channel_messages_v1
 from datetime import timezone, datetime
 import json
 from src.channels import channels_create_v1
-from src.message import message_edit_v1
+from src.message import message_send_v1, message_edit_v1
 from datetime import timezone, datetime
 from src import config
 '''
@@ -314,4 +314,176 @@ def test_valid_message_edit_empty(reset_data, user1, channel1): #PUT
 
 
 
+
+    data_send_message = {
+       "token": user1['token'],
+       "message": "valid_message",
+       "channel_id": channel1['channel_id']
+    }
+
+    response_send_message = requests.post(
+        f"{config.url}message/send/v1",
+        json=data_send_message
+    )
+    response_send_message_data = response_send_message.json()
+
+    dt = datetime.now()
+    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+
+    # user1 edits the message
+    message_id = response_send_message_data['message_id']
+    edited_message = "user1_new_valid_message"
+
+    data_edit_message = {
+        "token": token,
+        "message_id": message_id,
+        "message": edited_message
+    }
+
+    #message/edit/v1
+    requests.put(f"{config.url}message/edit/v1", \
+        json=data_edit_message)
+
+    #display the edited message using channel/messages/v2
+    channel_messages = {
+        "token": token,
+        "channel_id": channel_id,
+        "start": 0
+    }
+
+    response_channel_messages_data =requests.get(f"{config.url}channel/messages/v2", \
+        json=channel_messages)
+
+    response_data = response_channel_messages_data.json()
+    
+    messages_result = response_data['messages']
+    actual_time = messages_result[0]['time_created']
+    time_difference = actual_time - expected_time
+    assert time_difference < 2
+    del response_data['messages'][0]['time_created']
+    
+
+    expected_data = {
+        'messages': [
+            {
+            'message_id': response_send_message_data['message_id'],
+            'u_id': channel1['user_id'],
+            'message': "valid_message",
+            }
+        ], 
+        'start': 0,
+        'end': -1 # -1 : no more messages to load
+    }
+
+    assert response_data == expected_data
+
+# message/send/v1 tests
+def test_invalid_token_send(reset_data, user1, channel1): 
+
+    token_register_send = {
+        "token": "INVALID TOKEN",
+        "channel_id": channel1['channel_id'],
+        "message": "valid_message",
+    }
+    
+    response_register = requests.post(f"{config.url}message/send/v1",\
+    json=token_register_send)
+    assert response_register.status_code == 403
+
+def test_invalid_length_send(reset_data, user1, channel1): #POST
+
+    # <1 length message
+    data_register = {
+        "token": user1['token'],
+        "channel_id": channel1['channel_id'],
+        "message": "",
+    }
+    response_register = requests.post(f"{config.url}message/send/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+    # >1000 length message
+    data_register['message'] = 'x' * 1001
+    response_register = requests.post(f"{config.url}message/send/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+def test_invalid_channelID_send(reset_data, user1, channel1): #POST
+
+    data_register = {
+       "token": user1['token'],
+       "channel_id": channel1['channel_id'],
+        "message": "valid_message"
+
+    }
+    data_register['channel_id'] += 1
+
+    # invalid channel ID test (InputError)
+    response_register = requests.post(f"{config.url}message/send/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+def test_nonmember_channel_send(reset_data, channel1, user2): # POST
+
+    data_register = {
+       "token": user2['token'],
+       "message": "valid_message",
+       "channel_id": channel1['channel_id']
+    }
+
+    response_register = requests.post(f"{config.url}message/send/v1",\
+    json=data_register)
+    assert response_register.status_code == 403
+
+def test_valid_send(reset_data, channel1, user1): #POST
+
+    data_send_message = {
+       "token": user1['token'],
+       "message": "valid_message",
+       "channel_id": channel1['channel_id']
+    }
+
+    response_send_message = requests.post(
+        f"{config.url}message/send/v1",
+        json=data_send_message
+    )
+    response_send_message_data = response_send_message.json()
+
+    dt = datetime.now()
+    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+    
+
+    expected_data = {
+        'messages': [
+            {
+            'message_id': response_send_message_data['message_id'],
+            'u_id': channel1['user_id'],
+            'message': "valid_message",
+            }
+        ], 
+        'start': 0,
+        'end': -1 # -1 : no more messages to load
+    }
+
+    data_details = {
+        "token": user1['token'], 
+        'channel_id': channel1['channel_id'],
+        'start': 0  # 0 = first message sent
+    } 
+
+    response_channel_messages_details = requests.get(
+        f"{config.url}channel/messages/v2",
+        params=data_details)
+
+    # You can check if the timestamp is within a second or two 
+    # of the time you send the request.
+
+    response_data = response_channel_messages_details.json()
+    messages_result = response_data['messages']
+    actual_time = messages_result[0]['time_created']
+    time_difference = actual_time - expected_time
+    assert time_difference < 2
+
+    del response_data['messages'][0]['time_created']
+    assert response_data == expected_data
 
