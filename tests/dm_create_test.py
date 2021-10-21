@@ -1,16 +1,17 @@
 import requests
 from src import config
-import pytest 
+import pytest
+
 
 @pytest.fixture
-def reset(): 
+def reset():
     requests.delete(f"{config.url}clear/v1")
 
     register_owner = {
-        "email" : "realemail_812@outlook.edu.au",
-        "password" : "Password1",
-        "name_first" : "John",
-        "name_last" : "Smith",
+        "email": "realemail_812@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "John",
+        "name_last": "Smith",
     }
     response_owner = requests.post(
         f"{config.url}auth/register/v2",
@@ -18,10 +19,10 @@ def reset():
     )
 
     register_person = {
-        "email" : "realemail_1@outlook.edu.au",
-        "password" : "Password1",
-        "name_first" : "Abby",
-        "name_last" : "Smith",
+        "email": "realemail_1@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Abby",
+        "name_last": "Smith",
     }
     response_person = requests.post(
         f"{config.url}auth/register/v2",
@@ -30,9 +31,9 @@ def reset():
     return (response_owner.json(), response_person.json())
 
 
-def test_return_type(reset): 
+def test_return_type(reset):
     data = {
-        'token': reset[0]['token'], 
+        'token': reset[0]['token'],
         'u_ids': [reset[1]['auth_user_id']]
     }
 
@@ -41,14 +42,14 @@ def test_return_type(reset):
         json=data
     )
     response_data = response.json()
-    assert type(response_data) is dict 
+    assert isinstance(response_data, dict)
 
 
-def test_inputError(reset): 
+def test_inputError(reset):
     invalid_id = 1111
     data = {
-        'token' : reset[0]['token'], 
-        'u_ids' : [invalid_id]
+        'token': reset[0]['token'],
+        'u_ids': [invalid_id]
     }
 
     response = requests.post(
@@ -59,12 +60,12 @@ def test_inputError(reset):
     assert response.status_code == 400
 
 
-def test_empty(reset): 
+def test_empty(reset):
     register_person2 = {
-        "email" : "realemail_2@outlook.edu.au",
-        "password" : "Password1",
-        "name_first" : "Beta",
-        "name_last" : "Smith",
+        "email": "realemail_2@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Beta",
+        "name_last": "Smith",
     }
     response_person2 = requests.post(
         f"{config.url}auth/register/v2",
@@ -74,10 +75,9 @@ def test_empty(reset):
     id_1 = reset[1]['auth_user_id']
     id_2 = response_person2.json()['auth_user_id']
 
-
     data = {
-        'token' : reset[0]['token'], 
-        'u_ids' : []
+        'token': reset[0]['token'],
+        'u_ids': []
     }
     response = requests.post(
         f"{config.url}dms/create/v1",
@@ -85,10 +85,11 @@ def test_empty(reset):
     )
     assert response.status_code == 400
 
-def test_multiple(reset): 
+
+def test_multiple(reset):
     data = {
-        'token' : reset[0]['token'], 
-        'u_ids' : [reset[1]['auth_user_id']]
+        'token': reset[0]['token'],
+        'u_ids': [reset[1]['auth_user_id']]
     }
 
     response1 = requests.post(
@@ -98,10 +99,10 @@ def test_multiple(reset):
 
     # dm2
     register_person2 = {
-        "email" : "realemail_2@outlook.edu.au",
-        "password" : "Password1",
-        "name_first" : "Beta",
-        "name_last" : "Smith",
+        "email": "realemail_2@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Beta",
+        "name_last": "Smith",
     }
     response_person2 = requests.post(
         f"{config.url}auth/register/v2",
@@ -109,8 +110,8 @@ def test_multiple(reset):
     )
     id_2 = response_person2.json()['auth_user_id']
     data = {
-        'token' : reset[0]['token'], 
-        'u_ids' : [id_2]
+        'token': reset[0]['token'],
+        'u_ids': [id_2]
     }
     response2 = requests.post(
         f"{config.url}dms/create/v1",
@@ -118,34 +119,34 @@ def test_multiple(reset):
     )
 
     # dm3
-    register_person2 = {
-        "email" : "realemail_3@outlook.edu.au",
-        "password" : "Password1",
-        "name_first" : "Coopa",
-        "name_last" : "Smith",
+    register_person3 = {
+        "email": "realemail_3@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Coopa",
+        "name_last": "Smith",
     }
-    response_person2 = requests.post(
+    response_person3 = requests.post(
         f"{config.url}auth/register/v2",
-        json=register_person2
+        json=register_person3
     )
-    id_3 = response_person2.json()['auth_user_id']
+    id_3 = response_person3.json()['auth_user_id']
     data = {
-        'token' : reset[0]['token'], 
-        'u_ids' : [id_3]
+        'token': reset[0]['token'],
+        'u_ids': [id_3]
     }
 
     response3 = requests.post(
         f"{config.url}dms/create/v1",
         json=data
     )
-        
-    assert response1.json() == {'dm_id' : 1}
-    assert response2.json() == {'dm_id' : 2}
-    assert response3.json() == {'dm_id' : 3}
-    
+
+    assert response1.json() == {'dm_id': 1}
+    assert response2.json() == {'dm_id': 2}
+    assert response3.json() == {'dm_id': 3}
+
 
 '''
-def test_multiple(reset): 
+def test_multiple(reset):
     # Person 1
     id_1 = reset[1]['auth_user_id']
 
@@ -186,7 +187,7 @@ def test_multiple(reset):
         f"{config.url}auth/register/v2",
         json=register_person4
     )
-    id_4 = response_person4 
+    id_4 = response_person4
 
     # Person 5
     register_person5 = {
@@ -202,7 +203,7 @@ def test_multiple(reset):
     id_5 = response_person5
 
     data = {
-        'token' : reset[0], 
+        'token' : reset[0],
         'u_ids' : [id_1,id_2,id_3,id_4,id_5]
     }
     response = requests.post(
