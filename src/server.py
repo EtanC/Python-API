@@ -10,7 +10,7 @@ from src import config
 from src.helper import decode_token 
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1
-
+from src.dm import dm_create_v2
 def quit_gracefully(*args):
     '''For coverage'''
     exit(0)
@@ -159,6 +159,38 @@ def channel_details_v2():
 
     return_dict = channel_details_v1(data['token'], data['channel_id'])
     return dumps(return_dict) 
+
+'''
+
+dms.py section 
+
+'''
+
+
+@APP.route("/dms/create/v2", methods=['POST'])
+def dm_create_v2(): 
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
+
+    Arguments:
+        token (str): token identifying user
+        u_ids (list): list of u_id 
+        
+    Exceptions: 
+        InputError  - Invalid u_id in the list of u_ids
+
+    Returns: 
+        Returns {dms} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    return_dict = dm_create_v2(data['token'], data['u_ids'])
+    
+    return dumps(return_dict) 
+
+
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
