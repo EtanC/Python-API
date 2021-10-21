@@ -17,6 +17,7 @@ from src.message import message_edit_v1, message_send_v1
 from src.helper import decode_token 
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1
 
+
 def quit_gracefully(*args):
     '''For coverage'''
     exit(0)
@@ -308,6 +309,72 @@ def channels_listall_v2():
     return dumps(channels)
 
 
+@APP.route("/message/send/v1", methods=['POST'])
+def message_send():
+    '''
+    Send a message from the authorised user to the channel specified by channel_id. 
+    Note: Each message should have its own unique ID, 
+    i.e. no messages should share an ID with another message, 
+    even if that other message is in a different channel.
+
+    Arguments:
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
+        message     (str) - user's message
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+                    - Message is too short or too long
+        AccessError - Authorised user not member of existing channel 
+                    - Invalid token  
+
+    Return Value: 
+        Returns { message_id } on successful call  
+    ''' 
+
+    data = request.get_json()
+    message_id = message_send_v1(
+        data['token'],
+        data['channel_id'],
+        data['message']
+    )
+
+    return dumps(message_id)
+
+
+'''
+
+dms.py section 
+
+'''
+
+@APP.route("/dm/create/v1", methods=['POST'])
+def dm_create_v2(): 
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
+
+    Arguments:
+        token (str): token identifying user
+        u_ids (list): list of u_id 
+        
+    Exceptions: 
+        InputError  - Invalid u_id in the list of u_ids
+        AccessError - Invalid token 
+        
+
+    Returns: 
+        Returns {dm_id} on successful creation 
+        
+    '''
+
+    data = request.get_json() 
+
+    return_dict = dm_create_v1(data['token'], data['u_ids'])
+    
+    return dumps(return_dict) 
+    
+    
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send():
     '''
