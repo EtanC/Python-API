@@ -8,7 +8,7 @@ from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
-from src.channels import channels_create_v1, channels_list_v1
+from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
@@ -217,6 +217,26 @@ def channels_list_v2():
     data = request.get_json() 
 
     channels = channels_list_v1(data['token'])
+
+    return dumps(channels)
+
+
+@APP.route("/channels/listall/v2", methods=['GET'])
+def channels_listall_v2(): 
+    '''
+    Arguments:
+        token       (str)     - token identifying user 
+
+    Exceptions: 
+        AccessError - User not authorised 
+
+    Return Value: 
+        Returns {channels} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    channels = channels_listall_v1(data['token'])
 
     return dumps(channels)
 
