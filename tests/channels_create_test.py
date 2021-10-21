@@ -95,7 +95,7 @@ def test_stored_data(reset):
         'channel_id': channel_id,
     }
 
-    response = requests.get(f"{config.url}channel/details/v2", json=data_details)
+    response = requests.get(f"{config.url}channel/details/v2", params=data_details)
 
     assert response.json() == \
     { 
@@ -146,7 +146,7 @@ def test_multiple_create(reset):
         'channel_id': channel_id, 
     }
 
-    response = requests.get(f"{config.url}channel/details/v2", json=data_details)
+    response = requests.get(f"{config.url}channel/details/v2", params=data_details)
 
 
     assert response.json() == \
@@ -178,7 +178,7 @@ def test_multiple_create(reset):
         'channel_id': channel_id_2, 
     }
 
-    response = requests.get(f"{config.url}channel/details/v2", json=data_details)
+    response = requests.get(f"{config.url}channel/details/v2", params=data_details)
 
     assert response.json() == \
         { 
