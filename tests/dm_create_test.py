@@ -89,7 +89,6 @@ def test_multiple(reset):
         'token': reset[0]['token'],
         'u_ids': [reset[1]['auth_user_id']]
     }
-
     requests.post(
         f"{config.url}dms/create/v1",
         json=data
@@ -133,12 +132,12 @@ def test_multiple(reset):
         'u_ids': [id_3]
     }
 
-    response3 = requests.post(
+    response = requests.post(
         f"{config.url}dms/create/v1",
         json=data
     )
-
-    assert response3.json() == {'dm_id': 3}
+    return_id = response.json()['dm_id']
+    assert response.json() == {'dm_id': return_id}
 
 
 '''
