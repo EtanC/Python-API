@@ -4,26 +4,24 @@ from src.error import InputError
 from src.error import AccessError
 from json import dumps
 from flask import Flask, request
-from src.helper import token_to_user, get_channel, decode_token, get_user
+from src.helper import token_to_user, get_channel, decode_token, get_user, get_message
 from datetime import timezone, datetime
 
-######
 def message_send_v1(token, channel_id, message):
 
     token_data = decode_token(token)
-    auth_user_id = token_data['auth_user_id']
-
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
     if (token_data is None) or ('auth_user_id' not in token_data): 
-        raise AccessError(description='Invalid token')
-
+        raise AccessError(description="Invalid token")
+        
+    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
     channel = get_channel(channel_id, store)
     user = token_to_user(token, store)
 
     # Checking if auth_user_id is valid
     if get_user(auth_user_id, store) == None:
-        raise AccessError("auth_user_id is not valid")
+        raise AccessError(description="auth_user_id is not valid")
 
     # check the token's validity:
     if user == None:
@@ -47,7 +45,6 @@ def message_send_v1(token, channel_id, message):
     store['message_id'] += 1
     
     user_id = user['u_id']
-    
     message_to_add = message
     
     dt = datetime.now()
@@ -70,5 +67,39 @@ def message_send_v1(token, channel_id, message):
         'message_id': message_id
     }
 
+def message_edit_v1(token, message_id, message):
+    
+    token_data = decode_token(token)
+    auth_user_id = token_data['auth_user_id']
 
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    store = data_store.get()
+    user = token_to_user(token, store)
+    message_to_edit = get_message(message_id, store)
+
+    # Checking if auth_user_id is valid
+    if get_user(auth_user_id, store) == None:
+        raise AccessError("auth_user_id is not valid")
+
+    # check the token's validity:
+    if user == None:
+        raise AccessError(description="INVALID token passed in")
+
+    # check message length:
+    if (len(message) > 1000):
+        raise InputError(description="message is TOO LONG")
+
+    # check message ID validity:
+    if get_message(message_id, store) == None:
+        raise InputError(description="message ID is INVALID")
+
+    message_to_edit['message'] = message
+
+    return {}
+
+
+    
 
