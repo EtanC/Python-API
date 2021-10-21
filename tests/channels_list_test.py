@@ -1,3 +1,4 @@
+import json
 import pytest 
 import requests
 from src import config 
@@ -13,18 +14,9 @@ def reset_data():
         "name_first" : "John",
         "name_last" : "Smith",
     }
-    requests.post(
+    response = requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
-    )
-
-    data_login = { 
-        "email": "realemail_812@outlook.edu.au", 
-        "password": "Password1", 
-    }
-    response = requests.post(
-        f'{config.url}auth/login/v2',
-        json=data_login
     )
 
     return response.json()
@@ -49,7 +41,7 @@ def test_return_type(reset_data):
 
     response = requests.get(
         f"{config.url}channels/list/v2",
-        json = data
+        params=data
     )
     response_data = response.json()
     
@@ -60,16 +52,16 @@ def test_no_channel(reset_data):
     user_data = {
         'token': reset_data['token'], 
     }
-    listall_response = requests.get(
+    list_response = requests.get(
         f"{config.url}channels/list/v2",
-        json=user_data
+        params=user_data
     )
-    assert listall_response.json() == \
+    assert list_response.json() == \
     {
         'channels' : []
     }
 
-def test_valid_user(reset_data): 
+def test_invalid_user(reset_data): 
     data_create = {
         "token": reset_data['token'], 
         "name": "channel1", 
@@ -82,7 +74,9 @@ def test_valid_user(reset_data):
     data = {
         'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA'
     }
-    response = requests.get(f"{config.url}channels/list/v2",json = data)
+    response = requests.get(
+        f"{config.url}channels/list/v2",
+        params=data)
 
     assert response.status_code == 403
 
@@ -104,7 +98,7 @@ def test_functionality(reset_data):
     }
     list_response = requests.get(
         f"{config.url}channels/list/v2", 
-        json=user_data
+        params=user_data
     )
     
 
@@ -125,7 +119,9 @@ def test_multiple(reset_data):
         'name': 'Elon_public1', 
         'is_public': True, 
     }
-    requests.post(f"{config.url}channels/create/v2", json=data1)
+    requests.post(
+        f"{config.url}channels/create/v2", 
+        json=data1)
 
     data2 = {
         'token': reset_data['token'], 
@@ -172,7 +168,7 @@ def test_multiple(reset_data):
     }
     list_response = requests.get(
         f"{config.url}channels/list/v2",
-        json=user_data
+        params = user_data
     )
 
 
