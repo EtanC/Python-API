@@ -13,6 +13,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
+from src.message import message_remove_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -196,6 +197,33 @@ def channel_details_v2():
 
     return_dict = channel_details_v1(data['token'], int(data['channel_id']))
     return dumps(return_dict) 
+
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_edit():
+
+    '''
+    Given a message_id for a message, 
+    this message is removed from the channel/DM
+
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        
+    Exceptions: 
+        InputError  - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_remove_v1(
+        data['token'],
+        data['message_id'],
+    )
+    return dumps(message)
 
 @APP.route("/users/all/v1", methods=['GET'])
 def users_all(): 
