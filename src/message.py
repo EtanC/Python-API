@@ -104,6 +104,13 @@ def message_edit_v1(token, message_id, message):
     # edit the message
     message_to_edit['message'] = message
 
+    # if the new message is empty, delete it 
+    if (message_to_edit['message']) == "":
+        for i,channel in enumerate(store['channels']):
+            for j,message in enumerate(channel['messages']):
+                if message['message_id'] == message_id:
+                    del store['channels'][i]['messages'][j]
+
     return {}
 
 

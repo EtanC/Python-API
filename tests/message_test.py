@@ -383,6 +383,58 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
 
     assert response_data == expected_data
 
+def test_valid_message_edit_empty(reset_data, user1, channel1): #PUT
+
+    # user1 sends a mesage in channel1
+    token = user1['token']
+    channel_id = channel1['channel_id']
+    message = "user1_valid_message"
+    data_send_message = {
+       "token": token,
+       "message": message,
+       "channel_id": channel_id
+    }
+
+    # message/send/v1
+    response_send_message = requests.post(f"{config.url}message/send/v1",\
+        json=data_send_message
+    )
+    response_send_message_data = response_send_message.json()
+
+    # user1 edits the message
+    message_id = response_send_message_data['message_id']
+    edited_message = ""
+
+    data_edit_message = {
+        "token": token,
+        "message_id": message_id,
+        "message": edited_message
+    }
+
+    #message/edit/v1
+    requests.put(f"{config.url}message/edit/v1", \
+        json=data_edit_message)
+
+    #display the edited message using channel/messages/v2
+    channel_messages = {
+        "token": token,
+        "channel_id": channel_id,
+        "start": 0
+    }
+
+    response_channel_messages_data =requests.get(f"{config.url}channel/messages/v2", \
+        json=channel_messages)
+
+    response_data = response_channel_messages_data.json()
+    
+
+    expected_data = {
+        'messages': [], 
+        'start': 0,
+        'end': -1 # -1 : no more messages to load
+    }
+
+    assert response_data == expected_data
 
 
 '''
