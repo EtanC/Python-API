@@ -93,7 +93,7 @@ def user_profile_setname_v1(token, name_first, name_last):
         AccessError - invalid token 
     
     Return Value: 
-        Nothing
+        Returns {} on successful call 
     '''
     store = data_store.get() 
     user = token_to_user(token, store)
@@ -113,4 +113,4 @@ def user_profile_setname_v1(token, name_first, name_last):
     user['name_last'] = name_last
     data_store.set(store)
 
-    pass 
+    return {}  
