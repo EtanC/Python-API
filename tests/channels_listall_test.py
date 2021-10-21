@@ -49,7 +49,7 @@ def test_return_type(reset_data):
 
     response = requests.get(
         f"{config.url}channels/listall/v2",
-        json = data
+        params=data
     )
     response_data = response.json()
 
@@ -62,7 +62,7 @@ def test_no_channel(reset_data):
     }
     listall_response = requests.get(
         f"{config.url}channels/listall/v2",
-        json=user_data
+        params=user_data
     )
     assert listall_response.json() == \
     {
@@ -87,7 +87,7 @@ def test_valid_user(reset_data):
     }
     response = requests.get(
         f"{config.url}channels/listall/v2",
-        json=data
+        params=data
     )
 
     assert response.status_code == 403
@@ -109,7 +109,7 @@ def test_functionality(reset_data):
     }
     listall_response = requests.get(
         f"{config.url}channels/listall/v2",
-        json=user_data
+        params=user_data
     )
 
     assert listall_response.json() == \
@@ -280,7 +280,8 @@ def test_long():
         'token': data5['token'], 
     }
     listall_response = requests.get(
-        f"{config.url}channels/listall/v2",json=user_data
+        f"{config.url}channels/listall/v2",
+        params=user_data
     )
 
     assert listall_response.json() == \

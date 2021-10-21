@@ -214,7 +214,7 @@ def channels_list_v2():
         Returns {channels} on successful creation 
     '''
 
-    data = request.get_json() 
+    data = request.args
 
     channels = channels_list_v1(data['token'])
 
@@ -234,7 +234,7 @@ def channels_listall_v2():
         Returns {channels} on successful creation 
     '''
 
-    data = request.get_json() 
+    data = request.args 
 
     channels = channels_listall_v1(data['token'])
 
