@@ -12,7 +12,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
-from src.channel import channel_details_v1, channel_messages_v1
+from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.message import message_edit_v1
 
 def quit_gracefully(*args):
@@ -147,6 +147,35 @@ def channel_messages():
         int(data['start'])
     )
     return dumps(messages)
+
+
+@APP.route("/channel/join/v2", methods = ['POST'])
+def channel_join_v2():
+    '''
+        Given a channel_id of a channel that the authorised user can join, 
+        adds them to that channel.
+        Arguments:
+
+            token (str): token identifying user 
+            channel_id (int): id of channel 
+
+        Exceptions: 
+
+            InputError  - Invalid channel id
+                        - User already in channel
+
+            AccessError - User is not a member and owner of a private channel
+
+        Returns: 
+            Returns {} on successful creation 
+    '''
+    data = request.get_json() 
+
+    token = data['token'] 
+    channel_id = data['channel_id'] 
+
+    empty_dict = channel_join_v1(token, channel_id)
+    return dumps(empty_dict)
 
 @APP.route("/channel/details/v2", methods=['GET'])
 def channel_details_v2(): 
@@ -313,9 +342,7 @@ def user_profile():
     '''
 
     data = request.args
-
     user = user_profile_v1(data['token'], int(data['u_id']))
-
     return dumps({'user': user})
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
@@ -338,9 +365,7 @@ def user_profile_sethandle():
     '''
 
     data = request.get_json() 
-
     user_profile_sethandle_v1(data['token'], data['handle_str'])
-
     return dumps({})
 
 @APP.route("/user/profile/setemail/v1", methods=['PUT'])
@@ -362,9 +387,7 @@ def user_profile_setemail():
     '''
 
     data = request.get_json()
-
     user_profile_setemail_v1(data['token'], data['email'])
-
     return dumps({})
 
 @APP.route("/user/profile/setname/v1", methods=['PUT'])
@@ -387,10 +410,9 @@ def user_profile_setname():
     '''
 
     data = request.get_json() 
-
     user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
-
     return dumps({})
+
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
     '''
@@ -407,7 +429,6 @@ def clear():
     '''
     clear_v1()
     return dumps({})
-
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
