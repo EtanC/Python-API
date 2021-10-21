@@ -78,6 +78,47 @@ def user_profile_v1(token, u_id):
 
     return user
 
+def user_profile_sethandle_v1(token, handle_str): 
+    '''
+    Update the user's handle (display name)
+
+    Arguments: 
+        token       (str)       -   token identifying user 
+        handle_str  (str)       -   handle user wants to change to 
+    
+    Exceptions: 
+        InputError  - length of handle_str not between 3-20 chars inclusive
+                    - handle_str contains non-alphanumeric chars 
+                    - handle already used by another user 
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+    store = data_store.get()
+
+    # token to user returns None if token is invalid 
+    token_user = token_to_user(token, store)
+    if token_user is None: 
+        raise AccessError(description='Invalid token')
+    
+    if (len(handle_str) < 3) or (len(handle_str) > 20): 
+        raise InputError(description='Handle must contain 3-20 characters')
+    
+    if handle_str.isalnum() == False: 
+        raise InputError(description='Handle must be alphanumeric')
+    
+    for user in store['users']: 
+        if handle_str == user['handle_str']: 
+            raise InputError(description='Handle already in use')
+
+    # by this point, handle should be within char range, alphanumeric, not used by
+    # anyone else and token should be valid, so store the new handle 
+    token_user['handle_str'] = handle_str 
+    data_store.set(store)
+
+    return {} 
+
 def user_profile_setname_v1(token, name_first, name_last): 
     '''
     Update the authorised user's first and last name
