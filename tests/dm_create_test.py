@@ -89,11 +89,11 @@ def test_multiple(reset):
         'token': reset[0]['token'],
         'u_ids': [reset[1]['auth_user_id']]
     }
-    requests.post(
+    response3 = requests.post(
         f"{config.url}dms/create/v1",
         json=data
     )
-
+    '''
     # dm2
     register_person2 = {
         "email": "realemail_2@outlook.edu.au",
@@ -136,8 +136,9 @@ def test_multiple(reset):
         f"{config.url}dms/create/v1",
         json=data
     )
+    '''
     return_id = response3.json()
-    assert return_id == {'dm_id': 3,}
+    assert return_id == {'dm_id': 1,}
 
 
 '''
