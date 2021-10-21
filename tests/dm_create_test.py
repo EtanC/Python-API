@@ -1,7 +1,6 @@
 import requests
 from src import config
 import pytest
-import time
 
 
 @pytest.fixture
@@ -89,11 +88,11 @@ def test_multiple(reset):
         'token': reset[0]['token'],
         'u_ids': [reset[1]['auth_user_id']]
     }
-    response3 = requests.post(
+    requests.post(
         f"{config.url}dms/create/v1",
         json=data
     )
-    '''
+    
     # dm2
     register_person2 = {
         "email": "realemail_2@outlook.edu.au",
@@ -132,13 +131,13 @@ def test_multiple(reset):
         'u_ids': [id_3]
     }
 
-    response3 = requests.post(
+    response = requests.post(
         f"{config.url}dms/create/v1",
         json=data
     )
-    '''
-    return_id = response3.json()
-    assert return_id == {'dm_id': 1,}
+    return_id = response.json()
+
+    assert return_id == {'dm_id': 3,}
 
 
 '''
