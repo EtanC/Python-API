@@ -132,12 +132,12 @@ def test_multiple(reset):
         'u_ids': [id_3]
     }
 
-    response = requests.post(
+    response3 = requests.post(
         f"{config.url}dms/create/v1",
         json=data
     )
-    return_id = response.json()
-    assert return_id == {'dm_id': 3}
+    return_id = response3.json()
+    assert return_id == {'dm_id': 3,}
 
 
 '''
