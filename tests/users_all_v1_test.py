@@ -31,7 +31,7 @@ def test_one_valid(reset):
     data_user = {
         'token': reset['token'], 
     } 
-    response = requests.get(f'{config.url}users/all/v1', json=data_user)
+    response = requests.get(f'{config.url}users/all/v1', params=data_user)
 
     assert response.json() == {'users': [{
         'u_id': reset['auth_user_id'], 
@@ -68,7 +68,7 @@ def test_two_valid(reset):
     data_user = { 
         'token': response_data['token'], 
     }
-    response = requests.get(f'{config.url}users/all/v1', json=data_user)
+    response = requests.get(f'{config.url}users/all/v1', params=data_user)
 
     users_list = [{
         'u_id': u_id_1, 
@@ -139,7 +139,7 @@ def test_three_valid(reset):
     data_user = { 
         'token': response_data['token'], 
     }
-    response = requests.get(f'{config.url}users/all/v1', json=data_user)
+    response = requests.get(f'{config.url}users/all/v1', params=data_user)
 
     users_list = [{
         'u_id': u_id_3, 
@@ -175,6 +175,6 @@ def test_invalid_user(reset):
     data_user = {
         'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA',
     }
-    response = requests.get(f'{config.url}users/all/v1', json=data_user)
+    response = requests.get(f'{config.url}users/all/v1', params=data_user)
 
     assert response.status_code == 403 
