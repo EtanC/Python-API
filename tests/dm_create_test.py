@@ -1,6 +1,7 @@
 import requests
 from src import config
 import pytest
+import time
 
 
 @pytest.fixture
@@ -141,7 +142,9 @@ def test_multiple(reset):
     )
 
     assert response1.json() == {'dm_id': 1}
+    time.sleep(1)
     assert response2.json() == {'dm_id': 2}
+    time.sleep(1)
     assert response3.json() == {'dm_id': 3}
 
 
