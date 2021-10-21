@@ -35,7 +35,7 @@ def test_valid(reset):
         'u_id': reset['auth_user_id'],
     }
 
-    response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
+    response = requests.get(f'{config.url}user/profile/v1', params=data_profile)
 
     assert response.json()['user'] == { 
         'u_id': reset['auth_user_id'], 
@@ -60,7 +60,7 @@ def test_valid_all_numbers(reset):
         'u_id': reset['auth_user_id'],
     }
 
-    response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
+    response = requests.get(f'{config.url}user/profile/v1', params=data_profile)
 
     assert response.json()['user'] == { 
         'u_id': reset['auth_user_id'], 
