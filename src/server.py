@@ -7,7 +7,10 @@ from src.error import InputError, AccessError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
-from src.user import users_all_v1, user_profile_v1, user_profile_setname_v1
+
+from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
+    user_profile_setname_v1
+
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
@@ -229,7 +232,7 @@ def user_profile():
         AccessError - user1 invalid token 
     
     Return Value: 
-        Returns { user } on successfull call
+        Returns { user } on successful call
     '''
 
     data = request.args
@@ -237,6 +240,31 @@ def user_profile():
     user = user_profile_v1(data['token'], int(data['u_id']))
 
     return dumps({'user': user})
+
+
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_profile_setemail(): 
+    '''
+    Update the authorised user's email address 
+
+    Arguments: 
+        token (str) - token identifting user 
+        email (str) - email user wants to change to if valid
+    
+    Exceptions: 
+        InpurError  - Email entered is not in valid format 
+                    - Email already used by someone else 
+        AccessError - Invalid token
+    
+    Return Value: 
+        Returns {} on successful call  
+    '''
+
+    data = request.get_json()
+
+    user_profile_setemail_v1(data['token'], data['email'])
+
+    return dumps({})
 
 @APP.route("/user/profile/setname/v1", methods=['PUT'])
 def user_profile_setname(): 
