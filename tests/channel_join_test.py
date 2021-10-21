@@ -1,239 +1,176 @@
-'''
-import pytest
+import pytest 
+import requests
+from src import config 
+# port = 8080
+# url = f"http://localhost:{port}/"
 
-from src.channel import channel_join_v1, channel_details_v1
-from src.other import clear_v1
-from src.error import InputError
-from src.error import AccessError
-from src.auth import auth_register_v1, auth_login_v1 
-from src.channels import channels_create_v1 
-
-
-# this runs before every test function.
 @pytest.fixture
 def reset_data():
-    clear_v1()
+    requests.delete(f"{config.url}clear/v1")
 
+# create user1
 @pytest.fixture
-def create_and_reset():
+def user1():
 
-    # creates a real user before every test after clear_v1.
-    clear_v1()
+    user1_register = {
+        'email': "harry.williams@gmail.com",
+        'password': "password_harry",
+        'name_first': "Harry",
+        'name_last': "Williams",
+    }
 
-    # creates a real user before every test after clear_v1.
-    email = "jack.jones@gmail.com"
-    password = "Password1"
-    name_first = "Jack"
-    name_last = "Jones"
+    response_user1_register = requests.post(
+        f"{config.url}auth/register/v2",
+        json=user1_register
+    )
 
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
+    auth_user_id = response_user1_register.json()['auth_user_id']
+    token        = response_user1_register.json()['token']
 
-    # take auth user id from returned dictionary 
-    auth_user_id = result['auth_user_id']
-    return auth_user_id
+    return {'token' : token, 'auth_user_id' : auth_user_id}
 
-def test_invalid_user_error(create_and_reset):
+# create puclic channel called channel1 where user1 will be added
+@pytest.fixture
+def channel1_public(user1):
 
-    # Create 1st user from the fixture
-    user_id1 = create_and_reset
+    channel1_register = {
+        'token': user1['token'],
+        'name': "Channel1_Public",
+        'is_public': True,
+    }
 
-    # 1st user creates a public channel
-    is_public = True
-    name = 'JohnCena_public'
-    channel = channels_create_v1(user_id1 ,name, is_public)
-    channel_id = channel['channel_id']
+    response_channel1_register = requests.post(
+        f"{config.url}channels/create/v2",
+        json=channel1_register
+    )
 
-    # Invalid user error
-    with pytest.raises(AccessError):
-        channel_join_v1(user_id1 + 1, channel_id)
-        
-def test_invalid_channel_error(create_and_reset):
+    channel_id = response_channel1_register.json()['channel_id']
+    user_id    = user1['auth_user_id']
 
-    # Create 1st user from the fixture
-    user_id1 = create_and_reset
+    return {'user_id' : user_id, 'channel_id' : channel_id}
 
-    # Create 2nd user
-    email = "jamessmith@gmail.com"
-    password = "asdfgh"
-    name_first = "James "
-    name_last = "Smih"
-    auth_register_v1(email, password, name_first, name_last)
-    result2 = auth_login_v1(email, password) 
-    user_id2 = result2['auth_user_id']
+# create private channel called channel2 where user1 will be added
+@pytest.fixture
+def channel1_private(user1):
 
-    # 1st user creates a public channel
-    is_public = True
-    name = 'JohnCena_public'
-    channel = channels_create_v1(user_id1 ,name, is_public)
-    channel_id = channel['channel_id']
+    channel2_register = {
+        'token': user1['token'],
+        'name': "Channel1_Private",
+        'is_public': False,
+    }
 
-    # Invalid channel error
-    with pytest.raises(InputError):
-        channel_join_v1(user_id2, channel_id + 1)  
+    response_channel2_register = requests.post(
+        f"{config.url}channels/create/v2",
+        json=channel2_register
+    )
 
-def test_user_already_in_channel_error(create_and_reset):
+    channel_id = response_channel2_register.json()['channel_id']
+    user_id    = user1['auth_user_id']
 
-    # Create 1st user from the fixture
-    user_id1 = create_and_reset
+    return {'user_id' : user_id, 'channel_id' : channel_id}
 
-    # 1st user creates a public channel
-    is_public = True    
-    name1 = 'JohnSmith_public'
-    channel1 = channels_create_v1(user_id1 ,name1, is_public)
-    channel_id_1 = channel1['channel_id']
+# create user2 which we will use to join channel1
+@pytest.fixture
+def user2():
 
-    # Create 2nd user
-    email = "jamessmith@gmail.com"
-    password = "asdfgh"
-    name_first = "James "
-    name_last = "Smih"
-    auth_register_v1(email, password, name_first, name_last)
-    result2 = auth_login_v1(email, password) 
-    
-    # 2nd user creates a public channel
-    user_id2 = result2['auth_user_id']
-    name2 = 'JamesSmith_public'
-    channel2 = channels_create_v1(user_id2, name2, is_public)
-    channel_id_2 = channel2['channel_id']
+    user2_register = {
+        'email': "michael.dawson1@gmail.com",
+        'password': "michaeldawson",
+        'name_first': "Michael",
+        'name_last': "Dawson",
+    }
+    response_user2_register = requests.post(
+        f"{config.url}auth/register/v2",
+        json=user2_register
+    )
 
-    # Both users already in channel as owners error
-    with pytest.raises(InputError):
-        channel_join_v1(user_id1, channel_id_1)
-        channel_join_v1(user_id2, channel_id_2)
+    auth_user_id = response_user2_register.json()['auth_user_id']
+    token        = response_user2_register.json()['token']
+    return {'token' : token, 'auth_user_id' : auth_user_id}
 
-def test_private_channel(create_and_reset):
+# user2 should be able to join channel1
+def test_valid_channel_join(reset_data, channel1_public, user2):
 
-    # Create 1st user from fixture
-    user_id1 = create_and_reset
+    # paramenters for channel/join/v2
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1_public['channel_id']
+    }
 
-    # 1st user creates a private channel
-    is_public = False
-    name = 'JohnCena_public'
-    channel = channels_create_v1(user_id1 ,name, is_public)
-    channel_id = channel['channel_id']
+    # allow user2 to join channel1
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
+    )
 
-    # Create 2nd user
-    email = "jamessmith@gmail.com"
-    password = "asdfgh"
-    name_first = "James "
-    name_last = "Smih"
-    auth_register_v1(email, password, name_first, name_last)
-    result2 = auth_login_v1(email, password) 
-    user_id2 = result2['auth_user_id']
+    # get the channel1 details to check
+    response_join_register = requests.get(
+        f"{config.url}channel/details/v2", json=join_register
+    )
 
-    # Cannot join private channel error
-    with pytest.raises(AccessError):
-        channel_join_v1(user_id2, channel_id)
+    response_join_register_data = response_join_register.json()
 
-def test_channel_join(create_and_reset):
-
-    # Create 1st user from the fixture
-    user_id = create_and_reset
-
-    # 1st user creates a public channel
-    is_public = True
-    name = 'can_join_public'
-    channel = channels_create_v1(user_id ,name, is_public)
-    channel_id = channel['channel_id']
-
-    # Create 2nd user which can join the public channel
-    email = "jamessmith@gmail.com"
-    password = "asdfgh"
-    name_first = "James "
-    name_last = "Smih"
-    auth_register_v1(email, password, name_first, name_last)
-    result2 = auth_login_v1(email, password) 
-    user_id2 = result2['auth_user_id']
-
-    assert(channel_join_v1(user_id2, channel_id)) == {}
-
-def test_channel_join_multi(create_and_reset):
-
-    # Create 1st user from the fixture 
-    user_id = create_and_reset
-
-    # 1st user creates a public channel
-    is_public = True
-    name = 'can_join_public'
-    channel = channels_create_v1(user_id ,name, is_public)
-    channel_id = channel['channel_id']
-
-    # Create 2nd user which can join the public channel
-    email = "jamessmith@gmail.com"
-    password = "asdfgh"
-    name_first = "James "
-    name_last = "Smih"
-    auth_register_v1(email, password, name_first, name_last)
-    result2 = auth_login_v1(email, password) 
-    user_id2 = result2['auth_user_id']
-
-    # Create 3nd user which can join the public channel
-    email = "JackDean@hotmail.com"
-    password = "qwedfg"
-    name_first = "Jack "
-    name_last = "Dean"
-    auth_register_v1(email, password, name_first, name_last)
-    result3 = auth_login_v1(email, password) 
-    user_id3 = result3['auth_user_id']
-
-    assert(channel_join_v1(user_id2, channel_id)) == {}
-    assert(channel_join_v1(user_id3, channel_id)) == {}
-
-def test_channel_details(create_and_reset):
-
-    # Create 1st user from the fixture 
-    user_id = create_and_reset
-
-    # 1st user creates a public channel
-    is_public = True
-    name = 'can_join_public'
-    channel = channels_create_v1(user_id ,name, is_public)
-    channel_id = channel['channel_id']
-
-    # Create 2nd user which can join the public channel
-    email = "jack.colback88@gmail.com"
-    password = "Nottingham"
-    name_first = "Jack"
-    name_last = "Colback"
-    auth_register_v1(email, password, name_first, name_last)
-    result2 = auth_login_v1(email, password) 
-    user_id2 = result2['auth_user_id']
-
-    channel_join_v1(user_id2, channel_id)
-
-    assert channel_details_v1(user_id2, channel_id) == \
+    owner_members = [
         {
-            'name': name, 
-            'is_public': is_public, 
-            'owner_members': [
-                {
-                    'u_id': user_id, 
-                    'email': "jack.jones@gmail.com", 
-                    'name_first': "Jack", 
-                    'name_last': "Jones",
-                    'handle_str': 'jackjones', 
-                }
-            ], 
-            'all_members': [
-                
-                {
-                    'u_id': user_id, 
-                    'email': "jack.jones@gmail.com", 
-                    'name_first': "Jack", 
-                    'name_last': "Jones",
-                    'handle_str': 'jackjones', 
-                },
-
-                {
-                    'u_id': user_id2, 
-                    'email': "jack.colback88@gmail.com", 
-                    'name_first': "Jack", 
-                    'name_last': "Colback",
-                    'handle_str': 'jackcolback', 
-                }
-            ], 
+            'u_id': channel1_public['user_id'], 
+            'email': "harry.williams@gmail.com", 
+            'name_first': "Harry", 
+            'name_last': "Williams", 
+            'handle_str': "harrywilliams",
         }
+    ]
+
+    all_members = [
+        {
+            'u_id': channel1_public['user_id'], 
+            'email': "harry.williams@gmail.com", 
+            'name_first': "Harry", 
+            'name_last': "Williams", 
+            'handle_str': "harrywilliams",
+        },
+
+        {
+            'u_id': user2['auth_user_id'], 
+            'email': "michael.dawson1@gmail.com", 
+            'name_first': "Michael", 
+            'name_last': "Dawson", 
+            'handle_str': "michaeldawson",
+        }
+    ]
+
+    expected_data = {
+        "name": "Channel1_Public",
+        "is_public": True,
+        "owner_members": owner_members,
+        "all_members": all_members,
+    }
 
 
-'''
+    assert response_join_register_data == expected_data
+
+def test_invalid_channel_join(reset_data, channel1_public, user2):
+
+    # paramenters for channel/join/v2
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1_public['channel_id'],
+    }
+
+    # make an invalid channel ID
+    join_register['channel_id'] += 1
+
+    response_join_register = requests.post(f"{config.url}channel/join/v2",\
+    json=join_register)
+    assert response_join_register.status_code == 400
+
+def test_non_member_private_channel_join(reset_data, channel1_private, user2):
+
+    # paramenters for channel/join/v2
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1_private['channel_id'],
+    }
+
+    response_join_register = requests.post(f"{config.url}channel/join/v2",\
+    json=join_register)
+
+    assert response_join_register.status_code == 403
