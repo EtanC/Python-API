@@ -13,6 +13,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
+from src.message import message_edit_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -196,6 +197,36 @@ def channel_details_v2():
 
     return_dict = channel_details_v1(data['token'], int(data['channel_id']))
     return dumps(return_dict) 
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit():
+
+    '''
+    Given a message, update its text with new text. 
+    If the new message is an empty string, the message is deleted.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        message     (str) - message
+        
+    Exceptions: 
+        InputError  - message is too long
+                    - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_edit_v1(
+        data['token'],
+        data['message_id'],
+        data['message']
+    )
+    return dumps(message)
 
 @APP.route("/users/all/v1", methods=['GET'])
 def users_all(): 
