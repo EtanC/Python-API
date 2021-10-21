@@ -323,6 +323,7 @@ def test_invalid_user_message_edit(reset_data, user1, channel1, user2): #PUT
 
 # owner permissions test (not done yet)
 
+'''
 def test_valid_message_edit(reset_data, user1, channel1): #PUT
 
     # user1 sends a mesage in channel1
@@ -396,7 +397,6 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
 
 
 
-'''
 def test_non_owner_message_edit(reset_data, user1, channel1, user2): #PUT
 
     # add user2 to channel 1 which already has user1
