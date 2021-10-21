@@ -68,7 +68,7 @@ def test_empty(reset):
         "name_first": "Beta",
         "name_last": "Smith",
     }
-    response_person2 = requests.post(
+    requests.post(
         f"{config.url}auth/register/v2",
         json=register_person2
     )
