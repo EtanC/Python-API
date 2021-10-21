@@ -136,8 +136,8 @@ def test_multiple(reset):
         f"{config.url}dms/create/v1",
         json=data
     )
-    return_id = response.json()['dm_id']
-    assert response.json() == {'dm_id': return_id}
+    return_id = response.json()
+    assert return_id == {'dm_id': 3}
 
 
 '''
