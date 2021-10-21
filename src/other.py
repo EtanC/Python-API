@@ -7,8 +7,5 @@ def clear_v1():
     store['handle_append_no'] = {}
     store['user_id_number'] = 1
     store['dms'] = []
-<<<<<<< HEAD
     store['message_id'] = 1
-=======
->>>>>>> added files that was not git added before
     data_store.set(store)
