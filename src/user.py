@@ -91,7 +91,7 @@ def user_profile_setemail_v1(token, email):
         AccessError - Invalid token
     
     Return Value: 
-        Nothing 
+        Returns {} on successful call 
     '''
     store = data_store.get() 
 
@@ -110,4 +110,4 @@ def user_profile_setemail_v1(token, email):
     user['email'] = email 
     data_store.set(store)
 
-    pass 
+    return {}  

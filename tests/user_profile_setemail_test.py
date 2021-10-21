@@ -13,17 +13,10 @@ def reset():
         "name_last" : "Smith",
     }
 
-    requests.post(
+    response = requests.post(
         f"{config.url}auth/register/v2",
         json=data_register
     )
-
-    data_login = { 
-        'email': 'realemail_812@outlook.edu.au', 
-        'password': 'Password1', 
-    }
-    
-    response = requests.post(f'{config.url}auth/login/v2', json=data_login)
 
     return response.json()
 
