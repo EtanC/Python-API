@@ -82,6 +82,19 @@ def test_empty(reset):
     )
     assert response.status_code == 400
 
+def test_invalid_token(reset): 
+    data = {
+        'token' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA',
+        'u_ids' : []
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1", 
+        json=data
+    )
+
+    #inputerror 
+    assert response.status_code == 403
+
 
 def test_multiple(reset):
     data = {
@@ -135,9 +148,10 @@ def test_multiple(reset):
         f"{config.url}dms/create/v1",
         json=data
     )
+    dm_id = response.json()['dm_id']
     return_id = response.json()
 
-    assert return_id == {'dm_id': 3,}
+    assert return_id == {'dm_id': dm_id,}
 
 
 '''
