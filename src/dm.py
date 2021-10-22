@@ -18,15 +18,16 @@ comma-and-space-separated list of user handles,
 def dm_create_v1(token, u_ids):
     store = data_store.get()
 
-    # INPUT ERROR: if any u_id in u_ids does not refer to a valid user
-    if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
-        raise InputError("Invalid u_id")
-
     # check token, if valid, the return would be
     if token_to_user(token, store) is not None:
         owner = token_to_user(token, store)
     else:
         raise AccessError('Invalid token')
+
+    # INPUT ERROR: if any u_id in u_ids does not refer to a valid user
+    if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
+        raise InputError("Invalid u_id")
+
 
     # get dm_id by counting number of dm and adding one
     # assuming it starts at 1
@@ -66,10 +67,10 @@ def dm_create_v1(token, u_ids):
 
 '''
 
+{dm_list_v2}
 Returns the list of DMs that the user is a member of.
 
 '''
-
 
 def dm_list_v1(token):
     store = data_store.get()
@@ -82,15 +83,8 @@ def dm_list_v1(token):
     else:
         raise AccessError('Invalid token')
 
-    # user validity check
-    if check_valid_id(u_id, store) == False:
-        raise InputError("Invalid u_id")
-
     dm_data = []
-    # a list of dictionary that we return
-    return_dms = {'dms': dm_data}
-    dm_data = []
-
+    
     # check if the user'd u_id is part of the dm,
     # if so, append it to dm_data.
     for dm_id in store['dms']:
@@ -98,6 +92,9 @@ def dm_list_v1(token):
             if u_id == member['u_id']:
                 dm = {'dm_id': dm_id['dm_id'], 'name': dm_id['name']}
                 dm_data.append(dm)
+
+    # a list of dictionary that we return
+    return_dms = {'dms': dm_data}
 
     return return_dms
 

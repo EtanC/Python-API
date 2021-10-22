@@ -38,7 +38,7 @@ def test_return_type(reset):
     }
 
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     response_data = response.json()
@@ -46,14 +46,14 @@ def test_return_type(reset):
 
 
 def test_inputError(reset):
-    invalid_id = 1111
+    invalid_id = reset[1]['auth_user_id'] + 1
     data = {
         'token': reset[0]['token'],
         'u_ids': [invalid_id]
     }
 
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
 
@@ -77,10 +77,23 @@ def test_empty(reset):
         'u_ids': []
     }
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     assert response.status_code == 400
+
+def test_invalid_token(reset): 
+    data = {
+        'token' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA',
+        'u_ids' : []
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1", 
+        json=data
+    )
+
+    #inputerror 
+    assert response.status_code == 403
 
 
 def test_multiple(reset):
@@ -89,7 +102,7 @@ def test_multiple(reset):
         'u_ids': [reset[1]['auth_user_id']]
     }
     requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     
@@ -110,7 +123,7 @@ def test_multiple(reset):
         'u_ids': [id_2]
     }
     requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
 
@@ -132,12 +145,13 @@ def test_multiple(reset):
     }
 
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
+    dm_id = response.json()['dm_id']
     return_id = response.json()
 
-    assert return_id == {'dm_id': 3,}
+    assert return_id == {'dm_id': dm_id,}
 
 
 '''
@@ -202,7 +216,7 @@ def test_multiple(reset):
         'u_ids' : [id_1,id_2,id_3,id_4,id_5]
     }
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     assert response == \
