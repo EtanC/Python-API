@@ -13,7 +13,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1
-from src.dm import dm_create_v1, dm_list_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
@@ -235,6 +235,7 @@ def dm_create_v2():
     
     return dumps(return_dict) 
 
+
 @APP.route("/dm/list/v1", methods=['GET'])
 def dm_list_v2(): 
     '''
@@ -256,6 +257,26 @@ def dm_list_v2():
     
     return dumps(return_dict) 
 
+@APP.route("/dm/remove/v1", methods=['DELETE'])
+def dm_remove_v2(): 
+    '''
+    Returns the list of DMs that the user is a member of.
+
+    Arguments:
+        token (str): token identifying user
+        
+    Exceptions: 
+        AccessError - Invalid token 
+
+    Returns: 
+        Returns {dms} on successful creation 
+    '''
+
+    data = request.get_json()
+
+    return_dict = dm_remove_v1(data['token'], data['dm_id'])
+    
+    return dumps(return_dict) 
 
 '''
 
