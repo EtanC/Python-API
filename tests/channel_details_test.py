@@ -175,7 +175,6 @@ def test_invalid_user(reset):
 
     assert response.status_code == 403 
 
-''' REQUIRE CHANNEL JOIN 
 def test_two_members(reset): 
     email_1 = "realemail_812@outlook.edu.au"
     name_first_1 = "John"
@@ -411,5 +410,4 @@ def test_three_members(reset):
     new_return_list = sorted(return_dict['all_members'], key = lambda k: k['u_id']) 
     new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 
-    assert new_return_list == new_mem_list 
-'''
+    assert new_return_list == new_mem_list
