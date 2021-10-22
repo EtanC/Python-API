@@ -185,3 +185,16 @@ def test_non_member_private_channel_join(reset_data, channel1_private, user2):
     json=join_register)
 
     assert response_join_register.status_code == 403
+
+def test_user_already_in_channel_join(reset_data, channel1_public, user1):
+    
+    #user 1 tries to join channel1 but is already in 
+    join_register = {
+        "token": user1['token'],
+        "channel_id": channel1_public['channel_id'],
+    }
+
+    response_join_register = requests.post(f"{config.url}channel/join/v2",\
+    json=join_register)
+
+    assert response_join_register.status_code == 403
