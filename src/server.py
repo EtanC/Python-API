@@ -144,7 +144,11 @@ def channel_messages():
         {'messages' : messages, 'start' : start, 'end': end}
         on successful call
     '''
+<<<<<<< HEAD
     data = request.args
+=======
+    data = request.args()
+>>>>>>> fixed based on merge reviews
     messages = channel_messages_v1(
         data['token'],
         int(data['channel_id']),

@@ -19,10 +19,6 @@ def message_edit_v1(token, message_id, message):
     user = token_to_user(token, store)
     message_to_edit = get_message(message_id, store)
 
-    # Checking if auth_user_id is valid
-    if get_user(auth_user_id, store) == None:
-        raise AccessError(description="auth_user_id is not valid")
-
     # check the token's validity:
     if user == None:
         raise AccessError(description="INVALID token passed in")
