@@ -32,7 +32,7 @@ def test_one_valid(reset):
         'token': reset['token'], 
         'u_id': reset['auth_user_id'], 
     } 
-    response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
+    response = requests.get(f'{config.url}user/profile/v1', params=data_profile)
 
     assert response.json() == {'user': {
         'u_id': reset['auth_user_id'], 
@@ -69,7 +69,7 @@ def test_two_valid(reset):
         'token': reset['token'], 
         'u_id': u_id_2, 
     }
-    response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
+    response = requests.get(f'{config.url}user/profile/v1', params=data_profile)
 
     assert response.json() == {
         'user': {
@@ -87,7 +87,7 @@ def test_invalid_uid(reset):
         'u_id': reset['auth_user_id'] + 1, 
     }
 
-    response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
+    response = requests.get(f'{config.url}user/profile/v1', params=data_profile)
 
     assert response.status_code == 400 
 
@@ -97,6 +97,6 @@ def test_invalid_user(reset):
         'token': 'invalid_token',
         'u_id': reset['auth_user_id']
     }
-    response = requests.get(f'{config.url}user/profile/v1', json=data_profile)
+    response = requests.get(f'{config.url}user/profile/v1', params=data_profile)
 
     assert response.status_code == 403 

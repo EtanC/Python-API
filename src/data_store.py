@@ -24,10 +24,11 @@ Example usage:
     data_store.set(store)
 '''
 
-## YOU SHOULD MODIFY THIS OBJECT BELOW
+## YOU SHOULD MODIFY THIS OBJECT BELOW (double check later)
 initial_object = {
     'users': [],
     'channels': [],
+    'dms' : []
 }
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
