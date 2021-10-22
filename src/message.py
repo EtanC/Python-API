@@ -14,7 +14,6 @@ def message_send_v1(token, channel_id, message):
     if (token_data is None) or ('auth_user_id' not in token_data): 
         raise AccessError(description="Invalid token")
         
-    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
     channel = get_channel(channel_id, store)
     user = token_to_user(token, store)
