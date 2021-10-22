@@ -12,8 +12,11 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
 from src.channels import channels_create_v1
+
+from src.dm import dm_create_v1, dm_details_v1
+
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
-from src.dm import dm_create_v1
+
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -376,6 +379,30 @@ def user_profile_setname():
 
     return dumps({})
 
+@APP.route("/dm/details/v1", methods=['GET'])
+def dm_details(): 
+    '''
+    Given a DM with ID dm_id that the authorised user is a member of, 
+    provide basic details about the DM. 
+
+    Arguments: 
+        token (str) - token of a member of the dm
+        dm_id (int) - id of the dm 
+
+    Exceptions: 
+        InputError  - dm_id does not refer to a valid dm 
+        AccessError - authorised user not a member of the dm
+                    - user not authorised / invalid token 
+                
+    Return Value: 
+        Returns { name , members } on successful call
+    '''
+
+    data = request.args
+
+    return_dict = dm_details_v1(data['token'], int(data['dm_id']))
+
+    return dumps(return_dict)
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
