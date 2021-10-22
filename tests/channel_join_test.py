@@ -197,4 +197,4 @@ def test_user_already_in_channel_join(reset_data, channel1_public, user1):
     response_join_register = requests.post(f"{config.url}channel/join/v2",\
     json=join_register)
 
-    assert response_join_register.status_code == 403
+    assert response_join_register.status_code == 400
