@@ -373,39 +373,6 @@ def dm_create_v2():
     return_dict = dm_create_v1(data['token'], data['u_ids'])
     
     return dumps(return_dict) 
-    
-    
-@APP.route("/message/send/v1", methods=['POST'])
-def message_send():
-    '''
-    Send a message from the authorised user to the channel specified by channel_id. 
-    Note: Each message should have its own unique ID, 
-    i.e. no messages should share an ID with another message, 
-    even if that other message is in a different channel.
-
-    Arguments:
-        token       (str) - token identifying user
-        channel_id  (int) - id of channel 
-        message     (str) - user's message
-        
-    Exceptions: 
-        InputError  - Channel_id not valid 
-                    - Message is too short or too long
-        AccessError - Authorised user not member of existing channel 
-                    - Invalid token  
-
-    Return Value: 
-        Returns { message_id } on successful call  
-    ''' 
-
-    data = request.get_json()
-    message_id = message_send_v1(
-        data['token'],
-        data['channel_id'],
-        data['message']
-    )
-
-    return dumps(message_id)
 
 @APP.route("/users/all/v1", methods=['GET'])
 def users_all(): 

@@ -13,8 +13,8 @@ def message_edit_v1(token, message_id, message):
     token_data = decode_token(token)
     if (token_data is None) or ('auth_user_id' not in token_data): 
         raise AccessError(description='Invalid token')
-    auth_user_id = token_data['auth_user_id']
-
+        
+    auth_user_id = token_data['auth_user_id']    
     store = data_store.get()
     user = token_to_user(token, store)
     message_to_edit = get_message(message_id, store)
