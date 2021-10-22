@@ -205,7 +205,6 @@ dms.py section
 
 '''
 
-
 @APP.route("/dm/create/v1", methods=['POST'])
 def dm_create_v2(): 
     '''

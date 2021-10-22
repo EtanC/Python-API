@@ -64,13 +64,6 @@ def dm_create_v1(token, u_ids):
         'dm_id': dm_id,
     }
 
-
-'''
-
-Returns the list of DMs that the user is a member of.
-
-'''
-
 '''
 Function that checks if the whole u_ids is valid
 
