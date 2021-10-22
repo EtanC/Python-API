@@ -399,7 +399,7 @@ def user_profile_sethandle():
     Return Value: 
         Returns {} on successful call 
     '''
-
+   
     data = request.get_json() 
     user_profile_sethandle_v1(data['token'], data['handle_str'])
     return dumps({})
