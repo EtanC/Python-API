@@ -17,7 +17,7 @@ from src.message import message_edit_v1, message_send_v1
 from src.helper import decode_token 
 from src.channels import channels_create_v1
 from src.channel import channel_details_v1
-from src.dm import dm_create_v1
+from src.dm import dm_create_v1, dm_list_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -477,12 +477,38 @@ dms.py section
 @APP.route("/dms/create/v1", methods=['POST'])
 def dm_create_v2(): 
     '''
-    Given a channel with ID channel_id that the authorised user is a member of, 
-    provide basic details about the channel 
+   u_ids contains the user(s) that this DM is directed to, 
+   and will not include the creator. 
+   The creator is the owner of the DM. 
+   name should be automatically generated based on the users that are in this DM. 
+   The name should be an alphabetically-sorted, 
+   comma-and-space-separated list of user handles, 
+   e.g. 'ahandle1, bhandle2, chandle3'.
 
     Arguments:
         token (str): token identifying user
         u_ids (list): list of u_id 
+        
+    Exceptions: 
+        InputError  - Invalid u_id in the list of u_ids
+
+    Returns: 
+        Returns {dm_id} on successful creation 
+    '''
+
+    data = request.get_json() 
+
+    return_dict = dm_create_v1(data['token'], data['u_ids'])
+    
+    return dumps(return_dict) 
+
+@APP.route("/dm/list/v1", methods=['GET'])
+def dm_list_v2(): 
+    '''
+    Returns the list of DMs that the user is a member of.
+
+    Arguments:
+        token (str): token identifying user
         
     Exceptions: 
         InputError  - Invalid u_id in the list of u_ids
@@ -493,10 +519,9 @@ def dm_create_v2():
 
     data = request.get_json() 
 
-    return_dict = dm_create_v1(data['token'], data['u_ids'])
+    return_dict = dm_list_v1(data['token'])
     
     return dumps(return_dict) 
-
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
