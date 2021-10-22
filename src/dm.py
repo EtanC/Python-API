@@ -98,6 +98,30 @@ def dm_list_v1(token):
 
     return return_dms
 
+'''
+
+{dm_remove_v2}
+Remove an existing DM, so all members are no longer in the DM.
+This can only be done by the original creator of the DM.
+
+'''
+
+def dm_remove_v1(token, dm_id): 
+    store = data_store.get()
+
+    if token_to_user(token, store) is None:
+        raise AccessError('Invalid token')
+
+    if (check_valid_dmid(dm_id, store) == False) or (dm_id == None):
+        raise InputError("Invalid dm_id")
+
+    chosen_dm = store['dms'][dm_id+1]['members']
+    for members in enumerate(chosen_dm):
+        del store['dms'][dm_id]['members'][members]
+
+    return {}
+
+
 
 '''
 Function that checks if the whole u_ids is valid
@@ -122,4 +146,12 @@ def check_valid_id(u_ids, store):
     for u_id in u_ids:
         if check_id(u_id, store) == False:
             result = False
+    return result
+
+def check_valid_dmid(dm_id, store): 
+    result = False
+    for id in store['dms']: 
+        if dm_id == id: 
+            result = True
+            break
     return result
