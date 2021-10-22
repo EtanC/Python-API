@@ -207,28 +207,6 @@ def channel_details_v2():
     return dumps(return_dict) 
 
 
-@APP.route("/clear/v1", methods=['DELETE'])
-def clear():
-    '''
-    Given a channel with ID channel_id that the authorised user is a member of, 
-    provide basic details about the channel 
-
-    Arguments:
-        token       (str) - token identifying user
-        channel_id  (int) - id of channel 
-        
-    Exceptions: 
-        InputError  - Channel_id not valid 
-        AccessError - Authorised user not member of existing channel 
-                    - User not authorised 
-
-    Return Value: 
-        Returns {name, is_public, owner_members, all_members} on successful creation 
-    '''
-
-    clear_v1()
-    return dumps({})
-
 
 '''
 
