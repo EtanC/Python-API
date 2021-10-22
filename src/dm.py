@@ -115,7 +115,7 @@ def dm_details_v1(token, dm_id):
     if user is None: 
         raise AccessError(description='Invalid token')
     
-    # CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+    # check if dm_id is within the list of dms 
     if not any(dic['dm_id'] == dm_id for dic in store['dms']): 
         raise InputError(description='Invalid dm id')
     
@@ -125,7 +125,7 @@ def dm_details_v1(token, dm_id):
         if dm_id == dm['dm_id']: 
             specific_dm = dm 
     
-    # CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+    # check if user is in the dm by checking the user id in the token passed in 
     if not any(dic['u_id'] == token_data['auth_user_id'] for dic in specific_dm['members']): 
         raise AccessError(description='User not in dm')
 
