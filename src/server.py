@@ -12,9 +12,8 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
 from src.channels import channels_create_v1
-from src.channel import channel_details_v1
+from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.dm import dm_create_v1
-from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -132,6 +131,34 @@ def channel_messages():
         data['start']
     )
     return dumps(messages)
+
+@APP.route("/channel/join/v2", methods = ['POST'])
+def channel_join_v2():
+    '''
+        Given a channel_id of a channel that the authorised user can join, 
+        adds them to that channel.
+        Arguments:
+
+            token (str): token identifying user 
+            channel_id (int): id of channel 
+
+        Exceptions: 
+
+            InputError  - Invalid channel id
+                        - User already in channel
+
+            AccessError - User is not a member and owner of a private channel
+
+        Returns: 
+            Returns {} on successful creation 
+    '''
+    data = request.get_json() 
+
+    token = data['token'] 
+    channel_id = data['channel_id'] 
+
+    empty_dict = channel_join_v1(token, channel_id)
+    return dumps(empty_dict)
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
