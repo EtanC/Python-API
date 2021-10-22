@@ -289,6 +289,7 @@ def message_edit():
         data['message']
     )
     return dumps(message)
+    
 @APP.route("/channels/listall/v2", methods=['GET'])
 def channels_listall_v2(): 
     '''
