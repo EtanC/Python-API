@@ -70,7 +70,7 @@ def test_no_channel(reset_data):
     }
 
 
-def test_valid_user(reset_data): 
+def test_invalid_user(reset_data): 
     # create channel
     data_create = {
         "token": reset_data['token'], 
