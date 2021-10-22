@@ -206,7 +206,7 @@ dms.py section
 '''
 
 
-@APP.route("/dms/create/v1", methods=['POST'])
+@APP.route("/dm/create/v1", methods=['POST'])
 def dm_create_v2(): 
     '''
     Given a channel with ID channel_id that the authorised user is a member of, 
