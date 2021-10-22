@@ -177,6 +177,32 @@ def channel_join_v2():
     empty_dict = channel_join_v1(token, channel_id)
     return dumps(empty_dict)
 
+
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details_v2(): 
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
+
+    Arguments:
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - Invalid token 
+
+    Return Value: 
+        Returns {name, is_public, owner_members, all_members} on successful creation 
+    '''
+
+    data = request.args
+
+    return_dict = channel_details_v1(data['token'], int(data['channel_id']))
+    return dumps(return_dict) 
+
+
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
     '''
@@ -196,10 +222,8 @@ def clear():
         Returns {name, is_public, owner_members, all_members} on successful creation 
     '''
 
-    data = request.get_json() 
-
-    return_dict = channel_details_v1(data['token'], data['channel_id'])
-    return dumps(return_dict) 
+    clear_v1()
+    return dumps({})
 
 
 '''
