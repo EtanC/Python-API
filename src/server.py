@@ -12,6 +12,8 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
 from src.channels import channels_create_v1
+from src.channel import channel_details_v1
+from src.dm import dm_create_v1
 from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
@@ -197,6 +199,39 @@ def channel_details_v2():
     return_dict = channel_details_v1(data['token'], int(data['channel_id']))
     return dumps(return_dict) 
 
+'''
+
+dms.py section 
+
+'''
+
+@APP.route("/dm/create/v1", methods=['POST'])
+def dm_create_v2(): 
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel 
+
+    Arguments:
+        token (str): token identifying user
+        u_ids (list): list of u_id 
+        
+    Exceptions: 
+        InputError  - Invalid u_id in the list of u_ids
+        AccessError - Invalid token 
+        
+
+    Returns: 
+        Returns {dm_id} on successful creation 
+        
+    '''
+
+    data = request.get_json() 
+
+    return_dict = dm_create_v1(data['token'], data['u_ids'])
+    
+    return dumps(return_dict) 
+    
+    
 @APP.route("/users/all/v1", methods=['GET'])
 def users_all(): 
     '''
@@ -259,9 +294,8 @@ def user_profile_sethandle():
     Return Value: 
         Returns {} on successful call 
     '''
-
-    data = request.get_json() 
-
+    data = request.get_json()
+    
     user_profile_sethandle_v1(data['token'], data['handle_str'])
 
     return dumps({})
