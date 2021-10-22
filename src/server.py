@@ -276,11 +276,6 @@ def channels_listall_v2():
 
     return dumps(channels)
 
-    data = request.args
-
-    return_dict = channel_details_v1(data['token'], int(data['channel_id']))
-    return dumps(return_dict) 
-
 '''
 
 dms.py section 
