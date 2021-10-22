@@ -126,7 +126,7 @@ def channel_messages():
         {'messages' : messages, 'start' : start, 'end': end}
         on successful call
     '''
-    data = request.args()
+    data = request.args
     messages = channel_messages_v1(
         data['token'],
         int(data['channel_id']),
