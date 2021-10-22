@@ -517,7 +517,7 @@ def dm_list_v2():
         Returns {dms} on successful creation 
     '''
 
-    data = request.get_json() 
+    data = request.args
 
     return_dict = dm_list_v1(data['token'])
     
