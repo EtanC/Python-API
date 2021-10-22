@@ -1,7 +1,7 @@
 from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
-from src.helper import token_to_user
+from src.helper import token_to_user, decode_token
 
 '''
 
@@ -63,7 +63,6 @@ def dm_create_v1(token, u_ids):
         'dm_id': dm_id,
     }
 
-
 '''
 
 {dm_list_v2}
@@ -97,7 +96,6 @@ def dm_list_v1(token):
     return_dms = {'dms': dm_data}
 
     return return_dms
-
 
 '''
 Function that checks if the whole u_ids is valid
