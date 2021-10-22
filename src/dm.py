@@ -1,7 +1,7 @@
 from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
-from src.helper import token_to_user
+from src.helper import token_to_user, decode_token
 
 '''
 
@@ -62,6 +62,57 @@ def dm_create_v1(token, u_ids):
 
     return {
         'dm_id': dm_id,
+    }
+
+def dm_details_v1(token, dm_id): 
+    '''
+    Given a DM with ID dm_id that the authorised user is a member of, 
+    provide basic details about the DM. 
+
+    Arguments: 
+        token (str) - token of a member of the dm
+        dm_id (int) - id of the dm 
+
+    Exceptions: 
+        InputError  - dm_id does not refer to a valid dm 
+        AccessError - authorised user not a member of the dm
+                    - user not authorised / invalid token 
+                
+    Return Value: 
+        Returns { name , members } on successful call
+    '''
+    store = data_store.get()
+    user = token_to_user(token, store)
+    if user is None: 
+        raise AccessError(description='Invalid token')
+    
+    # CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+    if not any(dic['dm_id'] == dm_id for dic in store['dms']): 
+        raise InputError(description='Invalid dm id')
+    
+    token_data = decode_token(token)
+
+    for dm in store['dms']: 
+        if dm_id == dm['dm_id']: 
+            specific_dm = dm 
+    
+    # CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+    if not any(dic['u_id'] == token_data['auth_user_id'] for dic in specific_dm['members']): 
+        raise AccessError(description='User not in dm')
+
+    mem_list = []
+    for member in specific_dm['members']: 
+        mem_list.append({
+            'u_id': member['u_id'], 
+            'email': member['email'], 
+            'name_first': member['name_first'], 
+            'name_last': member['name_last'], 
+            'handle_str': member['handle_str'], 
+        })
+
+    return {
+        'name': specific_dm['name'], 
+        'members': mem_list, 
     }
 
 '''
