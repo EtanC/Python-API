@@ -7,5 +7,4 @@ def clear_v1():
     store['handle_append_no'] = {}
     store['user_id_number'] = 1
     store['dms'] = []
-    store['message_id'] = 1
     data_store.set(store)
