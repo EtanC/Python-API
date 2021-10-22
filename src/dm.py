@@ -28,7 +28,6 @@ def dm_create_v1(token, u_ids):
     if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
         raise InputError("Invalid u_id")
 
-
     # get dm_id by counting number of dm and adding one
     # assuming it starts at 1
     dm_id = len(store['dms']) + 1
@@ -72,6 +71,7 @@ Returns the list of DMs that the user is a member of.
 
 '''
 
+
 def dm_list_v1(token):
     store = data_store.get()
 
@@ -84,7 +84,7 @@ def dm_list_v1(token):
         raise AccessError('Invalid token')
 
     dm_data = []
-    
+
     # check if the user'd u_id is part of the dm,
     # if so, append it to dm_data.
     for dm_id in store['dms']:
