@@ -181,8 +181,8 @@ def test_valid_send(reset_data, channel1, user1): #POST
 
     response_channel_messages_details = requests.get(
         f"{config.url}channel/messages/v2",
-        json=data_details
-    )
+        params=data_details)
+
     # You can check if the timestamp is within a second or two 
     # of the time you send the request.
 

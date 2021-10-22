@@ -19,10 +19,6 @@ def message_send_v1(token, channel_id, message):
     channel = get_channel(channel_id, store)
     user = token_to_user(token, store)
 
-    # Checking if auth_user_id is valid
-    if get_user(auth_user_id, store) == None:
-        raise AccessError(description="auth_user_id is not valid")
-
     # check the token's validity:
     if user == None:
         raise AccessError(description="INVALID token passed in")
