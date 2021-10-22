@@ -96,7 +96,7 @@ def test_invalid_token_send(reset_data, user1, channel1_public):
         "channel_id": channel1_public['channel_id'],
     }
     
-    response_register = requests.post(f"{config.url}channel/join/v1",\
+    response_register = requests.post(f"{config.url}channel/join/v2",\
     json=token_register_send)
     assert response_register.status_code == 403
 
