@@ -259,7 +259,6 @@ def test_invalid_member(reset):
 
     response = requests.post(f"{config.url}auth/register/v2", json=register_2) 
     u_id2 = response.json()['auth_user_id']
-    token2 = response.json()['token']
 
     data_create = { 
         'token': reset[0]['token'], 
