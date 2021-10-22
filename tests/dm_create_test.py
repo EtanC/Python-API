@@ -38,7 +38,7 @@ def test_return_type(reset):
     }
 
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     response_data = response.json()
@@ -53,7 +53,7 @@ def test_inputError(reset):
     }
 
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
 
@@ -77,7 +77,7 @@ def test_empty(reset):
         'u_ids': []
     }
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     assert response.status_code == 400
@@ -102,7 +102,7 @@ def test_multiple(reset):
         'u_ids': [reset[1]['auth_user_id']]
     }
     requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     
@@ -123,7 +123,7 @@ def test_multiple(reset):
         'u_ids': [id_2]
     }
     requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
 
@@ -145,7 +145,7 @@ def test_multiple(reset):
     }
 
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     dm_id = response.json()['dm_id']
@@ -216,7 +216,7 @@ def test_multiple(reset):
         'u_ids' : [id_1,id_2,id_3,id_4,id_5]
     }
     response = requests.post(
-        f"{config.url}dms/create/v1",
+        f"{config.url}dm/create/v1",
         json=data
     )
     assert response == \
