@@ -15,9 +15,7 @@ from src.channels import channels_create_v1, channels_list_v1, channels_listall_
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.message import message_edit_v1, message_send_v1
 from src.helper import decode_token 
-from src.channels import channels_create_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1
-from src.channel import channel_details_v1, channel_messages_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -144,11 +142,8 @@ def channel_messages():
         {'messages' : messages, 'start' : start, 'end': end}
         on successful call
     '''
-<<<<<<< HEAD
+
     data = request.args
-=======
-    data = request.args()
->>>>>>> fixed based on merge reviews
     messages = channel_messages_v1(
         data['token'],
         int(data['channel_id']),
