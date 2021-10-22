@@ -46,7 +46,7 @@ def test_return_type(reset):
 
 
 def test_inputError(reset):
-    invalid_id = 1111
+    invalid_id = reset[1]['auth_user_id'] + 1
     data = {
         'token': reset[0]['token'],
         'u_ids': [invalid_id]

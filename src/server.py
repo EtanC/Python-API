@@ -217,9 +217,11 @@ def dm_create_v2():
         
     Exceptions: 
         InputError  - Invalid u_id in the list of u_ids
+        AccessError - Invalid token 
+        
 
     Returns: 
-        Returns {dms} on successful creation 
+        Returns {dm_id} on successful creation 
         
     '''
 
