@@ -89,6 +89,17 @@ def user2():
     return {'token' : token, 'auth_user_id' : auth_user_id}
 
 # user2 should be able to join channel1
+def test_invalid_token_send(reset_data, user1, channel1_public): 
+
+    token_register_send = {
+        "token": "INVALID TOKEN",
+        "channel_id": channel1_public['channel_id'],
+    }
+    
+    response_register = requests.post(f"{config.url}channel/join/v1",\
+    json=token_register_send)
+    assert response_register.status_code == 403
+
 def test_valid_channel_join(reset_data, channel1_public, user2):
 
     # paramenters for channel/join/v2
