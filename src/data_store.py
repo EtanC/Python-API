@@ -1,3 +1,4 @@
+import json
 '''
 data_store.py
 
@@ -24,7 +25,7 @@ Example usage:
     data_store.set(store)
 '''
 
-## YOU SHOULD MODIFY THIS OBJECT BELOW (double check later)
+## YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
     'users': [],
     'channels': [],
@@ -34,7 +35,22 @@ initial_object = {
 
 class Datastore:
     def __init__(self):
-        self.__store = initial_object
+        try:
+            # Read data from data_store.json file
+            with open("data_store.json", "r") as FILE:
+                store = json.load(FILE)
+                self.__store = store
+        except json.decoder.JSONDecodeError:
+            # If data_store.json doesn't contain valid json or is empty
+            # reset data to initial_object
+            with open("data_store.json", "w") as FILE:
+                json.dump(initial_object, FILE)
+            self.__store = initial_object
+        except FileNotFoundError:
+            # If file does not exist, reset data to initial_object
+            with open("data_store.json", "x") as FILE:
+                json.dump(initial_object, FILE)
+            self.__store = initial_object
 
     def get(self):
         return self.__store
@@ -42,10 +58,12 @@ class Datastore:
     def set(self, store):
         if not isinstance(store, dict):
             raise TypeError('store must be of type dictionary')
-        self.__store = store
+        # Write the data in "store" to the file as json
+        with open("data_store.json", "w") as FILE:
+            json.dump(store, FILE)
+            self.__store = store
 
 print('Loading Datastore...')
 
 global data_store
 data_store = Datastore()
-
