@@ -15,7 +15,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.dm import dm_create_v1, dm_list_v1, dm_details_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
-from src.message import message_edit_v1, message_send_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1
 from src.helper import decode_token 
 
 
@@ -347,6 +347,38 @@ def message_edit():
     )
     return dumps(message)
 
+
+@APP.route("/message/senddm/v1", methods=['POST'])
+def message_senddm():
+
+    '''
+    Send a message from authorised_user to the DM specified by dm_id. 
+    Note: Each message should have it's own unique ID, 
+    i.e. no messages should share an ID with another message, 
+    even if that other message is in a different channel or DM.
+    
+    Arguments:
+        token       (str) - token identifying user
+        dm_id       (int) - id of dm
+        message     (str) - message
+        
+    Exceptions: 
+        InputError  - message is too long or too short
+                    - invalid dm_id
+
+        AccessError - Authorised user not member of dm
+                    - Invalid token 
+    Return Value: 
+        Returns {message_id} on successful call  
+    '''
+
+    data = request.get_json()
+    message = message_senddm_v1(
+        data['token'],
+        data['dm_id'],
+        data['message']
+    )
+    return dumps(message)
 
 
 '''
