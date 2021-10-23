@@ -35,7 +35,6 @@ def get_message(message_id, store):
                 return message
     return None
 
-
 def decode_token(token):
     '''
     Returns the data inside the jwt token.
