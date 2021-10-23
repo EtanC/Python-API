@@ -201,7 +201,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
 
     response_dm_messages_details = requests.get(
     f"{config.url}dm/messages/v1",
-    params=dm_messages)
+    params=dm_messages) # or json??
 
     # You can check if the timestamp is within a second or two 
     # of the time you send the request.
