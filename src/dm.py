@@ -111,7 +111,7 @@ def dm_remove_v1(token, dm_id):
     store = data_store.get()
 
     if token_to_user(token, store) is not None:
-        owner = token_to_user(token)
+        owner = token_to_user(token, store)
     else: 
         raise AccessError(description='Invalid token')
 
