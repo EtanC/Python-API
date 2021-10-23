@@ -14,7 +14,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.dm import dm_create_v1, dm_list_v1, dm_details_v1
-from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
+from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1
 from src.message import message_edit_v1, message_send_v1
 from src.helper import decode_token 
 
@@ -278,6 +278,33 @@ def channels_listall_v2():
     channels = channels_listall_v1(data['token'])
 
     return dumps(channels)
+
+@APP.route("/channel/addowner/v1", methods=['POST'])
+def channel_addowner():
+    '''
+    Make user with user id u_id an owner of the channel.
+
+    Arguments:
+        token       (str)   - The token used to verify the user's identity
+        channel_id  (int)   - The id number used to identify the channel
+        u_id        (int)   - The user id used to identify the user to add
+                              as an owner
+
+    Exceptions: 
+        InputError  - Channel_id not valid
+                    - u_id does not refer to a valid user
+                    - u_id is not a member of the channel
+                    - u_id is already an owner of the channel
+        AccessError - Invalid token
+                    - Channel is valid and user specified by token does not
+                      have owner permissions
+
+    Return Value: 
+        Returns {} on adding owner successfully
+    '''
+    data = request.get_json()
+    channel_addowner_v1(data['token'], data['channel_id'], data['u_id'])
+    return dumps({})
 
 '''
 

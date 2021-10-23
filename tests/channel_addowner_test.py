@@ -76,13 +76,14 @@ def test_valid_addowner(reset_data, two_member_channel):
         f"{config.url}channel/addowner/v1",
         json=data_addowner
     )
+
     data_details = {
         'token': two_member_channel['owner']['token'],
         'channel_id': two_member_channel['channel_id'],
     }
     response_details = requests.get(
         f"{config.url}channel/details/v2",
-        json=data_details
+        params=data_details
     )
 
     expected = {

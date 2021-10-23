@@ -3,7 +3,7 @@ from src.error import InputError
 from src.error import AccessError
 from src.channels import channels_list_v1, check_valid_user_id
 import re
-from src.helper import decode_token, token_to_user
+from src.helper import decode_token, token_to_user, get_channel, get_user
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
@@ -148,18 +148,6 @@ def channel_messages_v1(token, channel_id, start):
         'end': end,
     }
 
-#helper function that returns the user
-#returns user_id (dictionary) or None
-def get_user(auth_user_id, store):
-
-    store = data_store.get()
-
-    # if the user is valid, return the user otherwise return NOTHING
-    if check_valid_user_id(auth_user_id, store) == True:
-        return store['users'][auth_user_id - 1]   
-    
-    return None
-
 #helper function to check if the channel_id is valid
 def check_valid_channel(channel_id, store): 
     result = False 
@@ -168,18 +156,7 @@ def check_valid_channel(channel_id, store):
     for channel in store['channels']: 
         if channel_id == channel['channel_id']: 
             result = True
-    return result     
-
-#helper function that return the channel
-#returns channel_id (dictionary) or None
-def get_channel(channel_id, store):
-
-    store = data_store.get()
-    # if the channel is valid, return the channel otherwise return NOTHING
-    if check_valid_channel(channel_id, store) == True:
-        return store['channels'][channel_id - 1]   
-    
-    return None
+    return result
 
 def channel_join_v1(token, channel_id):
 
@@ -220,6 +197,36 @@ def channel_join_v1(token, channel_id):
 
     return {
     }
+
+def channel_addowner_v1(token, channel_id, u_id):
+    '''
+    Will add an owner to a channel
+    '''
+    store = data_store.get()
+    # Checking if token is valid
+    current_owner = token_to_user(token, store)
+    if current_owner == None:
+        raise AccessError("Invalid token")
+    # Checking channel_id is valid
+    channel = get_channel(channel_id, store)
+    if channel == None:
+        raise InputError("Invalid channel")
+    # Checking if inviting user has owner permissions
+    if not is_channel_member(current_owner['u_id'], channel['owner_members']):
+        raise AccessError("User does not have owner permissions")
+    # Checking if u_id is valid
+    user = get_user(u_id, store)
+    if user == None:
+        raise InputError("Invalid u_id")
+    # Checking if user is member of channel
+    if not is_channel_member(user['u_id'], channel['all_members']):
+        raise InputError("Can't add owner; user is not member of channel")
+    # Checking if user is an owner already
+    if is_channel_member(user['u_id'], channel['owner_members']):
+        raise InputError("Can't add owner; user is already an owner")
+    channel['owner_members'].append(user)
+    data_store.set(store)
+    return {}
 
 
 
