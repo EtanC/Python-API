@@ -81,11 +81,10 @@ def test_short(reset):
         'token' : reset[0]['token'],
         'dm_id' : reset[2]['dm_id']
     }
-    response_delete = requests.delete(
+    requests.delete(
         f"{config.url}dm/remove/v1",
         json=data
     )
-    assert response_delete.status_code == 200
 
     # calls dm_details, should return input error
     # invalid dm_id since it doesnt exist anymore
@@ -196,11 +195,10 @@ def test_long(reset):
         'token' : reset[0]['token'],
         'dm_id' : reset[2]['dm_id']
     }
-    response_delete = requests.delete(
+    requests.delete(
         f"{config.url}dm/remove/v1",
         json=data
     )
-    assert response_delete.status_code == 200
 
     # calls dm_list
     data = {
