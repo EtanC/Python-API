@@ -214,7 +214,6 @@ channels.py section
 
 '''
 
-
 @APP.route("/channels/create/v2", methods=['POST'])
 def channels_create_v2(): 
     '''
@@ -258,40 +257,10 @@ def channels_list_v2():
     data = request.args
     channels = channels_list_v1(data['token'])
     return dumps(channels)
-
-
-@APP.route("/message/edit/v1", methods=['PUT'])
-def message_edit():
-
-    '''
-    Given a message, update its text with new text. 
-    If the new message is an empty string, the message is deleted.
-    
-    Arguments:
-        token       (str) - token identifying user
-        message_id  (int) - id of message
-        message     (str) - message
-        
-    Exceptions: 
-        InputError  - message is too long
-                    - invalid message_id
-
-        AccessError - Authorised user not member of existing channel 
-                    - User has no owner permissions
-                    - Invalid token 
-    Return Value: 
-        Returns {} on successful call  
-    '''
-    data = request.get_json()
-    message = message_edit_v1(
-        data['token'],
-        data['message_id'],
-        data['message']
-    )
-    return dumps(message)
     
 @APP.route("/channels/listall/v2", methods=['GET'])
 def channels_listall_v2(): 
+
     '''
     Arguments:
         token       (str)     - token identifying user 
@@ -311,6 +280,11 @@ def channels_listall_v2():
 
     return dumps(channels)
 
+'''
+
+message.py section 
+
+'''
 
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send():
@@ -343,6 +317,37 @@ def message_send():
     )
 
     return dumps(message_id)
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit():
+
+    '''
+    Given a message, update its text with new text. 
+    If the new message is an empty string, the message is deleted.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        message     (str) - message
+        
+    Exceptions: 
+        InputError  - message is too long
+                    - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_edit_v1(
+        data['token'],
+        data['message_id'],
+        data['message']
+    )
+    return dumps(message)
+
 
 
 '''
@@ -430,36 +435,6 @@ users.py section
 
 '''
     
-@APP.route("/message/edit/v1", methods=['PUT'])
-def message_edit():
-
-    '''
-    Given a message, update its text with new text. 
-    If the new message is an empty string, the message is deleted.
-    
-    Arguments:
-        token       (str) - token identifying user
-        message_id  (int) - id of message
-        message     (str) - message
-        
-    Exceptions: 
-        InputError  - message is too long
-                    - invalid message_id
-
-        AccessError - Authorised user not member of existing channel 
-                    - User has no owner permissions
-                    - Invalid token 
-    Return Value: 
-        Returns {} on successful call  
-    '''
-    data = request.get_json()
-    message = message_edit_v1(
-        data['token'],
-        data['message_id'],
-        data['message']
-    )
-    return dumps(message)
-
 @APP.route("/users/all/v1", methods=['GET'])
 def users_all(): 
     '''
@@ -587,86 +562,7 @@ def clear():
     clear_v1()
     return dumps({})
 
-@APP.route("/dm/details/v1", methods=['GET'])
-def dm_details(): 
-    '''
-    Given a DM with ID dm_id that the authorised user is a member of, 
-    provide basic details about the DM. 
 
-    Arguments: 
-        token (str) - token of a member of the dm
-        dm_id (int) - id of the dm 
-
-    Exceptions: 
-        InputError  - dm_id does not refer to a valid dm 
-        AccessError - authorised user not a member of the dm
-                    - user not authorised / invalid token 
-                
-    Return Value: 
-        Returns { name , members } on successful call
-    '''
-
-    data = request.args
-
-    return_dict = dm_details_v1(data['token'], int(data['dm_id']))
-
-    return dumps(return_dict)
-
-'''
-
-dms.py section 
-
-'''
-
-
-@APP.route("/dms/create/v1", methods=['POST'])
-def dm_create_v2(): 
-    '''
-   u_ids contains the user(s) that this DM is directed to, 
-   and will not include the creator. 
-   The creator is the owner of the DM. 
-   name should be automatically generated based on the users that are in this DM. 
-   The name should be an alphabetically-sorted, 
-   comma-and-space-separated list of user handles, 
-   e.g. 'ahandle1, bhandle2, chandle3'.
-
-    Arguments:
-        token (str): token identifying user
-        u_ids (list): list of u_id 
-        
-    Exceptions: 
-        InputError  - Invalid u_id in the list of u_ids
-
-    Returns: 
-        Returns {dm_id} on successful creation 
-    '''
-
-    data = request.get_json() 
-
-    return_dict = dm_create_v1(data['token'], data['u_ids'])
-    
-    return dumps(return_dict) 
-
-@APP.route("/dm/list/v1", methods=['GET'])
-def dm_list_v2(): 
-    '''
-    Returns the list of DMs that the user is a member of.
-
-    Arguments:
-        token (str): token identifying user
-        
-    Exceptions: 
-        InputError  - Invalid u_id in the list of u_ids
-
-    Returns: 
-        Returns {dms} on successful creation 
-    '''
-
-    data = request.args
-
-    return_dict = dm_list_v1(data['token'])
-    
-    return dumps(return_dict) 
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT

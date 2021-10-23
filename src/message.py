@@ -47,7 +47,6 @@ def message_edit_v1(token, message_id, message):
 
     return {}
 
-
 def message_send_v1(token, channel_id, message):
 
     token_data = decode_token(token)
@@ -99,7 +98,7 @@ def message_send_v1(token, channel_id, message):
     }
 
 
-def message_edit_v1(token, message_id, message):
+
        
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
     token_data = decode_token(token)
