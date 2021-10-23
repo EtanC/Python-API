@@ -14,7 +14,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.dm import dm_create_v1, dm_list_v1, dm_details_v1
-from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
+from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_removeowner_v1
 from src.message import message_edit_v1, message_send_v1
 from src.helper import decode_token 
 
@@ -206,7 +206,33 @@ def channel_details_v2():
     return_dict = channel_details_v1(data['token'], int(data['channel_id']))
     return dumps(return_dict) 
 
+@APP.route("/channel/removeowner/v1", methods=['POST'])
+def channel_removeowner():
+    '''
+    Remove user with user id u_id as an owner of the channel.
 
+    Arguments:
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
+        u_id        (int) - id of the user to remove as owner from the channel
+        
+    Exceptions: 
+        InputError  - channel_id does not refer to a valid channel
+                    - u_id does not refer to a valid user
+                    - u_id refers to a user who is not a member of the channel
+                    - u_id refers to a user who is already an owner of the
+                      channel
+        AccessError - Invalid token
+                    - the user removing u_id from channel does not have owner
+                      permissions
+
+    Return Value: 
+        Returns {} on successfully removing
+        the user as an owner from the channel
+    '''
+    data = request.get_json()
+    channel_removeowner_v1(data['token'], data['channel_id'], data['u_id'])
+    return dumps({})
 
 '''
 
