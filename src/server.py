@@ -479,22 +479,6 @@ def user_profile():
     user = user_profile_v1(data['token'], int(data['u_id']))
     return dumps({'user': user})
 
-@APP.route("/clear/v1", methods=['DELETE'])
-def clear():
-    '''
-    Resets the internal data of the application to its initial state
-
-    Arguments:
-        None
-
-    Exceptions:
-        None
-
-    Return Value:
-        Returns {} on successful call
-    '''
-    clear_v1()
-    return dumps({})
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
 def user_profile_sethandle(): 
