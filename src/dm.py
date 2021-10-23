@@ -64,8 +64,12 @@ def dm_create_v1(token, u_ids):
     }
 
 '''
+
+{dm_list_v2}
 Returns the list of DMs that the user is a member of.
+
 '''
+
 
 def dm_list_v1(token):
     store = data_store.get()

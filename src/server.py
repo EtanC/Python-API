@@ -7,7 +7,8 @@ from src.error import InputError, AccessError
 from src.auth import auth_login_v1, auth_register_v1
 from src.other import clear_v1
 from src import config
-
+from src.user import users_all_v1, user_profile_v1
+from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
@@ -143,7 +144,6 @@ def channel_messages():
         {'messages' : messages, 'start' : start, 'end': end}
         on successful call
     '''
-
     data = request.args
     messages = channel_messages_v1(
         data['token'],
@@ -266,14 +266,13 @@ def channels_listall_v2():
         token       (str)     - token identifying user 
 
     Exceptions: 
-        AccessError - User not authorised 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - Invalid token 
 
     Return Value: 
         Returns {channels} on successful creation 
     '''
-
-
-
     data = request.args 
 
     channels = channels_listall_v1(data['token'])
@@ -359,8 +358,13 @@ dms.py section
 @APP.route("/dm/create/v1", methods=['POST'])
 def dm_create_v2(): 
     '''
-    Given a channel with ID channel_id that the authorised user is a member of, 
-    provide basic details about the channel 
+   u_ids contains the user(s) that this DM is directed to, 
+   and will not include the creator. 
+   The creator is the owner of the DM. 
+   name should be automatically generated based on the users that are in this DM. 
+   The name should be an alphabetically-sorted, 
+   comma-and-space-separated list of user handles, 
+   e.g. 'ahandle1, bhandle2, chandle3'.
 
     Arguments:
         token (str): token identifying user
@@ -373,7 +377,6 @@ def dm_create_v2():
 
     Returns: 
         Returns {dm_id} on successful creation 
-        
     '''
 
     data = request.get_json() 
@@ -472,10 +475,26 @@ def user_profile():
     Return Value: 
         Returns { user } on successful call
     '''
-
     data = request.args
     user = user_profile_v1(data['token'], int(data['u_id']))
     return dumps({'user': user})
+
+@APP.route("/clear/v1", methods=['DELETE'])
+def clear():
+    '''
+    Resets the internal data of the application to its initial state
+
+    Arguments:
+        None
+
+    Exceptions:
+        None
+
+    Return Value:
+        Returns {} on successful call
+    '''
+    clear_v1()
+    return dumps({})
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
 def user_profile_sethandle(): 
@@ -495,8 +514,8 @@ def user_profile_sethandle():
     Return Value: 
         Returns {} on successful call 
     '''
-   
-    data = request.get_json() 
+    data = request.get_json()
+    
     user_profile_sethandle_v1(data['token'], data['handle_str'])
     return dumps({})
 
@@ -561,9 +580,6 @@ def clear():
     '''
     clear_v1()
     return dumps({})
-
-
-
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 

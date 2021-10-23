@@ -423,7 +423,3 @@ def test_valid_send(reset_data, channel1, user1): #POST
     del response_data['messages'][0]['time_created']
     assert response_data == expected_data
 
-
-
-
-

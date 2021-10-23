@@ -58,6 +58,11 @@ def message_send_v1(token, channel_id, message):
     channel = get_channel(channel_id, store)
     user = token_to_user(token, store)
 
+    # check the token's validity:
+    if user == None:
+        raise AccessError(description="INVALID token passed in")
+
+    # check message length:
     if (len(message) < 1 or len(message) > 1000):
         raise InputError(description="message is TOO SHORT or TOO LONG")
 
@@ -96,10 +101,4 @@ def message_send_v1(token, channel_id, message):
     return {
         'message_id': message_id
     }
-
-
-
-
-
-
 
