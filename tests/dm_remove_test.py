@@ -39,6 +39,7 @@ def reset():
     )
     return (response_owner.json(), response_receiver.json(), response_create.json())
 
+
 def test_return_type(reset): 
     data = {
         'token' : reset[0]['token'], 
@@ -50,6 +51,7 @@ def test_return_type(reset):
     )
     assert type(response.json()) is dict
 
+
 def test_invalid_id(reset): 
     data = {
         'token' : reset[0]['token'], 
@@ -60,6 +62,7 @@ def test_invalid_id(reset):
         json=data
     )
     assert response.status_code == 400
+
 
 def test_Access_error(reset): 
     data = {
@@ -75,7 +78,7 @@ def test_Access_error(reset):
 
 def test_short(reset): 
     data = {
-        'token' : reset[0]['token'], 
+        'token' : reset[0]['token'],
         'dm_id' : reset[2]['dm_id']
     }
     requests.delete(
@@ -83,22 +86,145 @@ def test_short(reset):
         json=data
     )
 
+    # calls dm_details, should return input error
+    # invalid dm_id since it doesnt exist anymore
     data = {
-        'token': reset[1]['token'],
-        'dm_id' : reset[2]['dm_id']
+        'token' : reset[1]['token'],
+        'dm_id': reset[2]['dm_id']
     }
     response = requests.get(
         f"{config.url}dm/details/v1",
         params=data
     )
-    assert response.json() == \
-        {
-            'members': [],  
-            'name': 'abbysmith', 
-            
-        }
 
-    
+    assert response.status_code == 403
+
 
 def test_long(reset): 
-    pass
+    receiver_id = reset[1]['auth_user_id']
+    #owner 2
+    register_owner2 = {
+        "email" : "realemail_2@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "Beta",
+        "name_last" : "Smith",
+    }
+    response_owner2 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=register_owner2
+    )
+    # owner sends dm to receiver
+    data = {
+        'token' : response_owner2.json()['token'], 
+        'u_ids' : [receiver_id]
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data
+    )
+    dm_id1 = response.json()['dm_id']
+
+    #owner 3
+    register_owner3 = {
+        "email" : "realemail_3@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "Cope",
+        "name_last" : "Smith",
+    }
+    response_owner3 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=register_owner3
+    )
+    # owner sends dm to receiver
+    data = {
+        'token' : response_owner3.json()['token'], 
+        'u_ids' : [receiver_id]
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data
+    )
+    dm_id2 = response.json()['dm_id']
+
+    #owner 4
+    register_owner4 = {
+        "email" : "realemail_4@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "Delta",
+        "name_last" : "Smith",
+    }
+    response_owner4 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=register_owner4
+    )
+    # owner sends dm to receiver
+    data = {
+        'token' : response_owner4.json()['token'], 
+        'u_ids' : [receiver_id]
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data
+    )
+    dm_id3 = response.json()['dm_id']
+
+    #owner 5
+    register_owner5 = {
+        "email" : "realemail_5@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "Eppa",
+        "name_last" : "Smith",
+    }
+    response_owner5 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=register_owner5
+    )
+    # owner sends dm to receiver
+    data = {
+        'token' : response_owner5.json()['token'], 
+        'u_ids' : [receiver_id]
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data
+    )
+    dm_id4 = response.json()['dm_id']
+
+    # delete dm no.1 
+    data = {
+        'token' : reset[0],
+        'dm_id' : reset[2]['dm_id']
+    }
+    requests.delete(
+        f"{config.url}dm/remove/v1",
+        json=data
+    )
+
+    # calls dm_list
+    data = {
+        'token': reset[1]['token']
+    }
+    response_list = requests.get(
+        f"{config.url}dm/list/v1", 
+        params=data
+    )
+
+    # calls dm_details
+    data = {
+        'token': reset[1]['token'],
+        'dm_id': reset[2]['dm_id']
+    }
+    response_details = requests.get(
+        f"{config.url}dm/details/v1", 
+        params=data
+    )
+    assert response_list.json() == \
+    {
+        'dms': [
+                {'dm_id': dm_id1, 'name': 'abbysmith'},
+                {'dm_id': dm_id2, 'name': 'abbysmith'},
+                {'dm_id': dm_id3, 'name': 'abbysmith'},
+                {'dm_id': dm_id4, 'name': 'abbysmith'}
+        ]
+    } 
+    assert response_details.json() == 403

@@ -111,12 +111,21 @@ def dm_remove_v1(token, dm_id):
     store = data_store.get()
 
     if token_to_user(token, store) is None:
-        raise AccessError('Invalid token')
+        raise AccessError(description='Invalid token')
 
     if (check_valid_dmid(dm_id, store) == False) or (dm_id == None):
-        raise InputError("Invalid dm_id")
+        raise InputError(description='Invalid dm_id')
 
-   
+    # delete dictioanry
+    for i, dms in enumerate(store['dms']): 
+        if i == dm_id: 
+            for key in dms: 
+                del store['dms'][i][dms][key]
+                del store['dms'][dms]
+                break
+
+    data_store.set(store)
+    
     return {}
 
 
@@ -149,7 +158,7 @@ def dm_details_v1(token, dm_id):
     if user is None: 
         raise AccessError(description='Invalid token')
     
-    # CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+    # check if dm_id is within the list of dms 
     if not any(dic['dm_id'] == dm_id for dic in store['dms']): 
         raise InputError(description='Invalid dm id')
     
@@ -159,7 +168,7 @@ def dm_details_v1(token, dm_id):
         if dm_id == dm['dm_id']: 
             specific_dm = dm 
     
-    # CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+    # check if user is in the dm by checking the user id in the token passed in 
     if not any(dic['u_id'] == token_data['auth_user_id'] for dic in specific_dm['members']): 
         raise AccessError(description='User not in dm')
 
