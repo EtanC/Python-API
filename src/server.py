@@ -9,11 +9,13 @@ from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
-from src.channel import channel_details_v1, channel_messages_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
-from src.dm import dm_create_v1, dm_details_v1
+from src.channels import channels_create_v1
+from src.channel import channel_details_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_details_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
+
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -285,8 +287,13 @@ dms.py section
 @APP.route("/dm/create/v1", methods=['POST'])
 def dm_create_v2(): 
     '''
-    Given a channel with ID channel_id that the authorised user is a member of, 
-    provide basic details about the channel 
+   u_ids contains the user(s) that this DM is directed to, 
+   and will not include the creator. 
+   The creator is the owner of the DM. 
+   name should be automatically generated based on the users that are in this DM. 
+   The name should be an alphabetically-sorted, 
+   comma-and-space-separated list of user handles, 
+   e.g. 'ahandle1, bhandle2, chandle3'.
 
     Arguments:
         token (str): token identifying user
@@ -299,7 +306,6 @@ def dm_create_v2():
 
     Returns: 
         Returns {dm_id} on successful creation 
-        
     '''
 
     data = request.get_json() 
@@ -307,7 +313,59 @@ def dm_create_v2():
     return_dict = dm_create_v1(data['token'], data['u_ids'])
     
     return dumps(return_dict) 
+
+@APP.route("/dm/list/v1", methods=['GET'])
+def dm_list_v2(): 
+    '''
+    Returns the list of DMs that the user is a member of.
+
+    Arguments:
+        token (str): token identifying user
+        
+    Exceptions: 
+        AccessError - Invalid token 
+
+    Returns: 
+        Returns {dms} on successful creation 
+    '''
+
+    data = request.args
+
+    return_dict = dm_list_v1(data['token'])
     
+    return dumps(return_dict) 
+
+@APP.route("/dm/details/v1", methods=['GET'])
+def dm_details(): 
+    '''
+    Given a DM with ID dm_id that the authorised user is a member of, 
+    provide basic details about the DM. 
+
+    Arguments: 
+        token (str) - token of a member of the dm
+        dm_id (int) - id of the dm 
+
+    Exceptions: 
+        InputError  - dm_id does not refer to a valid dm 
+        AccessError - authorised user not a member of the dm
+                    - user not authorised / invalid token 
+                
+    Return Value: 
+        Returns { name , members } on successful call
+    '''
+
+    data = request.args
+
+    return_dict = dm_details_v1(data['token'], int(data['dm_id']))
+
+    return dumps(return_dict)
+
+
+'''
+
+users.py section 
+
+'''
     
 @APP.route("/users/all/v1", methods=['GET'])
 def users_all(): 
@@ -346,7 +404,6 @@ def user_profile():
     Return Value: 
         Returns { user } on successful call
     '''
-
     data = request.args
 
     user = user_profile_v1(data['token'], int(data['u_id']))
@@ -443,31 +500,6 @@ def user_profile_setname():
 
     return dumps({})
 
-@APP.route("/dm/details/v1", methods=['GET'])
-def dm_details(): 
-    '''
-    Given a DM with ID dm_id that the authorised user is a member of, 
-    provide basic details about the DM. 
-
-    Arguments: 
-        token (str) - token of a member of the dm
-        dm_id (int) - id of the dm 
-
-    Exceptions: 
-        InputError  - dm_id does not refer to a valid dm 
-        AccessError - authorised user not a member of the dm
-                    - user not authorised / invalid token 
-                
-    Return Value: 
-        Returns { name , members } on successful call
-    '''
-
-    data = request.args
-
-    return_dict = dm_details_v1(data['token'], int(data['dm_id']))
-
-    return dumps(return_dict)
-    
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":

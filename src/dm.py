@@ -28,7 +28,6 @@ def dm_create_v1(token, u_ids):
     if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
         raise InputError("Invalid u_id")
 
-
     # get dm_id by counting number of dm and adding one
     # assuming it starts at 1
     dm_id = len(store['dms']) + 1
@@ -63,6 +62,48 @@ def dm_create_v1(token, u_ids):
     return {
         'dm_id': dm_id,
     }
+
+'''
+
+{dm_list_v2}
+Returns the list of DMs that the user is a member of.
+
+'''
+
+
+def dm_list_v1(token):
+    store = data_store.get()
+
+    # token validity check
+    if token_to_user(token, store) is not None:
+        user = token_to_user(token, store)
+        # extract the u_id from the user
+        u_id = user['u_id']
+    else:
+        raise AccessError('Invalid token')
+
+    dm_data = []
+
+    # check if the user'd u_id is part of the dm,
+    # if so, append it to dm_data.
+    for dm_id in store['dms']:
+        for member in dm_id['members']:
+            if u_id == member['u_id']:
+                dm = {'dm_id': dm_id['dm_id'], 'name': dm_id['name']}
+                dm_data.append(dm)
+
+    # a list of dictionary that we return
+    return_dms = {'dms': dm_data}
+
+    return return_dms
+
+'''
+
+{dm_details_v2}
+Given a DM with ID dm_id that the authorised user is a member of, 
+provide basic details about the DM. 
+
+'''
 
 def dm_details_v1(token, dm_id): 
     '''
@@ -114,6 +155,7 @@ def dm_details_v1(token, dm_id):
         'name': specific_dm['name'], 
         'members': mem_list, 
     }
+
 
 '''
 Function that checks if the whole u_ids is valid
