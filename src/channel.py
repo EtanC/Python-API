@@ -206,24 +206,28 @@ def channel_addowner_v1(token, channel_id, u_id):
     # Checking if token is valid
     current_owner = token_to_user(token, store)
     if current_owner == None:
-        raise AccessError("Invalid token")
+        raise AccessError(description="Invalid token")
     # Checking channel_id is valid
     channel = get_channel(channel_id, store)
     if channel == None:
-        raise InputError("Invalid channel")
+        raise InputError(description="Invalid channel")
     # Checking if inviting user has owner permissions
     if not is_channel_member(current_owner['u_id'], channel['owner_members']):
-        raise AccessError("User does not have owner permissions")
+        raise AccessError(description="User does not have owner permissions")
     # Checking if u_id is valid
     user = get_user(u_id, store)
     if user == None:
         raise InputError("Invalid u_id")
     # Checking if user is member of channel
     if not is_channel_member(user['u_id'], channel['all_members']):
-        raise InputError("Can't add owner; user is not member of channel")
+        raise InputError(
+            description = "Can't add owner; user is not member of channel"
+        )
     # Checking if user is an owner already
     if is_channel_member(user['u_id'], channel['owner_members']):
-        raise InputError("Can't add owner; user is already an owner")
+        raise InputError(
+            description = "Can't add owner; user is already an owner"
+        )
     channel['owner_members'].append(user)
     data_store.set(store)
     return {}
