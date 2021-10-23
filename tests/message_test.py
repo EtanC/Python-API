@@ -102,7 +102,7 @@ def test_invalid_token_edit(reset_data, user1, channel1):
     token_register_edit = {
         "token": "INVALID_TOKEN",
         "message_id": message_id,
-        "message": "valid_message"
+        "message": "edited_valid_message"
     }
 
     # message/edit/v1
