@@ -1,111 +1,184 @@
-import pytest
-
-from src.channels import channels_list_v1 as c_list, channels_create_v1 as c_create
-from src.auth import auth_register_v1, auth_login_v1 
-from src.other import clear_v1
-from src.error import AccessError
+import json
+import pytest 
+import requests
+from src import config 
 
 # this runs before every test function.
 @pytest.fixture
-def reset_data():
-    clear_v1()
+def reset_data(): 
+    requests.delete(f"{config.url}clear/v1")
+    
+    data_register = {
+        "email" : "realemail_812@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "John",
+        "name_last" : "Smith",
+    }
+    response = requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
 
-    # creates a real user before every test after clear_v1.
-    email = "realemail_812@outlook.edu.au"
-    password = "Password1"
-    name_first = "Elon"
-    name_last = "Mask"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # take auth user id from returned dictionary 
-    auth_user_id = result['auth_user_id']
-    return auth_user_id
+    return response.json()
+   
 
-# Blackbox test for invalid input for auth_user_id
-# ===============================================================
-def test_invalid_id(reset_data): 
-    # only has one user, logically there should not be another user with +1 auth_id
-    auth_user_id = reset_data + 1
-    with pytest.raises(AccessError): 
-        assert c_list(auth_user_id)
+def test_return_type(reset_data): 
+    # create a channel
+    data_create = {
+        "token": reset_data['token'], 
+        "name": "channel1", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
 
-def test_empty_input1(reset_data): 
-    auth_user_id = None
-    with pytest.raises(AccessError): 
-        assert c_list(auth_user_id)
+    # list
+    data = {
+        'token' : reset_data['token']
+    }
 
-def test_halfEmpty_input2(reset_data): 
-    auth_user_id = ""
-    with pytest.raises(AccessError): 
-        assert c_list(auth_user_id)
+    response = requests.get(
+        f"{config.url}channels/list/v2",
+        params=data
+    )
+    response_data = response.json()
+    
+    assert type(response_data) is dict
 
-# when the user does not have any channels 
-def test_empty_list(reset_data): 
-    auth_user_id = reset_data
-    assert c_list(auth_user_id) == {'channels':[]}
 
-# ===============================================================
-# test_valid -> test return type is a list of dictionaries
-def test_valid(reset_data): 
-    auth_user_id = reset_data 
-    result = c_list(auth_user_id)
-    assert type(result) is dict
+def test_no_channel(reset_data): 
+    user_data = {
+        'token': reset_data['token'], 
+    }
+    list_response = requests.get(
+        f"{config.url}channels/list/v2",
+        params=user_data
+    )
+    assert list_response.json() == \
+    {
+        'channels' : []
+    }
 
-# check the returned value contains channel_id and name 
-def test_valid_list_all(reset_data): 
-    auth_user_id = reset_data
-    name = 'Elon_public'
-    is_public = True
-    c_create(auth_user_id, name, is_public)
-    assert c_list(auth_user_id) == {
+def test_invalid_user(reset_data): 
+    data_create = {
+        "token": reset_data['token'], 
+        "name": "channel1", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+    data = {
+        'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA'
+    }
+    response = requests.get(
+        f"{config.url}channels/list/v2",
+        params=data)
+
+    assert response.status_code == 403
+
+
+def test_functionality(reset_data): 
+    data_create = {
+        "token": reset_data['token'], 
+        "name": "channel1", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    # list channels
+    user_data = {
+        'token': reset_data['token'], 
+    }
+    list_response = requests.get(
+        f"{config.url}channels/list/v2", 
+        params=user_data
+    )
+    
+
+    assert list_response.json() == \
+    {
         'channels' : [ 
             {
                 'channel_id': 1, 
-                'name': 'Elon_public'
+                'name': 'channel1'
             }
         ]
     }
-    
-# when the user has joined multiple channels
-def test_long_list(reset_data): 
-    auth_user_id = reset_data
-    is_public = True
 
-    # person 1
-    name1 = 'Elon_public0'
-    result = c_create(auth_user_id,name1,is_public)
-    channel_id1 = result['channel_id']
 
-    # person 2
-    name2 = 'Elon_public1'
-    result = c_create(auth_user_id,name2,is_public)
-    channel_id2 = result['channel_id']
-
-    # person 3 
-    name3 = 'Elon_public2'
-    result = c_create(auth_user_id,name3,is_public)
-    channel_id3 = result['channel_id']
-
-    # person 4
-    name4 = 'Elon_public3'
-    result = c_create(auth_user_id,name4,is_public)
-    channel_id4 = result['channel_id']
-
-    # person 5
-    name5 = 'Elon_public4'
-    result = c_create(auth_user_id,name5,is_public)
-    channel_id5 = result['channel_id']
-
-    assert c_list(auth_user_id) == { 
-        'channels' : [
-            {'channel_id': channel_id1, 'name': 'Elon_public0'},
-            {'channel_id': channel_id2, 'name': 'Elon_public1'},
-            {'channel_id': channel_id3, 'name': 'Elon_public2'},
-            {'channel_id': channel_id4, 'name': 'Elon_public3'},
-            {'channel_id': channel_id5, 'name': 'Elon_public4'} 
-        ],
+def test_multiple(reset_data): 
+    data1 = {
+        'token': reset_data['token'], 
+        'name': 'Elon_public1', 
+        'is_public': True, 
     }
+    requests.post(
+        f"{config.url}channels/create/v2", 
+        json=data1)
+
+    data2 = {
+        'token': reset_data['token'], 
+        'name': 'Elon_public2', 
+        'is_public': True, 
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data2
+    )
+    
+    data3 = {
+        'token': reset_data['token'], 
+        'name': 'Elon_public3', 
+        'is_public': True, 
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data3
+    )
+
+    data4 = {
+        'token': reset_data['token'], 
+        'name': 'Elon_public4', 
+        'is_public': True, 
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data4
+    )
+
+    data5 = {
+        'token': reset_data['token'], 
+        'name': 'Elon_public5', 
+        'is_public': True, 
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data5
+    )
+
+    user_data = {
+        'token': reset_data['token'], 
+    }
+    list_response = requests.get(
+        f"{config.url}channels/list/v2",
+        params = user_data
+    )
 
 
-
-
+    assert list_response.json() == \
+    {
+        'channels' : [
+            {'channel_id': 1, 'name': 'Elon_public1'},
+            {'channel_id': 2, 'name': 'Elon_public2'},
+            {'channel_id': 3, 'name': 'Elon_public3'},
+            {'channel_id': 4, 'name': 'Elon_public4'},
+            {'channel_id': 5, 'name': 'Elon_public5'} 
+        ]
+    }

@@ -1,6 +1,7 @@
 from src.data_store import data_store
 from src.error import AccessError 
 from src.error import InputError 
+from src.helper import decode_token
 
 # if it is valid it shouldnt raise an error 
 
@@ -12,7 +13,14 @@ Provide a list of all channels (and their associated details)
 that the authorised user is part of.
 
 '''
-def channels_list_v1(auth_user_id):
+def channels_list_v1(token):
+    token_data = decode_token(token)
+    
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
 
     # merged from master, usual check of auth_user_id
@@ -44,7 +52,14 @@ Provide a list of all channels, including private channels, (and their associate
 '''
 
 
-def channels_listall_v1(auth_user_id):
+def channels_listall_v1(token):
+    token_data = decode_token(token)
+    
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
 
     # merged from master, usual check of auth_user_id
@@ -66,16 +81,24 @@ def channels_listall_v1(auth_user_id):
 ===============================================================================
 '''
             
-def channels_create_v1(auth_user_id, name, is_public):
+def channels_create_v1(token, name, is_public):
+    token_data = decode_token(token)
+    
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
+
     # Checking for length of channel name 
     if len(name) < 1 or len(name) > 20: 
-        raise InputError("Channel name must be between 1 and 20 characters long")
-
+        raise InputError(description="Channel name must be between 1 and 20 characters long")
+    
 
     store = data_store.get()
 
     if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
+        raise AccessError(description="Invalid auth_user_id")
 
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
