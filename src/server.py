@@ -12,9 +12,9 @@ from src.channels import channels_create_v1, channels_list_v1, channels_listall_
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 from src.channels import channels_create_v1
-from src.channel import channel_details_v1
 from src.dm import dm_create_v1, dm_list_v1, dm_details_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
+from src.message import message_send_v1
 
 
 def quit_gracefully(*args):
@@ -277,6 +277,39 @@ def channels_listall_v2():
     channels = channels_listall_v1(data['token'])
 
     return dumps(channels)
+
+@APP.route("/message/send/v1", methods=['POST'])
+def message_send():
+    '''
+    Send a message from the authorised user to the channel specified by channel_id. 
+    Note: Each message should have its own unique ID, 
+    i.e. no messages should share an ID with another message, 
+    even if that other message is in a different channel.
+
+    Arguments:
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
+        message     (str) - user's message
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+                    - Message is too short or too long
+        AccessError - Authorised user not member of existing channel 
+                    - Invalid token  
+
+    Return Value: 
+        Returns { message_id } on successful call  
+    ''' 
+
+    data = request.get_json()
+    message_id = message_send_v1(
+        data['token'],
+        data['channel_id'],
+        data['message']
+    )
+
+    return dumps(message_id)
+
 
 '''
 
