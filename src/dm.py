@@ -110,21 +110,25 @@ This can only be done by the original creator of the DM.
 def dm_remove_v1(token, dm_id): 
     store = data_store.get()
 
-    if token_to_user(token, store) is None:
+    if token_to_user(token, store) is not None:
+        owner = token_to_user(token)
+    else: 
         raise AccessError(description='Invalid token')
 
     if (check_valid_dmid(dm_id, store) == False) or (dm_id == None):
-        raise InputError(description='Invalid dm_id')
+        raise InputError(description='Invalid dm_id')    
 
-    # delete dictionary
+    # find matching dm_id
     for index in range(len(store['dms'])): 
         if store['dms'][index]['dm_id'] == dm_id:
             dm_index = index
-
-    del store['dms'][dm_index]
-
-    data_store.set(store)
     
+    if store['dms'][dm_index]['owner'] != owner: 
+        raise AccessError(description='Unauthorised owner')
+    else: 
+        del store['dms'][dm_index]
+        data_store.set(store)
+
     return {}
 
 
@@ -214,8 +218,8 @@ def check_valid_id(u_ids, store):
 
 def check_valid_dmid(dm_id, store): 
     result = False
-    for id in store['dms']: 
-        if dm_id == id: 
+    for dm in store['dms']: 
+        if dm_id == dm['dm_id']: 
             result = True
             break
     return result
