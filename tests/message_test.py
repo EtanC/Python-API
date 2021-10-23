@@ -299,7 +299,7 @@ def test_valid_message_edit_empty(reset_data, user1, channel1): #PUT
     }
 
     response_channel_messages_data =requests.get(f"{config.url}channel/messages/v2", \
-        json=channel_messages)
+        params=channel_messages)
 
     response_data = response_channel_messages_data.json()
     
@@ -352,7 +352,7 @@ def test_valid_message_edit_empty(reset_data, user1, channel1): #PUT
     }
 
     response_channel_messages_data =requests.get(f"{config.url}channel/messages/v2", \
-        json=channel_messages)
+        params=channel_messages)
 
     response_data = response_channel_messages_data.json()
     
