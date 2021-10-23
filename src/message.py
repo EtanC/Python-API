@@ -4,7 +4,7 @@ from src.error import InputError
 from src.error import AccessError
 from json import dumps
 from flask import Flask, request
-from src.helper import token_to_user, get_channel, decode_token, get_user, get_message
+from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm
 from datetime import timezone, datetime
 
 def message_senddm_v1(token, dm_id, message):
