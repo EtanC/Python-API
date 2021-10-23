@@ -5,7 +5,7 @@ from src.channel import channel_messages_v1
 from datetime import timezone, datetime
 import json
 from src.channels import channels_create_v1
-from src.message import message_send_v1
+from src.message import message_send_v1, message_remove_v1, message_edit_v1
 from datetime import timezone, datetime
 from src import config
 from src.channel import channel_messages_v1
@@ -188,14 +188,14 @@ def test_valid_message_remove(reset_data, user1, channel1): #DELETE
     # user1 removes the message
     message_id = response_send_message_data['message_id']
 
-    data_edit_message = {
+    data_remove_message = {
         "token": token,
         "message_id": message_id,
     }
 
     #message/remove/v1
     requests.delete(f"{config.url}message/remove/v1", \
-        json=data_edit_message)
+        json=data_remove_message)
 
     #display the edited message using channel/messages/v2
     channel_messages = {
