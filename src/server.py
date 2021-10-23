@@ -4,7 +4,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError, AccessError 
-from src.auth import auth_login_v1, auth_register_v1
+from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1
 from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
@@ -206,7 +206,22 @@ def channel_details_v2():
     return_dict = channel_details_v1(data['token'], int(data['channel_id']))
     return dumps(return_dict) 
 
+@APP.route("/auth/logout/v1", methods=['POST'])
+def auth_logout():
+    '''
+    Given an active token, invalidates the token to log the user out.
 
+    Arguments:
+        token       (str) - token identifying user
+        
+    Exceptions: 
+        AccessError - Invalid token
+
+    Return Value: 
+        Returns {} on successful logout
+    '''
+    data = request.get_json()
+    return dumps(auth_logout_v1(data['token']))
 
 '''
 

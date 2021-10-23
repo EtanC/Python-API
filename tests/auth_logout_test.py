@@ -41,15 +41,16 @@ def test_invalid_session_id_logout(reset_data):
         f"{config.url}auth/register/v2",
         json=data_register
     )
+    token = response_register.json()['token']
     data_logout = {
-        'token' : response_register['token'],
+        'token' : token,
     }
     requests.post(
         f"{config.url}auth/logout/v1",
         json=data_logout
     )
     data_logout = {
-        'token' : response_register['token'],
+        'token' : token,
     }
     response_logout = requests.post(
         f"{config.url}auth/logout/v1",
@@ -68,15 +69,16 @@ def test_valid_logout(reset_data):
         f"{config.url}auth/register/v2",
         json=data_register
     )
+    token = response_register.json()['token']
     data_logout = {
-        'token' : response_register['token'],
+        'token' : token,
     }
     requests.post(
         f"{config.url}auth/logout/v1",
         json=data_logout
     )
     data_create = {
-        'token' : response_register['token'],
+        'token' : token,
         'name' : 'channel_name',
         'is_public' : True,
     }
