@@ -64,7 +64,6 @@ def dm_create_v1(token, u_ids):
     }
 
 
-
 '''
 
 {dm_list_v2}
@@ -137,6 +136,7 @@ def dm_remove_v1(token, dm_id):
 {dm_details_v2}
 Given a DM with ID dm_id that the authorised user is a member of, 
 provide basic details about the DM. 
+
 '''
 
 def dm_details_v1(token, dm_id): 
