@@ -190,8 +190,22 @@ def dm_details_v1(token, dm_id):
         'members': mem_list, 
     }
 
+'''
+
+{dm_messages_v2}
+Given a DM with ID dm_id that the authorised user is a member of, 
+return up to 50 messages between index "start" and "start + 50".
+Message with index 0 is the most recent message in the DM. 
+This function returns a new index "end" which is the value of "start + 50", 
+or, if this function has returned the least recent messages in the DM, 
+returns -1 in "end" to indicate there are no more messages to load after this return.
+'''
+
+
+
 
 '''
+
 Function that checks if the whole u_ids is valid
 
 '''
@@ -215,6 +229,7 @@ def check_valid_id(u_ids, store):
         if check_id(u_id, store) == False:
             result = False
     return result
+
 
 def check_valid_dmid(dm_id, store): 
     result = False
