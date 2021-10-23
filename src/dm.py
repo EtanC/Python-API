@@ -116,13 +116,12 @@ def dm_remove_v1(token, dm_id):
     if (check_valid_dmid(dm_id, store) == False) or (dm_id == None):
         raise InputError(description='Invalid dm_id')
 
-    # delete dictioanry
-    for i, dms in enumerate(store['dms']): 
-        if i == dm_id: 
-            for key in dms: 
-                del store['dms'][i][dms][key]
-                del store['dms'][dms]
-                break
+    # delete dictionary
+    for index in range(len(store['dms'])): 
+        if store['dms'][index]['dm_id'] == dm_id:
+            dm_index = index
+
+    del store['dms'][dm_index]
 
     data_store.set(store)
     

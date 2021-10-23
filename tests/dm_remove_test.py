@@ -227,4 +227,4 @@ def test_long(reset):
                 {'dm_id': dm_id4, 'name': 'abbysmith'}
         ]
     } 
-    assert response_details.json() == 403
+    assert response_details.status_code == 403
