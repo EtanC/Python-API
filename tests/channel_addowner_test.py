@@ -122,7 +122,13 @@ def test_valid_addowner(reset_data, two_member_channel):
             },
         ],
     }
-    assert response_details.json() == expected
+    channel_details = response_details.json()
+    channel_details['owner_members'].sort(key=lambda x: x['u_id'])
+    channel_details['all_members'].sort(key=lambda x: x['u_id'])
+    expected['owner_members'].sort(key=lambda x: x['u_id'])
+    expected['all_members'].sort(key=lambda x: x['u_id'])
+
+    assert channel_details == expected
 
 # Test errors addowner
 
@@ -187,7 +193,7 @@ def test_no_owner_permissions_addowner(reset_data, two_member_channel):
     )
     assert response_addowner.status_code == 403
 
-def test_invalid_user_id_addowner(reset_data, two_member_channel):
+def test_invalid_token_addowner(reset_data, two_member_channel):
     data_addowner = {
         'token': "INVALID_TOKEN",
         'channel_id': two_member_channel['channel_id'],
