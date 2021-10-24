@@ -489,7 +489,7 @@ def dm_create_v2():
 
     data = request.get_json() 
 
-    return_dict = dm_create_v1(data['token'], data['u_ids'])
+    return_dict = dm_create_v1(data['token'], list(data['u_ids']))
     
     return dumps(return_dict) 
 
@@ -532,7 +532,7 @@ def dm_remove_v2():
 
     data = request.get_json()
 
-    return_dict = dm_remove_v1(data['token'], data['dm_id'])
+    return_dict = dm_remove_v1(data['token'], int(data['dm_id']))
     
     return dumps(return_dict) 
 
@@ -592,7 +592,7 @@ def dm_messages_v2():
     return_dict = dm_messages_v1(data['token'], int(data['dm_id']), int(data['start']))
     
     return dumps(return_dict) 
-
+    
 '''
 
 users.py section 
