@@ -208,8 +208,8 @@ def channel_details_v2():
 @APP.route("/channel/invite/v2", methods = ['POST'])
 def channel_invite_v2():
     '''
-    Given a channel_id of a channel that the authorised user can invite another user, 
-        adds the new user to the channel.
+    Given a channel_id of a channel that the authorised user is a member of, 
+    this authorised user can invite a new user to the channel.
 
     Arguments:
         token (str): token identifying user 

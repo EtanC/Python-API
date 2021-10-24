@@ -6,6 +6,24 @@ import re
 from src.helper import decode_token, token_to_user
 
 def channel_invite_v1(token, channel_id, u_id):
+    '''
+    Given a channel_id of a channel that the authorised user is a member of, 
+    this authorised user can invite a new user to the channel.
+
+    Arguments:
+        token (str): token identifying user 
+        channel_id (int): id of channel 
+        u_id (int): id of user
+
+    Exceptions: 
+        InputError  - Invalid channel id
+                    - Invalid u_id
+                    - User already in channel
+        AccessError - User is not a member of the channel
+
+     Returns: 
+        Returns {} on successful creation 
+    '''
 
     store = data_store.get()
     
