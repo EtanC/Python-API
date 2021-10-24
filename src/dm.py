@@ -265,9 +265,8 @@ def dm_leave_v1(token,dm_id):
 
     # check if they are owner first
     authorised = False
-    dm_member = store['dms'][dm_index]
 
-    for members in dm_member['members']: 
+    for members in store['dms'][dm_index]['members']: 
         if user == members: 
             authorised = True
 
