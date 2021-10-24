@@ -14,7 +14,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 
 from src.dm import dm_create_v1, dm_list_v1, dm_details_v1, dm_messages_v1, dm_remove_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
-from src.message import message_edit_v1, message_send_v1, message_senddm_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.helper import decode_token 
 
 
