@@ -41,7 +41,7 @@ def channel_invite_v1(token, channel_id, u_id):
         raise InputError(description="Invalid channel id")
 
     if (user == None):
-        raise InputError(description="Invalid u_id")
+        raise AccessError(description='Invalid token, auth_user_id does not refer to a valid user')
 
     if check_member_in_channel(auth_user_id, channel_id, store) == False:
         raise AccessError(description="Authorised user not a member of channel")
