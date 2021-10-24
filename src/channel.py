@@ -276,7 +276,39 @@ def channel_addowner_v1(token, channel_id, u_id):
     data_store.set(store)
     return {}
 
-
+def channel_removeowner_v1(token, channel_id, u_id):
+    '''
+    Will remove an owner from a channel
+    '''
+    store = data_store.get()
+    # Checking if token is valid
+    current_owner = token_to_user(token, store)
+    if current_owner == None:
+        raise AccessError(description="Invalid token")
+    # Checking channel_id is valid
+    channel = get_channel(channel_id, store)
+    if channel == None:
+        raise InputError(description="Invalid channel")
+    # Checking if inviting user has owner permissions
+    if not is_channel_member(current_owner['u_id'], channel['owner_members']):
+        raise AccessError(description="User does not have owner permissions")
+    # Checking if u_id is valid
+    user = get_user(u_id, store)
+    if user == None:
+        raise InputError(description="Invalid u_id")
+    # Checking if user is an owner
+    if is_channel_member(user['u_id'], channel['owner_members']) == False:
+        raise InputError(
+            description = "Can't remove owner; user is not an owner in channel"
+        )
+    # Checking if user is the only owner in the channel
+    if len(channel['owner_members']) == 1:
+        raise InputError(
+            description = "Can't remove the only owner of the channel"
+        )
+    channel['owner_members'].remove(user)
+    data_store.set(store)
+    return {}
 
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 
