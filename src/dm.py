@@ -284,6 +284,7 @@ def dm_leave_v1(token,dm_id):
 
     return {}
 
+
 '''
 
 Function that checks if the whole u_ids is valid
