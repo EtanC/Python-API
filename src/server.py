@@ -9,11 +9,14 @@ from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
-from src.channel import channel_details_v1, channel_messages_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
-from src.dm import dm_create_v1, dm_details_v1
-from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_messages_v1, \
+dm_leave_v1
+from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
+from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
+from src.helper import decode_token 
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -203,13 +206,37 @@ def channel_details_v2():
     return dumps(return_dict) 
 
 
+@APP.route("/channel/invite/v2", methods = ['POST'])
+def channel_invite_v2():
+    '''
+    Given a channel_id of a channel that the authorised user is a member of, 
+    this authorised user can invite a new user to the channel.
+
+    Arguments:
+        token (str): token identifying user 
+        channel_id (int): id of channel 
+        u_id (int): id of user
+
+    Exceptions: 
+        InputError  - Invalid channel id
+                    - Invalid u_id
+                    - User already in channel
+        AccessError - User is not a member of the channel
+
+     Returns: 
+        Returns {} on successful creation 
+    '''
+    data = request.get_json()
+
+    return_dict = channel_invite_v1(data['token'], int(data['channel_id']), int(data['u_id']))
+    return dumps(return_dict)
+
 
 '''
 
 channels.py section 
 
 '''
-
 
 @APP.route("/channels/create/v2", methods=['POST'])
 def channels_create_v2(): 
@@ -243,21 +270,21 @@ def channels_list_v2():
         token       (str)     - token identifying user 
 
     Exceptions: 
-        AccessError - User not authorised 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - Invalid token 
 
     Return Value: 
         Returns {channels} on successful creation 
     '''
 
     data = request.args
-
     channels = channels_list_v1(data['token'])
-
     return dumps(channels)
-
-
+    
 @APP.route("/channels/listall/v2", methods=['GET'])
 def channels_listall_v2(): 
+
     '''
     Arguments:
         token       (str)     - token identifying user 
@@ -276,6 +303,162 @@ def channels_listall_v2():
 
     return dumps(channels)
 
+@APP.route("/channel/addowner/v1", methods=['POST'])
+def channel_addowner():
+    '''
+    Make user with user id u_id an owner of the channel.
+
+    Arguments:
+        token       (str)   - The token used to verify the user's identity
+        channel_id  (int)   - The id number used to identify the channel
+        u_id        (int)   - The user id used to identify the user to add
+                              as an owner
+
+    Exceptions: 
+        InputError  - Channel_id not valid
+                    - u_id does not refer to a valid user
+                    - u_id is not a member of the channel
+                    - u_id is already an owner of the channel
+        AccessError - Invalid token
+                    - Channel is valid and user specified by token does not
+                      have owner permissions
+
+    Return Value: 
+        Returns {} on adding owner successfully
+    '''
+    data = request.get_json()
+    channel_addowner_v1(data['token'], data['channel_id'], data['u_id'])
+    return dumps({})
+
+'''
+
+message.py section 
+
+'''
+
+@APP.route("/message/send/v1", methods=['POST'])
+def message_send():
+    '''
+    Send a message from the authorised user to the channel specified by channel_id. 
+    Note: Each message should have its own unique ID, 
+    i.e. no messages should share an ID with another message, 
+    even if that other message is in a different channel.
+
+    Arguments:
+        token       (str) - token identifying user
+        channel_id  (int) - id of channel 
+        message     (str) - user's message
+        
+    Exceptions: 
+        InputError  - Channel_id not valid 
+                    - Message is too short or too long
+        AccessError - Authorised user not member of existing channel 
+                    - Invalid token  
+
+    Return Value: 
+        Returns { message_id } on successful call  
+    ''' 
+
+    data = request.get_json()
+    message_id = message_send_v1(
+        data['token'],
+        data['channel_id'],
+        data['message']
+    )
+
+    return dumps(message_id)
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit():
+
+    '''
+    Given a message, update its text with new text. 
+    If the new message is an empty string, the message is deleted.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        message     (str) - message
+        
+    Exceptions: 
+        InputError  - message is too long
+                    - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_edit_v1(
+        data['token'],
+        data['message_id'],
+        data['message']
+    )
+    return dumps(message)
+
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_remove():
+
+    '''
+    Given a message_id for a message, 
+    this message is removed from the channel/DM
+
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        
+    Exceptions: 
+        InputError  - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_remove_v1(
+        data['token'],
+        data['message_id'],
+    )
+    return dumps(message)
+
+
+@APP.route("/message/senddm/v1", methods=['POST'])
+def message_senddm():
+
+    '''
+    Send a message from authorised_user to the DM specified by dm_id. 
+    Note: Each message should have it's own unique ID, 
+    i.e. no messages should share an ID with another message, 
+    even if that other message is in a different channel or DM.
+    
+    Arguments:
+        token       (str) - token identifying user
+        dm_id       (int) - id of dm
+        message     (str) - message
+        
+    Exceptions: 
+        InputError  - message is too long or too short
+                    - invalid dm_id
+
+        AccessError - Authorised user not member of dm
+                    - Invalid token 
+    Return Value: 
+        Returns {message_id} on successful call  
+    '''
+
+    data = request.get_json()
+    message = message_senddm_v1(
+        data['token'],
+        data['dm_id'],
+        data['message']
+    )
+    return dumps(message)
+
+
 '''
 
 dms.py section 
@@ -285,8 +468,13 @@ dms.py section
 @APP.route("/dm/create/v1", methods=['POST'])
 def dm_create_v2(): 
     '''
-    Given a channel with ID channel_id that the authorised user is a member of, 
-    provide basic details about the channel 
+   u_ids contains the user(s) that this DM is directed to, 
+   and will not include the creator. 
+   The creator is the owner of the DM. 
+   name should be automatically generated based on the users that are in this DM. 
+   The name should be an alphabetically-sorted, 
+   comma-and-space-separated list of user handles, 
+   e.g. 'ahandle1, bhandle2, chandle3'.
 
     Arguments:
         token (str): token identifying user
@@ -299,149 +487,57 @@ def dm_create_v2():
 
     Returns: 
         Returns {dm_id} on successful creation 
-        
     '''
 
     data = request.get_json() 
 
-    return_dict = dm_create_v1(data['token'], data['u_ids'])
+    return_dict = dm_create_v1(data['token'], list(data['u_ids']))
     
     return dumps(return_dict) 
-    
-    
-@APP.route("/users/all/v1", methods=['GET'])
-def users_all(): 
+
+
+@APP.route("/dm/list/v1", methods=['GET'])
+def dm_list_v2(): 
     '''
-    Given a user's token, return a list of all users and their associated details, 
-    including: u_id, email, name_first, name_last, handle_str
-    
+    Returns the list of DMs that the user is a member of.
+
     Arguments:
-        token (str) - Token identifying user
+        token (str): token identifying user
         
     Exceptions: 
         AccessError - Invalid token 
 
-    Return Value: 
-        Returns { users } on successful call  
-    ''' 
-    data = request.args
-
-    users = users_all_v1(data['token'])
-    return dumps({'users': users}) 
-
-@APP.route("/user/profile/v1", methods=['GET'])
-def user_profile(): 
-    '''
-    For a valid user, returns information about their u_id, email, first name, 
-    last name and handle_str.
-
-    Arguments: 
-        token   (str) - token identifying user1 (accessing the route) 
-        u_id    (int) - user id of the target / user2
-    
-    Exceptions: 
-        InputError  - u_id does not refer to a valid user2 
-        AccessError - user1 invalid token 
-    
-    Return Value: 
-        Returns { user } on successful call
+    Returns: 
+        Returns {dms} on successful creation 
     '''
 
     data = request.args
 
-    user = user_profile_v1(data['token'], int(data['u_id']))
+    return_dict = dm_list_v1(data['token'])
+    
+    return dumps(return_dict) 
 
-    return dumps({'user': user})
-
-@APP.route("/clear/v1", methods=['DELETE'])
-def clear():
+@APP.route("/dm/remove/v1", methods=['DELETE'])
+def dm_remove_v2(): 
     '''
-    Resets the internal data of the application to its initial state
+    Returns the list of DMs that the user is a member of.
 
     Arguments:
-        None
-
-    Exceptions:
-        None
-
-    Return Value:
-        Returns {} on successful call
-    '''
-    clear_v1()
-    return dumps({})
-
-@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
-def user_profile_sethandle(): 
-    '''
-    Update the user's handle (display name)
-
-    Arguments: 
-        token       (str)       -   token identifying user 
-        handle_str  (str)       -   handle user wants to change to 
-    
+        token (str): token identifying user
+        
     Exceptions: 
-        InputError  - length of handle_str not between 3-20 chars inclusive
-                    - handle_str contains non-alphanumeric chars 
-                    - handle already used by another user 
-        AccessError - invalid token 
-    
-    Return Value: 
-        Returns {} on successful call 
-    '''
-    data = request.get_json()
-    
-    user_profile_sethandle_v1(data['token'], data['handle_str'])
+        AccessError - Invalid token 
 
-    return dumps({})
-
-@APP.route("/user/profile/setemail/v1", methods=['PUT'])
-def user_profile_setemail(): 
-    '''
-    Update the authorised user's email address 
-
-    Arguments: 
-        token (str) - token identifting user 
-        email (str) - email user wants to change to if valid
-    
-    Exceptions: 
-        InpurError  - Email entered is not in valid format 
-                    - Email already used by someone else 
-        AccessError - Invalid token
-    
-    Return Value: 
-        Returns {} on successful call  
+    Returns: 
+        Returns {} on successful creation 
     '''
 
     data = request.get_json()
 
-    user_profile_setemail_v1(data['token'], data['email'])
-
-    return dumps({})
-
-@APP.route("/user/profile/setname/v1", methods=['PUT'])
-def user_profile_setname(): 
-    '''
-    Update the authorised user's first and last name
-
-    Arguments: 
-        token       (str) - token identifying the user 
-        name_first  (str) - first name to change to if valid
-        name_last   (str) - last name to change to if valid
+    return_dict = dm_remove_v1(data['token'], int(data['dm_id']))
     
-    Exceptions: 
-        InputError  - length of name_first not between 1 and 50 chars inclusive
-                    - length of name_last not between 1 and 50 chars inclusive
-        AccessError - invalid token 
-    
-    Return Value: 
-        Returns {} on successful call 
-    '''
+    return dumps(return_dict) 
 
-    data = request.get_json() 
-
-    user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
-
-    return dumps({})
 
 @APP.route("/dm/details/v1", methods=['GET'])
 def dm_details(): 
@@ -467,7 +563,256 @@ def dm_details():
     return_dict = dm_details_v1(data['token'], int(data['dm_id']))
 
     return dumps(return_dict)
+
+@APP.route("/dm/messages/v1", methods=['GET'])
+def dm_messages_v2(): 
+    '''
+    Given a DM with ID dm_id that the authorised user is a member of, 
+    return up to 50 messages between index "start" and "start + 50". 
+    Message with index 0 is the most recent message in the DM. 
+    This function returns a new index "end" which is the value of "start + 50", 
+    or, if this function has returned the least recent messages in the DM, 
+    returns -1 in "end" to indicate there are no more messages to load after this return.
+
+    Arguments:
+        token (str): token identifying user
+        dm_id (int): specific dm_id of a message 
+        start (int): message index 
+        
+    Exceptions: 
+        InputError  - Invalid dm_id, 
+                    - Start is greater than the totla number of messages in the channel
+        AccessError - Invalid token 
+        
+
+    Returns: 
+        Returns {messages, start, end} on successful creation 
+    '''
+
+    data = request.args 
+
+    return_dict = dm_messages_v1(data['token'], int(data['dm_id']), int(data['start']))
     
+    return dumps(return_dict) 
+
+@APP.route("/dm/leave/v1", methods=['POST'])
+def dm_leave_v2(): 
+    '''
+    Given a DM ID, the user is removed as a member of this DM. 
+    The creator is allowed to leave and the DM will still exist if this happens. 
+    This does not update the name of the DM.
+
+    Arguments:
+        token (str): token identifying user
+        dm_id (int): specific dm_id of a message 
+        
+    Exceptions: 
+        InputError  - Invalid dm_id, 
+        AccessError - Invalid token 
+        
+
+    Returns: 
+        Returns {} on successful creation 
+    '''
+
+    data = request.get_json()
+
+    return_dict = dm_leave_v1(data['token'], int(data['dm_id']))
+    
+    return dumps(return_dict) 
+
+'''
+
+users.py section 
+
+'''
+    
+@APP.route("/users/all/v1", methods=['GET'])
+def users_all(): 
+    '''
+    Given a user's token, return a list of all users and their associated details, 
+    including: u_id, email, name_first, name_last, handle_str
+    
+    Arguments:
+        token (str) - Token identifying user
+        
+    Exceptions: 
+        AccessError - Invalid token 
+
+    Return Value: 
+        Returns { users } on successful call  
+    ''' 
+    data = request.args
+
+    users = users_all_v1(data['token'])
+    return dumps(users) 
+
+@APP.route("/user/profile/v1", methods=['GET'])
+def user_profile(): 
+    '''
+    For a valid user, returns information about their u_id, email, first name, 
+    last name and handle_str.
+
+    Arguments: 
+        token   (str) - token identifying user1 (accessing the route) 
+        u_id    (int) - user id of the target / user2
+    
+    Exceptions: 
+        InputError  - u_id does not refer to a valid user2 
+        AccessError - user1 invalid token 
+    
+    Return Value: 
+        Returns { user } on successful call
+    '''
+    data = request.args
+    user = user_profile_v1(data['token'], int(data['u_id']))
+    return dumps(user)
+
+
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_profile_sethandle(): 
+    '''
+    Update the user's handle (display name)
+
+    Arguments: 
+        token       (str)       -   token identifying user 
+        handle_str  (str)       -   handle user wants to change to 
+    
+    Exceptions: 
+        InputError  - length of handle_str not between 3-20 chars inclusive
+                    - handle_str contains non-alphanumeric chars 
+                    - handle already used by another user 
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+    data = request.get_json()
+    
+    user_profile_sethandle_v1(data['token'], data['handle_str'])
+    return dumps({})
+
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_profile_setemail(): 
+    '''
+    Update the authorised user's email address 
+
+    Arguments: 
+        token (str) - token identifting user 
+        email (str) - email user wants to change to if valid
+    
+    Exceptions: 
+        InpurError  - Email entered is not in valid format 
+                    - Email already used by someone else 
+        AccessError - Invalid token
+    
+    Return Value: 
+        Returns {} on successful call  
+    '''
+
+    data = request.get_json()
+    user_profile_setemail_v1(data['token'], data['email'])
+    return dumps({})
+
+@APP.route("/user/profile/setname/v1", methods=['PUT'])
+def user_profile_setname(): 
+    '''
+    Update the authorised user's first and last name
+
+    Arguments: 
+        token       (str) - token identifying the user 
+        name_first  (str) - first name to change to if valid
+        name_last   (str) - last name to change to if valid
+    
+    Exceptions: 
+        InputError  - length of name_first not between 1 and 50 chars inclusive
+                    - length of name_last not between 1 and 50 chars inclusive
+        AccessError - invalid token 
+    
+    Return Value: 
+        Returns {} on successful call 
+    '''
+
+    data = request.get_json() 
+    user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
+    return dumps({})
+
+
+'''
+
+admin.py section
+
+'''
+
+@APP.route("/admin/user/remove/v1", methods=['DELETE'])
+def admin_user_delete():
+    '''
+    Given a user by their u_id, remove them from the Streams.
+
+    Arguments: 
+        token (str) - token of a member of the dm
+        u_id (int) - id of user
+
+    Exceptions: 
+        InputError  - u_id does not refer to a valid user
+                    - u_id refers to a user who is the only global owner
+        AccessError - authorised user is not a global owner
+                
+    Return Value: 
+        Returns {} on successful call
+    '''
+
+    data = request.get_json()
+
+    return_dict = admin_user_remove_v1(data['token'], int(data['u_id']))
+
+    return dumps(return_dict)
+
+@APP.route("/admin/userpermission/change/v1", methods=['POST'])
+def admin_userpermission_change():
+    '''
+    Given a user by their user ID, 
+    set their permissions to new permissions described by permission_id.
+
+    Arguments: 
+        token (str) - token of a member of the dm
+        u_id (int) - id of user
+        permission_id (int) - value that determines permissions of user
+
+    Exceptions: 
+        InputError  - u_id does not refer to a valid user
+                    - u_id refers to a user who is the only global owner
+                    - permission_id is invalid
+        AccessError - authorised user is not a global owner
+                
+    Return Value: 
+        Returns {} on successful call
+    '''
+
+    data = request.get_json()
+
+    return_dict = admin_userpermission_change_v1(data['token'], int(data['u_id']), int(data['permission_id']))
+
+    return dumps(return_dict)
+
+
+@APP.route("/clear/v1", methods=['DELETE'])
+def clear():
+    '''
+    Resets the internal data of the application to its initial state
+
+    Arguments:
+        None
+
+    Exceptions:
+        None
+
+    Return Value:
+        Returns {} on successful call
+    '''
+    clear_v1()
+    return dumps({})
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
