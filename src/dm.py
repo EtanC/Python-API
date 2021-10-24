@@ -200,7 +200,9 @@ Message with index 0 is the most recent message in the DM.
 This function returns a new index "end" which is the value of "start + 50", 
 or, if this function has returned the least recent messages in the DM, 
 returns -1 in "end" to indicate there are no more messages to load after this return.
+
 '''
+
 def dm_messages_v1(token, dm_id, start): 
     store = data_store.get()
     # token check
@@ -247,6 +249,7 @@ This does not update the name of the DM.
 
 '''
 
+
 def dm_leave_v1(token,dm_id): 
     store = data_store.get()
     # token check
@@ -256,7 +259,7 @@ def dm_leave_v1(token,dm_id):
         raise AccessError(description='Invalid token')
 
     # check if dm_id is within the list of dms
-    if (not check_valid_dmid(dm_id, store)):
+    if (not check_valid_dmid(dm_id, store)) :
         raise InputError(description='Invalid dm_id')
 
     for index in range(len(store['dms'])):
@@ -280,7 +283,6 @@ def dm_leave_v1(token,dm_id):
         data_store.set(store)
 
     return {}
-
 
 '''
 
