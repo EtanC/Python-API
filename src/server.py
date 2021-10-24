@@ -14,7 +14,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 
 from src.dm import dm_create_v1, dm_list_v1, dm_details_v1, dm_remove_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1
-from src.message import message_edit_v1, message_send_v1
+from src.message import message_edit_v1, message_send_v1, message_remove_v1
 from src.helper import decode_token 
 
 
@@ -373,6 +373,33 @@ def message_edit():
     )
     return dumps(message)
 
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_remove():
+
+    '''
+    Given a message_id for a message, 
+    this message is removed from the channel/DM
+
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        
+    Exceptions: 
+        InputError  - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_remove_v1(
+        data['token'],
+        data['message_id'],
+    )
+    return dumps(message)
+
 
 
 '''
@@ -445,7 +472,7 @@ def dm_remove_v2():
         AccessError - Invalid token 
 
     Returns: 
-        Returns {dms} on successful creation 
+        Returns {} on successful creation 
     '''
 
     data = request.get_json()
@@ -503,7 +530,7 @@ def users_all():
     data = request.args
 
     users = users_all_v1(data['token'])
-    return dumps({'users': users}) 
+    return dumps(users) 
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile(): 
@@ -524,7 +551,7 @@ def user_profile():
     '''
     data = request.args
     user = user_profile_v1(data['token'], int(data['u_id']))
-    return dumps({'user': user})
+    return dumps(user)
 
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
