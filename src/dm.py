@@ -256,14 +256,13 @@ def dm_leave_v1(token,dm_id):
         raise AccessError(description='Invalid token')
 
     # check if dm_id is within the list of dms
-    if (not check_valid_dmid(dm_id, store)) or (dm_id == None):
+    if (not check_valid_dmid(dm_id, store)):
         raise InputError(description='Invalid dm_id')
 
     for index in range(len(store['dms'])):
         if store['dms'][index]['dm_id'] == dm_id:
             dm_index = index
 
-    # check if they are owner first
     authorised = False
 
     for members in store['dms'][dm_index]['members']: 
