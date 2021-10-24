@@ -12,9 +12,11 @@ from src.channels import channels_create_v1, channels_list_v1, channels_listall_
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
-from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1, dm_leave_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1
+
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
+from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.helper import decode_token 
 
 def quit_gracefully(*args):
@@ -620,7 +622,33 @@ def dm_messages_v2():
     return_dict = dm_messages_v1(data['token'], int(data['dm_id']), int(data['start']))
     
     return dumps(return_dict) 
+
+@APP.route("/dm/leave/v1", methods=['POST'])
+def dm_leave_v2(): 
+    '''
+    Given a DM ID, the user is removed as a member of this DM. 
+    The creator is allowed to leave and the DM will still exist if this happens. 
+    This does not update the name of the DM.
+
+    Arguments:
+        token (str): token identifying user
+        dm_id (int): specific dm_id of a message 
+        
+    Exceptions: 
+        InputError  - Invalid dm_id, 
+        AccessError - Invalid token 
+        
+
+    Returns: 
+        Returns {} on successful creation 
+    '''
+
+    data = request.get_json()
+
+    return_dict = dm_leave_v1(data['token'], int(data['dm_id']))
     
+    return dumps(return_dict) 
+
 '''
 
 users.py section 
@@ -736,6 +764,65 @@ def user_profile_setname():
     data = request.get_json() 
     user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
     return dumps({})
+
+
+'''
+
+admin.py section
+
+'''
+
+@APP.route("/admin/user/remove/v1", methods=['DELETE'])
+def admin_user_delete():
+    '''
+    Given a user by their u_id, remove them from the Streams.
+
+    Arguments: 
+        token (str) - token of a member of the dm
+        u_id (int) - id of user
+
+    Exceptions: 
+        InputError  - u_id does not refer to a valid user
+                    - u_id refers to a user who is the only global owner
+        AccessError - authorised user is not a global owner
+                
+    Return Value: 
+        Returns {} on successful call
+    '''
+
+    data = request.get_json()
+
+    return_dict = admin_user_remove_v1(data['token'], int(data['u_id']))
+
+    return dumps(return_dict)
+
+@APP.route("/admin/userpermission/change/v1", methods=['POST'])
+def admin_userpermission_change():
+    '''
+    Given a user by their user ID, 
+    set their permissions to new permissions described by permission_id.
+
+    Arguments: 
+        token (str) - token of a member of the dm
+        u_id (int) - id of user
+        permission_id (int) - value that determines permissions of user
+
+    Exceptions: 
+        InputError  - u_id does not refer to a valid user
+                    - u_id refers to a user who is the only global owner
+                    - permission_id is invalid
+        AccessError - authorised user is not a global owner
+                
+    Return Value: 
+        Returns {} on successful call
+    '''
+
+    data = request.get_json()
+
+    return_dict = admin_userpermission_change_v1(data['token'], int(data['u_id']), int(data['permission_id']))
+
+    return dumps(return_dict)
+
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
