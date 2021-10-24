@@ -13,7 +13,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
-from src.message import message_edit_v1, message_send_v1
+from src.message import message_edit_v1, message_send_v1, message_remove_v1
 from src.helper import decode_token 
 
 
@@ -342,6 +342,33 @@ def message_edit():
         data['token'],
         data['message_id'],
         data['message']
+    )
+    return dumps(message)
+
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_remove():
+
+    '''
+    Given a message_id for a message, 
+    this message is removed from the channel/DM
+
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        
+    Exceptions: 
+        InputError  - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_remove_v1(
+        data['token'],
+        data['message_id'],
     )
     return dumps(message)
 
