@@ -7,7 +7,8 @@ from src.auth import valid_name
 def users_all_v1(token): 
     '''
     Given a user's token, return a list of all users and their associated details, 
-    including: u_id, email, name_first, name_last, handle_str
+    including: u_id, email, name_first, name_last, handle_str. 
+    Don't return if user has been removed, i.e. if email, password are None 
     
     Arguments:
         token (str): token identifying user
@@ -16,7 +17,7 @@ def users_all_v1(token):
         AccessError - invalid token 
 
     Returns: 
-        Returns users_list on successful creation 
+        Returns { users } on successful creation 
     '''
 
     store = data_store.get()
@@ -31,15 +32,18 @@ def users_all_v1(token):
     # in json format 
     users_list = [] 
     for user in store['users']: 
-        users_list.append({
-            'u_id': user['u_id'], 
-            'email': user['email'], 
-            'name_first': user['name_first'], 
-            'name_last': user['name_last'],
-            'handle_str': user['handle_str'],
-        })
+        # check if user has been removed
+        if user['email'] is not None and user['password'] is not None: 
+            # add to list if user has not been removed 
+            users_list.append({
+                'u_id': user['u_id'], 
+                'email': user['email'], 
+                'name_first': user['name_first'], 
+                'name_last': user['name_last'],
+                'handle_str': user['handle_str'],
+            })
     
-    return users_list
+    return {'users': users_list}
 
 def user_profile_v1(token, u_id): 
     '''
@@ -55,7 +59,7 @@ def user_profile_v1(token, u_id):
         AccessError - user1 invalid token 
     
     Return Value: 
-        Returns user2 dictionary on successfull call 
+        Returns { user } dictionary on successfull call 
     '''
 
     store = data_store.get() 
@@ -76,7 +80,7 @@ def user_profile_v1(token, u_id):
         'handle_str': user_data['handle_str'], 
     }
 
-    return user
+    return {'user': user}
 
 def user_profile_sethandle_v1(token, handle_str): 
     '''
