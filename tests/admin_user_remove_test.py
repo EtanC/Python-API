@@ -148,6 +148,70 @@ def test_channel_remove(reset_data, user1, user2, channel1):
 
     assert response_details_data == expected_data
 
+def test_channel_remove_owner(reset_data, user1, user2, channel1):
+
+    # User2 join channel
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
+    )
+
+    # Change user2 into global owner
+    userpermission_change_register = {
+        "token": user1['token'],
+        "u_id": user2['auth_user_id'],
+        "permission_id": 1
+    }
+
+    requests.post(
+        f"{config.url}admin/userpermission/change/v1", json=userpermission_change_register
+    )
+
+    user_remove_register = {
+        "token": user2['token'],
+        "u_id": user1['auth_user_id']
+    }
+
+    requests.delete(
+        f"{config.url}admin/user/remove/v1", json=user_remove_register
+    )
+
+    details_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    response_details_register = requests.get(
+        f"{config.url}channel/details/v2", params=details_register
+    )
+
+    response_details_data = response_details_register.json()
+
+    owner_members = []
+
+    all_members = [
+        {
+            'u_id': user2['auth_user_id'], 
+            'email': 'chris.elvin@gmail.com', 
+            'name_first': 'Chris', 
+            'name_last': 'Elvin', 
+            'handle_str': 'chriselvin', 
+        }
+    ]
+
+    expected_data = {
+        "name": "Channel1",
+        "is_public": True,
+        "owner_members": owner_members,
+        "all_members": all_members,
+    }
+
+    assert response_details_data == expected_data
+
 def test_dm_remove(reset_data, user1, user2):
 
     # User1 create dm
