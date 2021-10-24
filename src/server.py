@@ -11,7 +11,8 @@ from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
-from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_messages_v1, \
+dm_leave_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.helper import decode_token 
@@ -592,7 +593,33 @@ def dm_messages_v2():
     return_dict = dm_messages_v1(data['token'], int(data['dm_id']), int(data['start']))
     
     return dumps(return_dict) 
+
+@APP.route("/dm/leave/v1", methods=['POST'])
+def dm_leave_v2(): 
+    '''
+    Given a DM ID, the user is removed as a member of this DM. 
+    The creator is allowed to leave and the DM will still exist if this happens. 
+    This does not update the name of the DM.
+
+    Arguments:
+        token (str): token identifying user
+        dm_id (int): specific dm_id of a message 
+        
+    Exceptions: 
+        InputError  - Invalid dm_id, 
+        AccessError - Invalid token 
+        
+
+    Returns: 
+        Returns {} on successful creation 
+    '''
+
+    data = request.get_json()
+
+    return_dict = dm_leave_v1(data['token'], int(data['dm_id']))
     
+    return dumps(return_dict) 
+
 '''
 
 users.py section 
