@@ -3,31 +3,61 @@ from src.error import InputError
 from src.error import AccessError
 from src.channels import channels_list_v1, check_valid_user_id
 import re
+<<<<<<< HEAD
 from src.helper import decode_token, token_to_user, get_user, get_channel
+=======
+from src.helper import decode_token, token_to_user, get_channel, get_user
+>>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
 
-def channel_invite_v1(auth_user_id, channel_id, u_id):
+def channel_invite_v1(token, channel_id, u_id):
+    '''
+    Given a channel_id of a channel that the authorised user is a member of, 
+    this authorised user can invite a new user to the channel.
+
+    Arguments:
+        token (str): token identifying user 
+        channel_id (int): id of channel 
+        u_id (int): id of user
+
+    Exceptions: 
+        InputError  - Invalid channel id
+                    - Invalid u_id
+                    - u_id already in channel
+        AccessError - token is not a member of the channel
+
+     Returns: 
+        Returns {} on successful creation 
+    '''
 
     store = data_store.get()
+    
+    token_data = decode_token(token)
 
-    # check for invalid user id 
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
 
-    # check for invalid channel id 
-    if check_valid_channel(channel_id, store) == False: 
-        raise InputError("Invalid channel id")
+    auth_user_id = token_data['auth_user_id']
+    channel = get_channel(channel_id, store)
+    user = get_user(auth_user_id, store)
+
+    # if channel dosen't exist:
+    if (channel == None):
+        raise InputError(description="Invalid channel id")
+
+    if (user == None):
+        raise AccessError(description='Invalid token, auth_user_id does not refer to a valid user')
 
     if check_member_in_channel(auth_user_id, channel_id, store) == False:
-        raise AccessError("Authorised user not a member of channel")
-
-    # check for invalid u_id
-    if check_valid_user_id(u_id, store) == False: 
-        raise InputError("Invalid u_id")
+        raise AccessError(description="Authorised user not a member of channel")
 
     # check whether member is in the channel or not 
     if check_member_in_channel(u_id, channel_id, store) == True: 
-        raise InputError("Authorised user is already a member of the channel")
+        raise InputError(description="Authorised user is already a member of the channel")
 
+    # check for invalid u_id
+    if check_valid_user_id(u_id, store) == False: 
+        raise InputError(description="Invalid u_id")
+  
     new_member = {}
 
     users_list = store['users']
@@ -36,15 +66,32 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
             new_member = users
 
     channels_list = store['channels']
+
     for channels in channels_list:
         if  channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
     data_store.set(store)
-
+    
     return {}
 
 def channel_details_v1(token, channel_id):
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    provide basic details about the channel.
+
+    Arguments: 
+        token       (str) - token of user 
+        channel_id  (int) - id of channel to return details of 
+    
+    Exceptions: 
+        InputError  - channel_id invalid 
+        AccessError - authorised user not a member of channel 
+                    - user not authorised / invalid token 
+    
+    Return Value: 
+        Returns { name , is_public , owner_members , all_members } on successful call
+    '''
     token_data = decode_token(token)
     
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
@@ -108,7 +155,6 @@ def is_channel_member(auth_user_id, members):
         if user['u_id'] == auth_user_id:
             return True
     return False
-            
 
 def channel_messages_v1(token, channel_id, start):
     '''
@@ -156,7 +202,11 @@ def check_valid_channel(channel_id, store):
     for channel in store['channels']: 
         if channel_id == channel['channel_id']: 
             result = True
+<<<<<<< HEAD
     return result     
+=======
+    return result
+>>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
 
 def channel_join_v1(token, channel_id):
 
@@ -198,9 +248,15 @@ def channel_join_v1(token, channel_id):
     return {
     }
 
+<<<<<<< HEAD
 def channel_removeowner_v1(token, channel_id, u_id):
     '''
     Will remove an owner from a channel
+=======
+def channel_addowner_v1(token, channel_id, u_id):
+    '''
+    Will add an owner to a channel
+>>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
     '''
     store = data_store.get()
     # Checking if token is valid
@@ -217,6 +273,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
     # Checking if u_id is valid
     user = get_user(u_id, store)
     if user == None:
+<<<<<<< HEAD
         raise InputError(description="Invalid u_id")
     # Checking if user is an owner
     if is_channel_member(user['u_id'], channel['owner_members']) == False:
@@ -227,6 +284,24 @@ def channel_removeowner_v1(token, channel_id, u_id):
     channel['owner_members'].remove(user)
     data_store.set(store)
     return {}
+=======
+        raise InputError("Invalid u_id")
+    # Checking if user is member of channel
+    if not is_channel_member(user['u_id'], channel['all_members']):
+        raise InputError(
+            description = "Can't add owner; user is not member of channel"
+        )
+    # Checking if user is an owner already
+    if is_channel_member(user['u_id'], channel['owner_members']):
+        raise InputError(
+            description = "Can't add owner; user is already an owner"
+        )
+    channel['owner_members'].append(user)
+    data_store.set(store)
+    return {}
+
+
+>>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
 
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 
