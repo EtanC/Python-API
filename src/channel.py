@@ -18,8 +18,8 @@ def channel_invite_v1(token, channel_id, u_id):
     Exceptions: 
         InputError  - Invalid channel id
                     - Invalid u_id
-                    - User already in channel
-        AccessError - User is not a member of the channel
+                    - u_id already in channel
+        AccessError - token is not a member of the channel
 
      Returns: 
         Returns {} on successful creation 
