@@ -1,7 +1,7 @@
 from src.data_store import data_store
 from src.error import AccessError 
 from src.error import InputError 
-from src.helper import decode_token
+from src.helper import decode_token, token_to_user
 
 # if it is valid it shouldnt raise an error 
 
@@ -70,8 +70,10 @@ def channels_listall_v1(auth_user_id):
 def channels_create_v1(token, name, is_public):
     token_data = decode_token(token)
     
+    store = data_store.get()
+
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+    if token_to_user(token, store) is None: 
         raise AccessError(description='Invalid token')
 
     auth_user_id = token_data['auth_user_id']
@@ -80,9 +82,6 @@ def channels_create_v1(token, name, is_public):
     if len(name) < 1 or len(name) > 20: 
         raise InputError(description="Channel name must be between 1 and 20 characters long")
     
-
-    store = data_store.get()
-
     if check_valid_user_id(auth_user_id, store) == False: 
         raise AccessError(description="Invalid auth_user_id")
 
