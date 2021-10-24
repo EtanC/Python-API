@@ -28,13 +28,14 @@ def channel_invite_v1(token, channel_id, u_id):
     store = data_store.get()
     
     token_data = decode_token(token)
+    user = token_to_user(token, store)
 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+
+    if user is None: 
         raise AccessError(description='Invalid token')
 
     auth_user_id = token_data['auth_user_id']
     channel = get_channel(channel_id, store)
-    user = token_to_user(token, store)
 
     # if channel dosen't exist:
     if (channel == None):
@@ -195,7 +196,6 @@ def check_valid_channel(channel_id, store):
 
 def channel_join_v1(token, channel_id):
 
-    token_data = decode_token(token)
     store = data_store.get() # get the data
 
     user = token_to_user(token, store)
@@ -203,9 +203,6 @@ def channel_join_v1(token, channel_id):
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
     if user is None:  
         raise AccessError(description='Invalid token')
-
-    auth_user_id = token_data['auth_user_id']
-
 
     channel = get_channel(channel_id, store)
 
