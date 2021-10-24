@@ -59,7 +59,7 @@ def test_valid(reset_data, channel1):
     }
     response_messages = requests.get(
         f'{config.url}channel/messages/v2',
-        json=data_messages
+        params=data_messages
     )
     assert response_messages.json() == {'messages' : [], 'start': 0, 'end': -1}
 
@@ -76,7 +76,7 @@ def test_invalid_channel_id_messages(reset_data, channel1):
     }
     response_messages = requests.get(
         f'{config.url}channel/messages/v2',
-        json=data_messages
+        params=data_messages
     )
     assert response_messages.status_code == 400
 
@@ -88,7 +88,7 @@ def test_invalid_start_messages(reset_data, channel1):
     }
     response_messages = requests.get(
         f'{config.url}channel/messages/v2',
-        json=data_messages
+        params=data_messages
     )
     assert response_messages.status_code == 400
 
@@ -100,7 +100,7 @@ def test_invalid_user(reset_data, channel1, user2):
     }
     response_messages = requests.get(
         f'{config.url}channel/messages/v2',
-        json=data_messages
+        params=data_messages
     )
     assert response_messages.status_code == 403
 
@@ -112,7 +112,7 @@ def test_invalid_user_id(reset_data, channel1):
     }
     response_messages = requests.get(
         f'{config.url}channel/messages/v2',
-        json=data_messages
+        params=data_messages
     )
     assert response_messages.status_code == 403
 
