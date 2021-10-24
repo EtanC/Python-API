@@ -130,7 +130,6 @@ def message_edit_v1(token, message_id, message):
 
 def message_send_v1(token, channel_id, message):
 
-    token_data = decode_token(token)
     store = data_store.get()
     user = token_to_user(token, store)
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
