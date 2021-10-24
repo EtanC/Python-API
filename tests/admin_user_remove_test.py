@@ -1,6 +1,7 @@
 import pytest 
 import requests
 from src import config 
+from datetime import datetime, timezone
 
 @pytest.fixture
 def reset_data():
@@ -86,29 +87,101 @@ def channel1(user1):
 
     return {'user_id' : user_id, 'channel_id' : channel_id}
 
-# create private channel called channel2 where user1 will be added
-@pytest.fixture
-def channel2(user1):
+def test_channel_remove(reset_data, user1, user2, channel1):
 
-    channel2_register = {
-        'token': user1['token'],
-        'name': "Channel1",
-        'is_public': True,
+    # User2 join channel
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
     }
 
-    response_channel2_register = requests.post(
-        f"{config.url}channels/create/v2",
-        json=channel2_register
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
     )
 
-    channel_id = response_channel2_register.json()['channel_id']
-    user_id    = user1['auth_user_id']
+    user_remove_register = {
+        "token": user1['token'],
+        "u_id": user2['auth_user_id']
+    }
 
-    return {'user_id' : user_id, 'channel_id' : channel_id}
+    requests.delete(
+        f"{config.url}admin/user/remove/v1", json=user_remove_register
+    )
 
-def test_channel_dm_remove():
-    pass
+    details_register = {
+        "token": user1['token'],
+        "channel_id": channel1['channel_id']
+    }
 
+    response_details_register = requests.get(
+        f"{config.url}channel/details/v2", params=details_register
+    )
+
+    response_details_data = response_details_register.json()
+
+    owner_members = [
+        {
+            'u_id': channel1['user_id'], 
+            'email': "john.smith@gmail.com", 
+            'name_first': "John", 
+            'name_last': "Smith", 
+            'handle_str': "johnsmith",
+        }
+    ]
+
+    all_members = [
+        {
+            'u_id': channel1['user_id'], 
+            'email': "john.smith@gmail.com", 
+            'name_first': "John", 
+            'name_last': "Smith", 
+            'handle_str': "johnsmith",
+        }
+    ]
+
+    expected_data = {
+        "name": "Channel1",
+        "is_public": True,
+        "owner_members": owner_members,
+        "all_members": all_members,
+    }
+
+    assert response_details_data == expected_data
+
+def test_dm_remove(reset_data, user1, user2):
+
+    # User1 create dm
+    dm_create_register = {
+        "token": user1['token'],
+        "u_ids":[user1['auth_user_id'], user2['auth_user_id']]
+    }
+
+    requests.post(
+        f"{config.url}dm/create/v1", json=dm_create_register
+    )
+
+    user_remove_register = {
+        "token": user1['token'],
+        "u_id": user2['auth_user_id']
+    }
+
+    requests.delete(
+        f"{config.url}admin/user/remove/v1", json=user_remove_register
+    )
+
+    dm_list_register = {
+        "token": user2['token']
+    }
+
+    response_dm_list_register = requests.get(
+        f"{config.url}dm/list/v1", params=dm_list_register
+    )
+
+    response_dm_list_data = response_dm_list_register.json()
+
+    expected_data = {'dms':[]}
+
+    assert response_dm_list_data == expected_data
 
 def test_remove_original_owner(reset_data, user1, user2):
 
@@ -116,7 +189,7 @@ def test_remove_original_owner(reset_data, user1, user2):
     userpermission_change_register = {
         "token": user1['token'],
         "u_id": user2['auth_user_id'],
-        "permission_id": 2
+        "permission_id": 1
     }
 
     requests.post(
@@ -128,21 +201,126 @@ def test_remove_original_owner(reset_data, user1, user2):
         "u_id": user1['auth_user_id']
     }
 
-    requests.post(
+    requests.delete(
         f"{config.url}admin/user/remove/v1", json=user_remove_register
     )
 
+    users_all_register = {
+        "token": user2['token']
+    }
 
+    response_users_all_register = requests.get(
+        f"{config.url}users/all/v1", params=users_all_register
+    )
 
-    pass
-    
+    users_all_data = response_users_all_register.json()
 
+    expected_data = {'users': [{
+        'u_id': user2['auth_user_id'], 
+        'email': 'chris.elvin@outlook.edu.au', 
+        'name_first': 'Chris', 
+        'name_last': 'Elvin', 
+        'handle_str': 'chriselvin', 
+    }]}
 
-def test_messages_remove(reset_data, user1, user2):
-    pass
+    assert users_all_data == expected_data
+
+def test_dm_messages_remove(reset_data, user1, user2):
+
+    # User1 create dm
+    dm_create_register = {
+        "token": user1['token'],
+        "u_ids":[user1['auth_user_id'], user2['auth_user_id']]
+    }
+
+    response_dm_create = requests.post(
+        f"{config.url}dm/create/v1", json=dm_create_register
+    )
+
+    data = {
+        'token' : user2['token'], 
+        'dm_id' : response_dm_create.json()['dm_id'],
+        'message' : 'I just sent a message lol xd'
+    }
+    response_send = requests.post(
+        f"{config.url}message/senddm/v1",
+        json=data
+    )
+
+    user_remove_register = {
+        "token": user1['token'],
+        "u_id": user2['auth_user_id']
+    }
+    requests.delete(
+        f"{config.url}admin/user/remove/v1", json=user_remove_register
+    )
+
+    data = {
+        'token': user1['token'], 
+        'dm_id': response_dm_create.json()['dm_id'],
+        'start': 0
+    }
+    response = requests.get(
+        f"{config.url}dm/messages/v1",
+        params=data
+    )
+
+    message = response.json()
+    message_id = response_send.json()['message_id']
+
+    # making sure that the time is within 2 seconds of each other
+    time_current = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+
+    assert abs(
+        message['messages'][0]['time_created'] - time_current
+    ) < 2
+
+    del message['messages'][0]['time_created']
+    assert message == \
+        {
+            'messages' : [{
+                'message': 'Removed user', 
+                'message_id': message_id,
+                'u_id': user2['auth_user_id'],
+            }],
+            'start' : 0,
+            'end' : -1
+        }
+
 
 def test_user_details_remove(reset_data, user1, user2):
-    pass
+
+    # Remove user2
+    user_remove_register = {
+        "token": user1['token'],
+        "u_id": user2['auth_user_id']
+    }
+
+    requests.delete(
+        f"{config.url}admin/user/remove/v1", json=user_remove_register
+    )
+
+    users_profile_register = {
+        "token": user1['token'],
+        "u_id": user2['auth_user_id']
+    }
+
+    response_user_profile_register = requests.get(
+        f"{config.url}user/profile/v1", params=users_profile_register
+    )
+
+    user_profile_data = response_user_profile_register.json()
+
+    expected_data = {'user': {
+        'u_id': user2['auth_user_id'], 
+        'email': None, 
+        'name_first': 'Removed', 
+        'name_last': 'user', 
+        'handle_str': None, 
+    }}
+
+    assert user_profile_data == expected_data
+    
 
 def test_invalid_u_id(reset_data, user1, user2):
 
@@ -152,12 +330,11 @@ def test_invalid_u_id(reset_data, user1, user2):
         "u_id": user1['auth_user_id'] + user2['auth_user_id'] + 1,
     }    
 
-    response_user_remove = requests.post(
+    response_user_remove = requests.delete(
         f"{config.url}admin/user/remove/v1", json=user_remove_register
     )
 
     assert response_user_remove.status_code == 400
-
 
 def test_only_global_owner(reset_data, user1):
 
@@ -167,13 +344,13 @@ def test_only_global_owner(reset_data, user1):
         "u_id": user1['auth_user_id'],
     }    
 
-    response_user_remove = requests.post(
+    response_user_remove = requests.delete(
         f"{config.url}admin/user/remove/v1", json=user_remove_register
     )
 
     assert response_user_remove.status_code == 400
 
-def test_not_global_owner(reset_data, user2):
+def test_not_global_owner(reset_data, user1, user2):
 
     # Change user2 to global owner
     user_remove_register = {
@@ -181,7 +358,7 @@ def test_not_global_owner(reset_data, user2):
         "u_id": user2['auth_user_id'],
     }    
 
-    response_user_remove = requests.post(
+    response_user_remove = requests.delete(
         f"{config.url}admin/user/remove/v1", json=user_remove_register
     )
 

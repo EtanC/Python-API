@@ -80,9 +80,9 @@ def admin_user_remove_v1(token, u_id):
     if not is_global_owner(remover):
         raise AccessError(description='User not authorised to remove users')
 
-    user = get_user(u_id, store)
+    target_user = get_user(u_id, store)
 
-    if user is None:
+    if target_user is None:
         raise InputError(description='u_id does not refer to a valid user')
 
     global_owner_count = 0
@@ -91,26 +91,36 @@ def admin_user_remove_v1(token, u_id):
         if is_global_owner(user):
             global_owner_count += 1
 
-    if global_owner_count <= 1 and is_global_owner(user):
+    if global_owner_count <= 1 and is_global_owner(target_user):
         raise InputError(
             description = ('Unable to remove global owner,'
                            'only 1 global owner left')
         )
 
     # Making emails and handles available for use by other users
-    user['email'] = None
-    user['password'] = None
-    user['handle'] = None
+    target_user['email'] = None
+    target_user['password'] = None
+    target_user['handle_str'] = None
     # Erasing names as per spec instructions
-    user['name_first'] = 'Removed'
-    user['name_last'] = 'user'
+    target_user['name_first'] = 'Removed'
+    target_user['name_last'] = 'user'
     # Removing contents of messages the user sent
     for dm in store['dms']:
         for message in dm['messages']:
-            if message['u_id'] == user['u_id']:
+            if message['u_id'] == target_user['u_id']:
                 message['message'] = 'Removed user'
+        for user in dm['members']:
+            if user['u_id'] == target_user['u_id']:
+                dm['members'].remove(target_user)
     for channel in store['channels']:
         for message in channel['messages']:
-            if message['u_id'] == user['u_id']:
+            if message['u_id'] == target_user['u_id']:
                 message['message'] = 'Removed user'
+        for user in channel['all_members']:
+            if user['u_id'] == target_user['u_id']:
+                channel['all_members'].remove(target_user)
+        for user in channel['owner_members']:
+            if user['u_id'] == target_user['u_id']:
+                channel['owner_members'].remove(target_user)
+    
     return {}

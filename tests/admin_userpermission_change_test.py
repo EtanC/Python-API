@@ -71,7 +71,7 @@ def test_change_to_global_valid(reset_data, user1, user2, channel1_private):
     userpermission_change_register = {
         "token": user1['token'],
         "u_id": user2['auth_user_id'],
-        "permission_id": 2
+        "permission_id": 1
     }
 
     requests.post(
@@ -144,7 +144,7 @@ def test_change_to_member_valid(reset_data, user1, user2, channel1_private):
     userpermission_change_register = {
         "token": user1['token'],
         "u_id": user2['auth_user_id'],
-        "permission_id": 2
+        "permission_id": 1
     }
 
     requests.post(
@@ -155,7 +155,7 @@ def test_change_to_member_valid(reset_data, user1, user2, channel1_private):
     userpermission_change_register = {
         "token": user1['token'],
         "u_id": user2['auth_user_id'],
-        "permission_id": 1
+        "permission_id": 2
     }
 
     requests.post(
@@ -213,7 +213,7 @@ def test_invalid_u_id(reset_data, user1, user2):
     userpermission_change_register = {
         "token": user1['token'],
         "u_id": user1['auth_user_id'] + user2['auth_user_id'] + 1,
-        "permission_id": 2
+        "permission_id": 1
     }    
 
     response_userpermission_change = requests.post(
@@ -229,7 +229,7 @@ def test_only_global_owner(reset_data, user1):
     userpermission_change_register = {
         "token": user1['token'],
         "u_id": user1['auth_user_id'],
-        "permission_id": 1
+        "permission_id": 2
     }    
 
     response_userpermission_change = requests.post(
@@ -253,13 +253,13 @@ def test_invalid_permission_id(reset_data, user1, user2):
 
     assert response_userpermission_change.status_code == 400
 
-def test_not_global_owner(reset_data, user2):
+def test_not_global_owner(reset_data, user1, user2):
 
     # Change user2 to global owner
     userpermission_change_register = {
         "token": user2['token'],
         "u_id": user2['auth_user_id'],
-        "permission_id": 2
+        "permission_id": 1
     }    
 
     response_userpermission_change = requests.post(
