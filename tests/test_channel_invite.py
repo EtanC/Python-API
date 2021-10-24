@@ -168,10 +168,8 @@ def test_invalid_u_id(reset, channel, user1, user2):
     invite_register = {
         "token": user1['token'],
         "channel_id": channel['channel_id'],
-        "u_id": user2['auth_user_id']
+        "u_id": user1['auth_user_id'] + user2['auth_user_id'] + 1
     }
-
-    invite_register['u_id'] == user1['auth_user_id'] + user2['auth_user_id'] + 1
 
     response_invite_register = requests.post(f"{config.url}channel/invite/v2",\
     json=invite_register)
