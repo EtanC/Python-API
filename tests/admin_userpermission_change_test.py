@@ -225,3 +225,18 @@ def test_not_global_owner(reset_data, user1, user2):
     )
 
     assert response_userpermission_change.status_code == 403
+
+def test_invalid_token(reset_data, user1, user2):
+
+    # Change user2 to global owner
+    userpermission_change_register = {
+        "token": "INVALID_TOKEN",
+        "u_id": user2['auth_user_id'],
+        "permission_id": 1
+    }    
+
+    response_userpermission_change = requests.post(
+        f"{config.url}admin/userpermission/change/v1", json=userpermission_change_register
+    )
+
+    assert response_userpermission_change.status_code == 403

@@ -449,7 +449,7 @@ def test_user_details_remove(reset_data, user1, user2):
 
 def test_invalid_u_id(reset_data, user1, user2):
 
-    # Change user2 to global owner
+    # Remove invalid user
     user_remove_register = {
         "token": user1['token'],
         "u_id": user1['auth_user_id'] + user2['auth_user_id'] + 1,
@@ -463,7 +463,7 @@ def test_invalid_u_id(reset_data, user1, user2):
 
 def test_only_global_owner(reset_data, user1):
 
-    # Change user1 to member
+    # Remove user1
     user_remove_register = {
         "token": user1['token'],
         "u_id": user1['auth_user_id'],
@@ -477,9 +477,23 @@ def test_only_global_owner(reset_data, user1):
 
 def test_not_global_owner(reset_data, user1, user2):
 
-    # Change user2 to global owner
+    # Remove user2
     user_remove_register = {
         "token": user2['token'],
+        "u_id": user2['auth_user_id'],
+    }    
+
+    response_user_remove = requests.delete(
+        f"{config.url}admin/user/remove/v1", json=user_remove_register
+    )
+
+    assert response_user_remove.status_code == 403
+
+def test_invalid_token(reset_data, user1, user2):
+
+    # Remove user2
+    user_remove_register = {
+        "token": "INVALID_TOKEN",
         "u_id": user2['auth_user_id'],
     }    
 
