@@ -1,134 +1,297 @@
-'''
-import pytest
-
-from src.channels import channels_listall_v1 as c_listall, channels_create_v1 as c_create
-from src.auth import auth_register_v1, auth_login_v1 
-from src.other import clear_v1
-from src.error import AccessError
+import pytest 
+import requests
+from src import config 
 
 # this runs before every test function.
 @pytest.fixture
-def reset_data():
-    clear_v1()
-
-    # creates a real user before every test after clear_v1.
-    email = "realemail_812@outlook.edu.au"
-    password = "Password1"
-    name_first = "Elon"
-    name_last = "Mask"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # take auth user id from returned dictionary 
-    auth_user_id = result['auth_user_id']
-    return auth_user_id
-
-# Blackbox test for invalid input for auth_user_id
-# ===============================================================
-def test_invalid_id(reset_data): 
-    # only has one user, logically there should not be another user with +1 auth_id
-    auth_user_id = reset_data + 1
-    with pytest.raises(AccessError): 
-        assert c_listall(auth_user_id)
-
-def test_empty_input1(): 
-    auth_user_id = None
-    with pytest.raises(AccessError): 
-        assert c_listall(auth_user_id)
-
-def test_halfEmpty_input2(): 
-    auth_user_id = ""
-    with pytest.raises(AccessError): 
-        assert c_listall(auth_user_id)
-
-# ===============================================================
-# test_valid -> test return type is a list of dictionaries
-def test_valid(reset_data): 
-    auth_user_id = reset_data 
-    result = c_listall(auth_user_id)
-    assert type(result) is dict
-
-# when the user does not have any channels 
-def test_empty_list(reset_data): 
-    auth_user_id = reset_data
-    assert c_listall(auth_user_id) == {'channels':[]}
-
-# a test where there are multiple users creating multiple channels
-def test_long_list(reset_data): 
-    auth_user_id = reset_data
-    is_public = True
-
-    # person 1
-    email = "realemail_81@outlook.edu.au"
-    password = "Password1"
-    name_first = "Elon1"
-    name_last = "Mask1"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # person 1 creates a channel
-    user_id = result['auth_user_id']
-    name = 'Elon_public1'
-    result = c_create(user_id,name,is_public)
-    channel_id1 = result['channel_id']
-
-    # person 2
-    email = "realemail_82@outlook.edu.au"
-    password = "Password2"
-    name_first = "Elon2"
-    name_last = "Mask2"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # person 2 creates a channel
-    user_id = result['auth_user_id']
-    name = 'Elon_public2'
-    result = c_create(user_id,name,is_public)
-    channel_id2 = result['channel_id']
-
-    # person 3
-    email = "realemail_83@outlook.edu.au"
-    password = "Password3"
-    name_first = "Elon3"
-    name_last = "Mask3"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # person 3 creates a channel
-    user_id = result['auth_user_id']
-    name = 'Elon_public3'
-    result = c_create(user_id,name,is_public)
-    channel_id3 = result['channel_id']
-
-    # person 4
-    email = "realemail_84@outlook.edu.au"
-    password = "Password4"
-    name_first = "Elon4"
-    name_last = "Mask4"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # person 4 creates a channel
-    user_id = result['auth_user_id']
-    name = 'Elon_public4'
-    result = c_create(user_id,name,is_public)
-    channel_id4 = result['channel_id']
-
-    # person 5
-    email = "realemail_85@outlook.edu.au"
-    password = "Password5"
-    name_first = "Elon5"
-    name_last = "Mask5"
-    auth_register_v1(email, password, name_first, name_last)
-    result = auth_login_v1(email, password) 
-    # person  creates a channel
-    user_id = result['auth_user_id']
-    name = 'Elon_public5'
-    result = c_create(user_id,name,is_public)
-    channel_id5 = result['channel_id']
+def reset_data(): 
+    requests.delete(f"{config.url}clear/v1")
     
-    assert c_listall(auth_user_id) == { 
-        'channels' : [
-            {'channel_id': channel_id1, 'name': 'Elon_public1'},
-            {'channel_id': channel_id2, 'name': 'Elon_public2'},
-            {'channel_id': channel_id3, 'name': 'Elon_public3'},
-            {'channel_id': channel_id4, 'name': 'Elon_public4'},
-            {'channel_id': channel_id5, 'name': 'Elon_public5'} 
+    data_register = {
+        "email" : "realemail_812@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "John",
+        "name_last" : "Smith",
+    }
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+
+    data_login = { 
+        "email": "realemail_812@outlook.edu.au", 
+        "password": "Password1", 
+    }
+    response = requests.post(
+        f'{config.url}auth/login/v2',
+        json=data_login
+    )
+
+    return response.json()
+
+
+def test_return_type(reset_data): 
+    # create a channel
+    data_create = {
+        "token": reset_data['token'], 
+        "name": "channel1", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    # list
+    data = {
+        'token' : reset_data['token']
+    }
+
+    response = requests.get(
+        f"{config.url}channels/listall/v2",
+        params=data
+    )
+    response_data = response.json()
+
+    assert type(response_data) is dict
+    
+
+def test_no_channel(reset_data): 
+    user_data = {
+        'token': reset_data['token'], 
+    }
+    listall_response = requests.get(
+        f"{config.url}channels/listall/v2",
+        params=user_data
+    )
+    assert listall_response.json() == \
+    {
+        'channels' : []
+    }
+
+
+def test_invalid_user(reset_data): 
+    # create channel
+    data_create = {
+        "token": reset_data['token'], 
+        "name": "channel1", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    data = {
+        'token' :'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA'
+    }
+    response = requests.get(
+        f"{config.url}channels/listall/v2",
+        params=data
+    )
+
+    assert response.status_code == 403
+
+
+def test_functionality(reset_data): 
+    data_create = {
+        "token": reset_data['token'], 
+        "name": "channel1", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    user_data = {
+        'token': reset_data['token'], 
+    }
+    listall_response = requests.get(
+        f"{config.url}channels/listall/v2",
+        params=user_data
+    )
+
+    assert listall_response.json() == \
+    {
+        'channels' : [ 
+            {
+                'channel_id': 1, 
+                'name': 'channel1'
+            }
         ]
     }
-'''
+
+
+def test_long(): 
+    requests.delete(f"{config.url}clear/v1")
+
+    # person 1
+    data_register = {
+        "email" : "realemail_1@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "John",
+        "name_last" : "Smith",
+    }
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    data_login = { 
+        "email": "realemail_1@outlook.edu.au", 
+        "password": "Password1", 
+    }
+    response1 = requests.post(
+        f'{config.url}auth/login/v2',
+        json=data_login
+    )
+    data1 = response1.json()
+    data_create = {
+        "token": data1['token'], 
+        "name": "channel1", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    # person 2
+    data_register = {
+        "email" : "realemail_2@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "Sina",
+        "name_last" : "Smith",
+    }
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    data_login = { 
+        "email": "realemail_2@outlook.edu.au", 
+        "password": "Password1", 
+    }
+    response2 = requests.post(
+        f'{config.url}auth/login/v2',
+        json=data_login
+    )
+    data2 = response2.json()
+    data_create = {
+        "token": data2['token'], 
+        "name": "channel2", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    # person 3
+    data_register = {
+        "email" : "realemail_3@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "James",
+        "name_last" : "Smith",
+    }
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    data_login = { 
+        "email": "realemail_3@outlook.edu.au", 
+        "password": "Password1", 
+    }
+    response3 = requests.post(
+        f'{config.url}auth/login/v2',
+        json=data_login
+    )
+    data3 = response3.json()
+    data_create = {
+        "token": data3['token'], 
+        "name": "channel3", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+     # person 4
+    data_register = {
+        "email" : "realemail_4@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "Xinzhao",
+        "name_last" : "Smith",
+    }
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    data_login = { 
+        "email": "realemail_4@outlook.edu.au", 
+        "password": "Password1", 
+    }
+    response4 = requests.post(
+        f'{config.url}auth/login/v2',
+        json=data_login
+    )
+    data4 = response4.json()
+    data_create = {
+        "token": data4['token'], 
+        "name": "channel4", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    # person 5
+    data_register = {
+        "email" : "realemail_5@outlook.edu.au",
+        "password" : "Password1",
+        "name_first" : "Ethan",
+        "name_last" : "Smith",
+    }
+    requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    data_login = { 
+        "email": "realemail_5@outlook.edu.au", 
+        "password": "Password1", 
+    }
+    response5 = requests.post(
+        f'{config.url}auth/login/v2',
+        json=data_login
+    )
+    data5 = response5.json()
+    data_create = {
+        "token": data5['token'], 
+        "name": "channel5", 
+        "is_public": True,
+    }
+    requests.post(
+        f"{config.url}channels/create/v2",
+        json=data_create
+    ) 
+
+    user_data = {
+        'token': data5['token'], 
+    }
+    listall_response = requests.get(
+        f"{config.url}channels/listall/v2",
+        params=user_data
+    )
+
+    assert listall_response.json() == \
+    {
+        'channels' : [
+            {'channel_id': 1, 'name': 'channel1'},
+            {'channel_id': 2, 'name': 'channel2'},
+            {'channel_id': 3, 'name': 'channel3'},
+            {'channel_id': 4, 'name': 'channel4'},
+            {'channel_id': 5, 'name': 'channel5'} 
+        ]
+    }
+    

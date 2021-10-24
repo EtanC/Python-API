@@ -13,7 +13,14 @@ Provide a list of all channels (and their associated details)
 that the authorised user is part of.
 
 '''
-def channels_list_v1(auth_user_id):
+def channels_list_v1(token):
+    token_data = decode_token(token)
+    
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
 
     # merged from master, usual check of auth_user_id
@@ -45,7 +52,14 @@ Provide a list of all channels, including private channels, (and their associate
 '''
 
 
-def channels_listall_v1(auth_user_id):
+def channels_listall_v1(token):
+    token_data = decode_token(token)
+    
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
 
     # merged from master, usual check of auth_user_id

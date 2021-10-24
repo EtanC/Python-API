@@ -3,9 +3,7 @@ from src.error import InputError
 from src.error import AccessError
 from src.channels import channels_list_v1, check_valid_user_id
 import re
-from src.helper import decode_token
-
-
+from src.helper import decode_token, token_to_user
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
@@ -112,7 +110,7 @@ def is_channel_member(auth_user_id, members):
     return False
             
 
-def channel_messages_v1(auth_user_id, channel_id, start):
+def channel_messages_v1(token, channel_id, start):
     '''
     Returns up to 50 messages from the specified channel given a starting index
     Also returns the starting and ending indexes of the returned messages
@@ -125,14 +123,15 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     '''
     store = data_store.get()
     # Checking if auth_user_id is valid
-    if get_user(auth_user_id, store) == None:
-        raise AccessError("auth_user_id is not valid")
+    user = token_to_user(token, store)
+    if user == None:
+        raise AccessError("token is not valid")
     # Checking channel_id is valid
     channel = get_channel(channel_id, store)
     if channel == None:
         raise InputError("Invalid channel")
     # Checking auth_user_id is part of channel
-    if not is_channel_member(auth_user_id, channel['all_members']):
+    if not is_channel_member(user['u_id'], channel['all_members']):
         raise AccessError("User is not a member of the channel")
     # Checking start is valid
     if start > len(channel['messages']):
@@ -182,9 +181,17 @@ def get_channel(channel_id, store):
     
     return None
 
+def channel_join_v1(token, channel_id):
 
-def channel_join_v1(auth_user_id, channel_id):
-    
+    token_data = decode_token(token)
+
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
+
+
     store = data_store.get() # get the data
     channel = get_channel(channel_id, store)
     user = get_user(auth_user_id, store)
@@ -213,6 +220,8 @@ def channel_join_v1(auth_user_id, channel_id):
 
     return {
     }
+
+
 
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 
