@@ -417,7 +417,7 @@ def dm_remove_v2():
         AccessError - Invalid token 
 
     Returns: 
-        Returns {dms} on successful creation 
+        Returns {} on successful creation 
     '''
 
     data = request.get_json()
