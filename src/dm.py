@@ -238,6 +238,61 @@ def dm_messages_v1(token, dm_id, start):
         'end': end,
     }
 
+'''
+
+{dm_leave_v2}
+Given a DM ID, the user is removed as a member of this DM. 
+The creator is allowed to leave and the DM will still exist if this happens. 
+This does not update the name of the DM.
+
+'''
+
+def dm_leave_v1(token,dm_id): 
+    store = data_store.get()
+    # token check
+    if token_to_user(token, store) is not None:
+        user = token_to_user(token, store)
+    else:
+        raise AccessError(description='Invalid token')
+
+    # check if dm_id is within the list of dms
+    if (not check_valid_dmid(dm_id, store)) or (dm_id == None):
+        raise InputError(description='Invalid dm_id')
+
+    for index in range(len(store['dms'])):
+        if store['dms'][index]['dm_id'] == dm_id:
+            dm_index = index
+
+    # check if they are owner first
+    authorised = False
+    is_owner = False
+    dm_index = store['dms'][dm_index]
+
+    if dm_index['owner'] != user:
+        for members in dm_index['members']: 
+            if user == members: 
+                authorised == True
+    else:
+        # if the person is the owner
+        authorised == True
+        is_owner == True
+
+    
+    if not authorised: 
+        raise AccessError(description='Invalid user')
+    else: 
+        if is_owner: 
+            del store['dms'][dm_index]['owner']
+        else: 
+            # find the correct index of the user
+            for index in range(len(store['dms'][dm_index]['members'])):
+                if store['dms'][dm_index]['members'][index] == user:
+                    user_index = index
+            del store['dms'][dm_index]['members'][user_index]
+            data_store.set(store)
+
+    return {}
+
 
 '''
 
