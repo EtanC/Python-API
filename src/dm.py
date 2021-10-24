@@ -245,6 +245,13 @@ Given a DM ID, the user is removed as a member of this DM.
 The creator is allowed to leave and the DM will still exist if this happens. 
 This does not update the name of the DM.
 
+{dm_messages_v2}
+Given a DM with ID dm_id that the authorised user is a member of, 
+return up to 50 messages between index "start" and "start + 50".
+Message with index 0 is the most recent message in the DM. 
+This function returns a new index "end" which is the value of "start + 50", 
+or, if this function has returned the least recent messages in the DM, 
+returns -1 in "end" to indicate there are no more messages to load after this return.
 '''
 
 def dm_leave_v1(token,dm_id): 
