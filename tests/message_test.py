@@ -426,6 +426,17 @@ def test_invalid_messageID_edit(reset_data, user1, channel1): #PUT
 
 def test_invalid_user_message_edit(reset_data, user1, channel1, user2): #PUT
 
+    # paramenters for channel/join/v2
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    # allow user2 to join channel1
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
+    )
+
     # user1 sends a mesage in channel1
     token = user1['token']
     channel_id = channel1['channel_id']
@@ -684,4 +695,3 @@ def test_valid_send(reset_data, channel1, user1): #POST
 
     del response_data['messages'][0]['time_created']
     assert response_data == expected_data
-
