@@ -40,25 +40,67 @@ def message_senddm_v1(token, dm_id, message):
     if user not in dm_user_list:
         raise AccessError(description="This user is NOT part of dm")
 
+    # using datetime to capture the time the message was created
     dt = datetime.now()
     time_created = dt.replace(tzinfo=timezone.utc).timestamp()
+    
+    # Get the contents for the new dm message
     dm_message_to_send = message
     user_id = user['u_id']
     message_id = store['message_id'] 
     store['message_id'] += 1
     
-    new_dm_message = {}
-    new_dm_message['message_id'] = message_id
-    new_dm_message['u_id'] = user_id
-    new_dm_message['message'] = dm_message_to_send
-    new_dm_message['time_created'] = time_created
-
+    # Create the new dm_message and its contents
+    new_dm_message = {
+        'message_id': message_id,
+        'u_id': user_id,
+        'message': dm_message_to_send,
+        'time_created': time_created,
+    }
+   
+    # Add the message to the dm
     all_dm_messages = dm['messages']
     all_dm_messages.append(new_dm_message)
 
     return {
         'message_id': message_id
     }
+
+def message_remove_v1(token, message_id):
+       
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    token_data = decode_token(token)
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
+    store = data_store.get()
+    user = token_to_user(token, store)
+    message_to_remove = get_message(message_id, store)
+
+    # Checking if auth_user_id is valid
+    if get_user(auth_user_id, store) == None:
+        raise AccessError(description="auth_user_id is not valid")
+
+    # check the token's validity:
+    if user == None:
+        raise AccessError(description="INVALID token passed in")
+
+    # check message ID validity:
+    if get_message(message_id, store) == None:
+        raise InputError(description="message ID is INVALID")
+
+    # check if user is allowed to edit the right message (might need to change for the owener permissions)
+    if auth_user_id != message_to_remove['u_id']:
+        raise AccessError(description="User is NOT AUTHORISED to edit message")
+
+    # remove the message
+    for i,channel in enumerate(store['channels']):
+        for j,message in enumerate(channel['messages']):
+            if message['message_id'] == message_id:
+                del store['channels'][i]['messages'][j]
+
+    return {}
 
 def message_edit_v1(token, message_id, message):
        

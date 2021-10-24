@@ -244,6 +244,7 @@ def dm_messages_v1(token, dm_id, start):
     }
 
 
+
 '''
 
 Function that checks if the whole u_ids is valid
