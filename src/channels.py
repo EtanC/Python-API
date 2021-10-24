@@ -59,12 +59,7 @@ def channels_listall_v1(token):
     if (token_data is None) or ('auth_user_id' not in token_data): 
         raise AccessError(description='Invalid token')
 
-    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
-
-    # merged from master, usual check of auth_user_id
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
 
     list_channels = store['channels']
     # a list of dictionary that we return
@@ -93,12 +88,8 @@ def channels_create_v1(token, name, is_public):
     # Checking for length of channel name 
     if len(name) < 1 or len(name) > 20: 
         raise InputError(description="Channel name must be between 1 and 20 characters long")
-    
 
     store = data_store.get()
-
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError(description="Invalid auth_user_id")
 
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
