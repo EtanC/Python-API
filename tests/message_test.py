@@ -269,7 +269,7 @@ def test_invalid_length_senddm(reset_data, user1, dm1): #POST
     json=data_register)
     assert response_register.status_code == 400
 
-def test_valid_message_remove(reset_data, user1, channel1): #DELETE
+def test_invalid_dmID_senddm(reset_data, user1, dm1): #POST
 
     data_register = {
         "token": user1['token'],
