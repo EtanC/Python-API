@@ -198,7 +198,7 @@ def channel_join_v1(token, channel_id):
     token_data = decode_token(token)
     store = data_store.get() # get the data
 
-    user = get_user(auth_user_id, store)
+    user = token_to_user(token, store)
 
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
     if user is None:  
