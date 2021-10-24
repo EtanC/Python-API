@@ -224,7 +224,6 @@ def channel_removeowner():
                     - the user removing u_id from channel does not have owner
                       permissions
 
-<<<<<<< HEAD
     Return Value: 
         Returns {} on successfully removing
         the user as an owner from the channel
@@ -232,7 +231,7 @@ def channel_removeowner():
     data = request.get_json()
     channel_removeowner_v1(data['token'], data['channel_id'], data['u_id'])
     return dumps({})
-=======
+
 @APP.route("/channel/invite/v2", methods = ['POST'])
 def channel_invite_v2():
     '''
@@ -258,7 +257,6 @@ def channel_invite_v2():
     return_dict = channel_invite_v1(data['token'], int(data['channel_id']), int(data['u_id']))
     return dumps(return_dict)
 
->>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
 
 '''
 
@@ -519,7 +517,7 @@ def dm_create_v2():
 
     data = request.get_json() 
 
-    return_dict = dm_create_v1(data['token'], data['u_ids'])
+    return_dict = dm_create_v1(data['token'], list(data['u_ids']))
     
     return dumps(return_dict) 
 
@@ -562,7 +560,7 @@ def dm_remove_v2():
 
     data = request.get_json()
 
-    return_dict = dm_remove_v1(data['token'], data['dm_id'])
+    return_dict = dm_remove_v1(data['token'], int(data['dm_id']))
     
     return dumps(return_dict) 
 
@@ -622,7 +620,7 @@ def dm_messages_v2():
     return_dict = dm_messages_v1(data['token'], int(data['dm_id']), int(data['start']))
     
     return dumps(return_dict) 
-
+    
 '''
 
 users.py section 

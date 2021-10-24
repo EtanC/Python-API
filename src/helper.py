@@ -81,3 +81,6 @@ def valid_email(email, store):
         if email == user['email']:
             raise InputError(description="Email already in use")
     return bool(re.match(EMAIL_REGEX, email))
+
+def is_global_owner(user):
+    return user['permission_id'] == 1

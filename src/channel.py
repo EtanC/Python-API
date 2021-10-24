@@ -3,11 +3,7 @@ from src.error import InputError
 from src.error import AccessError
 from src.channels import channels_list_v1, check_valid_user_id
 import re
-<<<<<<< HEAD
-from src.helper import decode_token, token_to_user, get_user, get_channel
-=======
-from src.helper import decode_token, token_to_user, get_channel, get_user
->>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
+from src.helper import decode_token, token_to_user, get_channel, get_user, is_global_owner
 
 def channel_invite_v1(token, channel_id, u_id):
     '''
@@ -202,11 +198,7 @@ def check_valid_channel(channel_id, store):
     for channel in store['channels']: 
         if channel_id == channel['channel_id']: 
             result = True
-<<<<<<< HEAD
-    return result     
-=======
     return result
->>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
 
 def channel_join_v1(token, channel_id):
 
@@ -225,21 +217,23 @@ def channel_join_v1(token, channel_id):
 
     # if channel dosen't exist:
     if (channel == None):
-        raise InputError("channel ID is INVALID")
+        raise InputError(description="channel ID is INVALID")
 
     if (user == None):
-        raise AccessError("user is INVALID")
+        raise AccessError(description="user is INVALID")
 
     else: 
         # if the user is ALREADY part of the channel:
         # includes the channel creator
         channel_user_list = channel['all_members']
         if user in channel_user_list: 
-            raise InputError("User ALREADY in channel")
+            raise InputError(description="User ALREADY in channel")
 
         # if the channel is a private channel:
         if channel['is_public'] == False:
-            raise AccessError("This channel is PRIVATE")
+            # If the user is not a global user
+            if not is_global_owner(user):
+                raise AccessError(description="This channel is PRIVATE")
             
     # otherwise, join the user to the channel by appending
     channel['all_members'].append(user)
@@ -248,15 +242,9 @@ def channel_join_v1(token, channel_id):
     return {
     }
 
-<<<<<<< HEAD
-def channel_removeowner_v1(token, channel_id, u_id):
-    '''
-    Will remove an owner from a channel
-=======
 def channel_addowner_v1(token, channel_id, u_id):
     '''
     Will add an owner to a channel
->>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
     '''
     store = data_store.get()
     # Checking if token is valid
@@ -273,18 +261,6 @@ def channel_addowner_v1(token, channel_id, u_id):
     # Checking if u_id is valid
     user = get_user(u_id, store)
     if user == None:
-<<<<<<< HEAD
-        raise InputError(description="Invalid u_id")
-    # Checking if user is an owner
-    if is_channel_member(user['u_id'], channel['owner_members']) == False:
-        raise InputError(description="Can't remove owner; user is not an owner in channel")
-    # Checking if user is the only owner in the channel
-    if len(channel['owner_members']) == 1:
-        raise InputError("Can't remove the only owner of the channel")
-    channel['owner_members'].remove(user)
-    data_store.set(store)
-    return {}
-=======
         raise InputError("Invalid u_id")
     # Checking if user is member of channel
     if not is_channel_member(user['u_id'], channel['all_members']):
@@ -300,8 +276,39 @@ def channel_addowner_v1(token, channel_id, u_id):
     data_store.set(store)
     return {}
 
-
->>>>>>> 30eda6dab9c9f5316cc2edcf1b67e73cd0a593b1
+def channel_removeowner_v1(token, channel_id, u_id):
+    '''
+    Will remove an owner from a channel
+    '''
+    store = data_store.get()
+    # Checking if token is valid
+    current_owner = token_to_user(token, store)
+    if current_owner == None:
+        raise AccessError(description="Invalid token")
+    # Checking channel_id is valid
+    channel = get_channel(channel_id, store)
+    if channel == None:
+        raise InputError(description="Invalid channel")
+    # Checking if inviting user has owner permissions
+    if not is_channel_member(current_owner['u_id'], channel['owner_members']):
+        raise AccessError(description="User does not have owner permissions")
+    # Checking if u_id is valid
+    user = get_user(u_id, store)
+    if user == None:
+        raise InputError(description="Invalid u_id")
+    # Checking if user is an owner
+    if is_channel_member(user['u_id'], channel['owner_members']) == False:
+        raise InputError(
+            description = "Can't remove owner; user is not an owner in channel"
+        )
+    # Checking if user is the only owner in the channel
+    if len(channel['owner_members']) == 1:
+        raise InputError(
+            description = "Can't remove the only owner of the channel"
+        )
+    channel['owner_members'].remove(user)
+    data_store.set(store)
+    return {}
 
 def check_member_in_channel(auth_user_id, channel_id, store): 
     # put user info dictionary into user_data 

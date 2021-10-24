@@ -25,7 +25,7 @@ def channels_list_v1(token):
 
     # merged from master, usual check of auth_user_id
     if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
+        raise AccessError(description="Invalid auth_user_id")
 
     # access list within channels
     list_channels = store['channels']
@@ -64,7 +64,7 @@ def channels_listall_v1(token):
 
     # merged from master, usual check of auth_user_id
     if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
+        raise AccessError(description="Invalid auth_user_id")
 
     list_channels = store['channels']
     # a list of dictionary that we return

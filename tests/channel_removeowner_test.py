@@ -106,7 +106,7 @@ def test_valid_removeowner(reset_data, two_owner_channel):
     }
     response_details = requests.get(
         f"{config.url}channel/details/v2",
-        json=data_details
+        params=data_details
     )
     expected = {
         'name': "Channel1",
