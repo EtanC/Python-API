@@ -34,6 +34,16 @@ def get_message(message_id, store):
             if message['message_id'] == message_id:
                 return message
     return None
+    
+def get_dm(dm_id, store):
+    '''
+    Searches for a dm in the data_store with the given dm_id
+    Returns None if the dm was not found
+    '''
+    for dm in store['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm
+    return None
 
 def decode_token(token):
     '''
@@ -71,3 +81,6 @@ def valid_email(email, store):
         if email == user['email']:
             raise InputError(description="Email already in use")
     return bool(re.match(EMAIL_REGEX, email))
+
+def is_global_owner(user):
+    return user['permission_id'] == 1

@@ -120,7 +120,7 @@ def test_owner_leave_channel_leave(reset_data, two_member_channel):
         'u_id' : two_member_channel['member']['auth_user_id'],
     }
     requests.post(
-        f'{config.url}channel/addowner/v2',
+        f'{config.url}channel/addowner/v1',
         json=data_addowner
     )
     data_channel_leave = {
@@ -146,22 +146,22 @@ def test_owner_leave_channel_leave(reset_data, two_member_channel):
             {
                 'u_id' : two_member_channel['member']['auth_user_id'],
                 'email': "realemail_127@outlook.edu.au",
-                'password': "Password1",
                 'name_first': "Smith",
                 'name_last': "John",
+                'handle_str' : 'smithjohn',
             }
         ],
         'all_members' : [
             {
                 'u_id' : two_member_channel['member']['auth_user_id'],
                 'email': "realemail_127@outlook.edu.au",
-                'password': "Password1",
                 'name_first': "Smith",
                 'name_last': "John",
+                'handle_str' : 'smithjohn',
             }
         ]
     }
-    assert response_details.json == expected
+    assert response_details.json() == expected
 
 def test_only_owner_channel_leave(reset_data, channel1):
     data_channel_leave = {
