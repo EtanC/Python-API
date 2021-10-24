@@ -84,6 +84,137 @@ def channel1(user1):
 
     return {'user_id' : user_id, 'channel_id' : channel_id}
 
+@pytest.fixture
+def dm1(user1, user2):
+
+    u_ids = []
+    u_ids.append(user1['auth_user_id'])
+    u_ids.append(user2['auth_user_id'])
+
+    #user1 creates a dm with user2 included
+    data_create = {
+        'token': user1['token'],
+        'u_ids': u_ids
+    }
+
+    response_create = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data_create
+    )
+    dm_id   = response_create.json()['dm_id']
+    owner   = user1
+
+    return {'dm_id' : dm_id, 'owner': owner, 'all_users': u_ids}
+
+# message/senddm/v1 tests
+def test_invalid_token_senddm(reset_data, user1, dm1): 
+
+    token_register_send = {
+        "token": "INVALID TOKEN",
+        "dm_id": dm1['dm_id'],
+        "message": "valid_message",
+    }
+    
+    response_register = requests.post(f"{config.url}message/senddm/v1",\
+    json=token_register_send)
+    assert response_register.status_code == 403
+
+def test_invalid_length_senddm(reset_data, user1, dm1): #POST
+
+    # <1 length message
+    data_register = {
+        "token": user1['token'],
+        "dm_id": dm1['dm_id'],
+        "message": ""
+    }
+    response_register = requests.post(f"{config.url}message/senddm/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+    # >1000 length message
+    data_register['message'] = 'x' * 1001
+    response_register = requests.post(f"{config.url}message/senddm/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+def test_invalid_dmID_senddm(reset_data, user1, dm1): #POST
+
+    data_register = {
+        "token": user1['token'],
+        "dm_id": dm1['dm_id'],
+        "message": "valid_dm_message"
+    }
+
+    # invalid dm ID test (InputError)
+    data_register['dm_id'] += 1
+    response_register = requests.post(f"{config.url}message/senddm/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+def test_non_member_senddm(reset_data, dm1, user3): #POST
+
+    # user 3 is not a member of the DM
+    data_register = {
+       "token": user3['token'],
+       "dm_id": dm1['dm_id'],
+       "message": "valid_dm_message"
+    }
+
+    response_register = requests.post(f"{config.url}message/senddm/v1",\
+    json=data_register)
+    assert response_register.status_code == 403
+
+def test_valid_senddm(reset_data, dm1, user2): #POST
+   
+    # user 2 is a member of the DM with user1
+    data_senddm = {
+       "token": user2['token'],
+       "dm_id": dm1['dm_id'],
+       "message": "valid_dm_message"
+    }
+
+    response_senddm = requests.post(f"{config.url}message/senddm/v1",\
+    json=data_senddm)
+
+    response_senddm_data = response_senddm.json()
+    
+    dt = datetime.now()
+    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+
+    expected_data = {
+        'messages': [
+            {
+            'message_id': response_senddm_data['message_id'],
+            'u_id': user2['auth_user_id'],
+            'message': "valid_message",
+            }
+        ], 
+        'start': 0,
+        'end': -1 # -1 : no more messages to load
+    }
+
+    dm_messages = {
+        "token": user2['token'], 
+        'dm_id': dm1['dm_id'],
+        'start': 0  # 0 = first message sent
+    }
+
+    response_dm_messages_details = requests.get(
+    f"{config.url}dm/messages/v1",
+    params=dm_messages) # or json??
+
+    # You can check if the timestamp is within a second or two 
+    # of the time you send the request.
+
+    response_data = response_dm_messages_details.json()
+    messages_result = response_data['messages']
+    actual_time = messages_result[0]['time_created']
+    time_difference = actual_time - expected_time
+    assert time_difference < 2
+
+    del response_data['messages'][0]['time_created']
+    assert response_data == expected_data
+
 # message/edit/v1 tests
 def test_invalid_token_edit(reset_data, user1, channel1): 
 
@@ -311,7 +442,6 @@ def test_valid_message_edit_empty(reset_data, user1, channel1): #PUT
     }
 
     assert response_data == expected_data
-
 
 # message/send/v1 tests
 def test_invalid_token_send(reset_data, user1, channel1): 
