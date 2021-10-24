@@ -33,11 +33,12 @@ def reset():
         'token' : response_owner.json()['token'], 
         'u_ids' : [u_id]
     }
-    response_create= requests.post(
+    response_create = requests.post(
         f"{config.url}dm/create/v1",
         json=data
     )
     return response_owner.json(), response_receiver.json(), response_create.json()
+
 
 def test_invalid_token(reset): 
     data = {
@@ -45,6 +46,39 @@ def test_invalid_token(reset):
         'dm_id' : reset[2]['dm_id'],
         'start' : 0
     }
+    response = requests.get(
+        f"{config.url}dm/messages/v1",
+        params=data
+    )
+    assert response.status_code == 403
+
+
+def test_invalid_start_messages(reset): 
+    data = {
+        'token' : reset[0]['token'], 
+        'dm_id' : reset[2]['dm_id'],
+        'start' : 100
+    }
+    large_start = requests.get(
+        f"{config.url}dm/messages/v1",
+        params=data
+    )
+
+    assert large_start.status_code == 400
+
+
+def test_invalid_dm_id(reset): 
+    data = {
+        'token' : reset[0]['token'], 
+        'dm_id' : reset[2]['dm_id'] + 1,
+        'start' : 0
+    }
+    response = requests.get(
+        f"{config.url}dm/messages/v1",
+        params=data
+    )
+    assert response.status_code == 400
+
 
 def test_return_type(reset): 
     data = {
@@ -57,3 +91,24 @@ def test_return_type(reset):
         params=data
     )
     assert type(response.json()) is dict
+
+
+def test_most_recent(reset):
+    data = {
+        'token' : reset[0]['token'], 
+        'dm_id' : reset[2]['dm_id'],
+        'start' : 0
+    }
+    response = requests.get(
+        f"{config.url}dm/messages/v1",
+        params=data
+    )
+    assert response.json() == {
+        'messages' : [], 
+        'start' : 0,
+        'end' : -1
+    }
+
+
+def test_multiple(reset): 
+    pass
