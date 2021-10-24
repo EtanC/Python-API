@@ -100,15 +100,15 @@ def channel_details_v1(token, channel_id):
 
     # check for invalid user id 
     if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
+        raise AccessError(description="Invalid auth_user_id")
     
     # check for invalid channel id 
     if check_valid_channel(channel_id, store) == False: 
-        raise InputError("Invalid channel id")
+        raise InputError(description="Invalid channel id")
 
     # check whether member is in the channel or not 
     if check_member_in_channel(auth_user_id, channel_id, store) == False: 
-        raise AccessError("Authorised user is not a member of the channel")
+        raise AccessError(description="Authorised user is not a member of the channel")
 
     # copying member and owner list into temporary lists 
     channel = find_channel(channel_id, store) 
@@ -174,10 +174,10 @@ def channel_messages_v1(token, channel_id, start):
         raise InputError("Invalid channel")
     # Checking auth_user_id is part of channel
     if not is_channel_member(user['u_id'], channel['all_members']):
-        raise AccessError("User is not a member of the channel")
+        raise AccessError(description="User is not a member of the channel")
     # Checking start is valid
     if start > len(channel['messages']):
-        raise InputError("Invalid start")
+        raise InputError(description="Invalid start")
     # Returning up to 50 messages
     end = start + 50
     messages = channel['messages'][start:end]
