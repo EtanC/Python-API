@@ -98,6 +98,7 @@ def dm_list_v1(token):
 
     return return_dms
 
+
 '''
 {dm_remove_v2}
 Remove an existing DM, so all members are no longer in the DM.
@@ -105,25 +106,26 @@ This can only be done by the original creator of the DM.
 
 '''
 
-def dm_remove_v1(token, dm_id): 
+
+def dm_remove_v1(token, dm_id):
     store = data_store.get()
 
     if token_to_user(token, store) is not None:
         owner = token_to_user(token, store)
-    else: 
+    else:
         raise AccessError(description='Invalid token')
 
     if (check_valid_dmid(dm_id, store) == False) or (dm_id == None):
-        raise InputError(description='Invalid dm_id')    
+        raise InputError(description='Invalid dm_id')
 
     # find matching dm_id
-    for index in range(len(store['dms'])): 
+    for index in range(len(store['dms'])):
         if store['dms'][index]['dm_id'] == dm_id:
             dm_index = index
-    
-    if store['dms'][dm_index]['owner'] != owner: 
+
+    if store['dms'][dm_index]['owner'] != owner:
         raise AccessError(description='Unauthorised owner')
-    else: 
+    else:
         del store['dms'][dm_index]
         data_store.set(store)
 
@@ -132,59 +134,61 @@ def dm_remove_v1(token, dm_id):
 
 '''
 {dm_details_v2}
-Given a DM with ID dm_id that the authorised user is a member of, 
-provide basic details about the DM. 
+Given a DM with ID dm_id that the authorised user is a member of,
+provide basic details about the DM.
 '''
 
-def dm_details_v1(token, dm_id): 
+
+def dm_details_v1(token, dm_id):
     '''
-    Given a DM with ID dm_id that the authorised user is a member of, 
-    provide basic details about the DM. 
+    Given a DM with ID dm_id that the authorised user is a member of,
+    provide basic details about the DM.
 
-    Arguments: 
+    Arguments:
         token (str) - token of a member of the dm
-        dm_id (int) - id of the dm 
+        dm_id (int) - id of the dm
 
-    Exceptions: 
-        InputError  - dm_id does not refer to a valid dm 
+    Exceptions:
+        InputError  - dm_id does not refer to a valid dm
         AccessError - authorised user not a member of the dm
-                    - user not authorised / invalid token 
-                
-    Return Value: 
+                    - user not authorised / invalid token
+
+    Return Value:
         Returns { name , members } on successful call
     '''
     store = data_store.get()
     user = token_to_user(token, store)
-    if user is None: 
+    if user is None:
         raise AccessError(description='Invalid token')
-    
-    # check if dm_id is within the list of dms 
-    if not any(dic['dm_id'] == dm_id for dic in store['dms']): 
+
+    # check if dm_id is within the list of dms
+    if not any(dic['dm_id'] == dm_id for dic in store['dms']):
         raise InputError(description='Invalid dm id')
-    
+
     token_data = decode_token(token)
 
-    for dm in store['dms']: 
-        if dm_id == dm['dm_id']: 
-            specific_dm = dm 
-    
-    # check if user is in the dm by checking the user id in the token passed in 
-    if not any(dic['u_id'] == token_data['auth_user_id'] for dic in specific_dm['members']): 
+    for dm in store['dms']:
+        if dm_id == dm['dm_id']:
+            specific_dm = dm
+
+    # check if user is in the dm by checking the user id in the token passed in
+    if not any(dic['u_id'] == token_data['auth_user_id']
+               for dic in specific_dm['members']):
         raise AccessError(description='User not in dm')
 
     mem_list = []
-    for member in specific_dm['members']: 
+    for member in specific_dm['members']:
         mem_list.append({
-            'u_id': member['u_id'], 
-            'email': member['email'], 
-            'name_first': member['name_first'], 
-            'name_last': member['name_last'], 
-            'handle_str': member['handle_str'], 
+            'u_id': member['u_id'],
+            'email': member['email'],
+            'name_first': member['name_first'],
+            'name_last': member['name_last'],
+            'handle_str': member['handle_str'],
         })
 
     return {
-        'name': specific_dm['name'], 
-        'members': mem_list, 
+        'name': specific_dm['name'],
+        'members': mem_list,
     }
 
 
@@ -193,6 +197,8 @@ Function that checks if the whole u_ids is valid
 '''
 
 # function to check if individual ids are valid
+
+
 def check_id(u_id, store):
     result = False
     # if auth_user_id exists, return true, else return false
@@ -202,6 +208,7 @@ def check_id(u_id, store):
 
     return result
 
+
 def check_valid_id(u_ids, store):
     result = True
     for u_id in u_ids:
@@ -209,10 +216,11 @@ def check_valid_id(u_ids, store):
             result = False
     return result
 
-def check_valid_dmid(dm_id, store): 
+
+def check_valid_dmid(dm_id, store):
     result = False
-    for dm in store['dms']: 
-        if dm_id == dm['dm_id']: 
+    for dm in store['dms']:
+        if dm_id == dm['dm_id']:
             result = True
             break
     return result
