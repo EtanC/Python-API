@@ -107,6 +107,137 @@ def dm1(user1, user2):
 
     return {'dm_id' : dm_id, 'owner': owner, 'all_users': u_ids}
 
+# message/remove/v1 tests
+def test_invalid_token_remove(reset_data, user1, channel1): #DELETE
+
+    token_register_send = {
+        "token": user1['token'],
+        "channel_id": channel1['channel_id'],
+        "message": "valid_message"
+    }
+    
+    # message/send/v1
+    response_register_send = requests.post(f"{config.url}message/send/v1",\
+    json=token_register_send)
+
+    message_id = response_register_send.json()['message_id']
+
+    token_register_edit = {
+        "token": "INVALID_TOKEN",
+        "message_id": message_id,
+        "message": "valid_message"
+    }
+
+    # message/edit/v1
+    response_register_edit = requests.delete(f"{config.url}message/remove/v1",\
+    json=token_register_edit)
+
+    assert response_register_edit.status_code == 403
+
+def test_invalid_messageID_remove(reset_data, user1, channel1): #DELETE
+
+    register_send = {
+        "token": user1['token'],
+        "channel_id": channel1['channel_id'],
+        "message": "valid_message"
+    }
+    
+    # message/send/v1
+    response_register_send = requests.post(f"{config.url}message/send/v1",\
+    json=register_send)
+    message_id = response_register_send.json()['message_id']
+
+    data_register = {
+        "token": user1['token'],
+        "message_id": message_id,
+    }
+    
+    # invalid message ID (InputError)
+    data_register['message_id'] += 1
+    response_register = requests.delete(f"{config.url}message/remove/v1",\
+    json=data_register)
+    assert response_register.status_code == 400
+
+def test_invalid_user_message_remove(reset_data, user1, channel1, user2): #DELETE
+
+    # user1 sends a mesage in channel1
+    token = user1['token']
+    channel_id = channel1['channel_id']
+    message = "user1_valid_message"
+    data_send_message = {
+       "token": token,
+       "message": message,
+       "channel_id": channel_id
+    }
+
+    response_send_message = requests.post(f"{config.url}message/send/v1",\
+        json=data_send_message
+    )
+    response_send_message_data = response_send_message.json()
+
+    # user2 tries to remove user1's message which is NOT ALLOWED
+    message_id = response_send_message_data['message_id']
+
+    data_remove_message = {
+        "token": user2['token'],
+        "message_id": message_id,
+    }
+
+    response_remove_message = requests.delete(f"{config.url}message/remove/v1",\
+    json=data_remove_message)
+    assert response_remove_message.status_code == 403 
+
+def test_valid_message_remove(reset_data, user1, channel1): #DELETE
+
+    # user1 sends a mesage in channel1
+    token = user1['token']
+    channel_id = channel1['channel_id']
+    message = "user1_valid_message"
+    data_send_message = {
+       "token": token,
+       "message": message,
+       "channel_id": channel_id
+    }
+
+    # message/send/v1
+    response_send_message = requests.post(f"{config.url}message/send/v1",\
+        json=data_send_message
+    )
+    response_send_message_data = response_send_message.json()
+
+    # user1 removes the message
+    message_id = response_send_message_data['message_id']
+
+    data_remove_message = {
+        "token": token,
+        "message_id": message_id,
+    }
+
+    #message/remove/v1
+    requests.delete(f"{config.url}message/remove/v1", \
+        json=data_remove_message)
+
+    #display the edited message using channel/messages/v2
+    channel_messages = {
+        "token": token,
+        "channel_id": channel_id,
+        "start": 0
+    }
+
+    response_channel_messages_data =requests.get(f"{config.url}channel/messages/v2", \
+        params=channel_messages)
+
+    response_data = response_channel_messages_data.json()
+    
+
+    expected_data = {
+        'messages': [],
+        'start': 0,
+        'end': -1 # -1 : no more messages to load
+    }
+
+    assert response_data == expected_data
+
 # message/senddm/v1 tests
 def test_invalid_token_senddm(reset_data, user1, dm1): 
 
@@ -216,8 +347,6 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
 
     assert response_data == expected_data
 
-
-
 # message/edit/v1 tests
 def test_invalid_token_edit(reset_data, user1, channel1): 
 
@@ -296,6 +425,17 @@ def test_invalid_messageID_edit(reset_data, user1, channel1): #PUT
     assert response_register.status_code == 400
 
 def test_invalid_user_message_edit(reset_data, user1, channel1, user2): #PUT
+
+    # paramenters for channel/join/v2
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    # allow user2 to join channel1
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
+    )
 
     # user1 sends a mesage in channel1
     token = user1['token']
@@ -555,4 +695,3 @@ def test_valid_send(reset_data, channel1, user1): #POST
 
     del response_data['messages'][0]['time_created']
     assert response_data == expected_data
-
