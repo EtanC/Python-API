@@ -99,7 +99,7 @@ def test_valid(reset, channel, user1, user2):
 
     # invite user2 to the channel
     requests.post(
-        f"{config.url}channel/invite/v2", params=invite_register
+        f"{config.url}channel/invite/v2", json=invite_register
     )
 
     # retrieve channel details
@@ -215,8 +215,6 @@ def test_not_valid_member(reset, channel, user2, user3):
         "u_id": user3['auth_user_id']
     }
 
-    response_invite_register = requests.post(f"{config.url}channel/invite/v2",\
-    json=invite_register)
     response_invite_register = requests.post(f"{config.url}channel/invite/v2",\
     json=invite_register)
     assert response_invite_register.status_code == 403
