@@ -217,13 +217,74 @@ def test_remove_original_owner(reset_data, user1, user2):
 
     expected_data = {'users': [{
         'u_id': user2['auth_user_id'], 
-        'email': 'chris.elvin@outlook.edu.au', 
+        'email': 'chris.elvin@gmail.com', 
         'name_first': 'Chris', 
         'name_last': 'Elvin', 
         'handle_str': 'chriselvin', 
     }]}
 
     assert users_all_data == expected_data
+
+def test_channel_messages_remove(reset_data, user1, user2, channel1):
+    
+    # User2 join channel
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
+    )
+
+    data_send_message = {
+        'token' : user2['token'],
+        'channel_id' : channel1['channel_id'],
+        'message' : 'hi',
+    }
+    response_send_message = requests.post(
+        f'{config.url}message/send/v1',
+        json=data_send_message
+    )
+
+    user_remove_register = {    
+        "token": user1['token'],
+        "u_id": user2['auth_user_id']
+    }
+    requests.delete(
+        f"{config.url}admin/user/remove/v1", json=user_remove_register
+    )
+
+    data_messages = {
+        'token' : user1['token'],
+        'channel_id' : channel1['channel_id'],
+        'start' : 0,
+    }
+    response_messages = requests.get(
+        f'{config.url}channel/messages/v2',
+        params=data_messages
+    )
+    # Checking time stamp
+    channel_messages = response_messages.json()
+    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    assert abs(
+        channel_messages['messages'][0]['time_created'] - current_time
+    ) < 2
+    # Checking the rest of the return
+    expected = {
+        'messages' : [
+            {
+                'message_id' : response_send_message.json()['message_id'],
+                'u_id' : user2['auth_user_id'],
+                'message' : 'Removed user',
+            }
+        ],
+        'start' : 0,
+        'end' : -1,
+    }
+    # Removing time to check separately, index of 0 as there is only 1 message
+    del channel_messages['messages'][0]['time_created']
+    assert channel_messages == expected
 
 def test_dm_messages_remove(reset_data, user1, user2):
 
