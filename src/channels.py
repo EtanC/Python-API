@@ -79,6 +79,23 @@ def channels_listall_v1(token):
 
 '''
 ===============================================================================
+{channels_create_v1}
+
+Creates a new channel with the given name that is either a public or private channel. 
+The user who created it automatically joins the channel.
+
+Arguments: 
+    token       (str)   - token of the user 
+    name        (str)   - name of channel to be created
+    is_public   (bool)  - whether channel is public or not 
+
+Exceptions: 
+    InputError  - name length not between 1 and 20 characters
+    AccessError - unauthorised user / invalid token 
+
+Return Value: 
+    Returns { channel_id } on successful call 
+
 '''
             
 def channels_create_v1(token, name, is_public):
