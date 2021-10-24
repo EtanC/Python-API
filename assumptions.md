@@ -9,3 +9,10 @@ user/profile/setemail/v1:
 
 user/profile/sethandle/v1: 
 * don't need to raise errors if handle is changed to be the same as before 
+
+auth/login/v1:
+* route can only be sent strings
+
+Regarding all GET requests:
+* the same key is not used twice in the same url to pass data. If it is, only 
+  the first one will be accepted.
