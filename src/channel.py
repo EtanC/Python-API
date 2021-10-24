@@ -242,6 +242,43 @@ def channel_join_v1(token, channel_id):
     return {
     }
 
+def channel_leave_v1(token, channel_id):
+    '''
+    Will remove the member from the specified channel
+
+    Arguments:
+        token       (str)      - The user's token, used to identify and
+                                 validate users
+        channel_id  (int)      - The channel's id, used to identify channel
+
+    Exceptions:
+        InputError  - channel_id does not refer to a valid channel
+        AccessError - channel_id is valid and authorised user is not a member
+                      of the channel
+                    - user_id does not refer to a valid user
+
+    Return Value:
+        Returns {} on successful call
+    '''
+    store = data_store.get()
+    # Checking if token is valid
+    user = token_to_user(token, store)
+    if user == None:
+        raise AccessError("Invalid token")
+    # Checking channel_id is valid
+    channel = get_channel(channel_id, store)
+    if channel == None:
+        raise InputError("Invalid channel")
+    # Checking if user is a member of the channel
+    if not is_channel_member(user['u_id'], channel['all_members']):
+        raise AccessError("User is not a channel member")
+    # Remove user from channel
+    channel['all_members'].remove(user)
+    if is_channel_member(user['u_id'], channel['owner_members']):
+        channel['owner_members'].remove(user)
+    data_store.set(store)
+    return {}
+
 def channel_addowner_v1(token, channel_id, u_id):
     '''
     Will add an owner to a channel

@@ -13,7 +13,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1, dm_leave_v1
-from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1
+from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
@@ -330,6 +330,29 @@ def channels_listall_v2():
     channels = channels_listall_v1(data['token'])
 
     return dumps(channels)
+
+@APP.route("/channel/leave/v1", methods=['POST'])
+def channel_leave():
+    '''
+    Will remove the member from the specified channel
+
+    Arguments:
+        token       (str)      - The user's token, used to identify and
+                                 validate users
+        channel_id  (int)      - The channel's id, used to identify channel
+
+    Exceptions:
+        InputError  - channel_id does not refer to a valid channel
+        AccessError - channel_id is valid and authorised user is not a member
+                      of the channel
+                    - user_id does not refer to a valid user
+
+    Return Value:
+        Returns {} on successful call
+    '''
+    data = request.get_json()
+    channel_leave_v1(data['token'], data['channel_id'])
+    return dumps({})
 
 @APP.route("/channel/addowner/v1", methods=['POST'])
 def channel_addowner():
