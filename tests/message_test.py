@@ -186,7 +186,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
             {
             'message_id': response_senddm_data['message_id'],
             'u_id': user2['auth_user_id'],
-            'message': "valid_message",
+            'message': "valid_dm_message",
             }
         ], 
         'start': 0,
@@ -201,7 +201,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
 
     response_dm_messages_details = requests.get(
     f"{config.url}dm/messages/v1",
-    params=dm_messages) # or json??
+    params=dm_messages) 
 
     # You can check if the timestamp is within a second or two 
     # of the time you send the request.
@@ -211,9 +211,11 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
     actual_time = messages_result[0]['time_created']
     time_difference = actual_time - expected_time
     assert time_difference < 2
-
     del response_data['messages'][0]['time_created']
+
     assert response_data == expected_data
+
+
 
 # message/edit/v1 tests
 def test_invalid_token_edit(reset_data, user1, channel1): 
