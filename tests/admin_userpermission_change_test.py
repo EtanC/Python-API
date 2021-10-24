@@ -100,14 +100,6 @@ def test_change_to_global_valid(reset_data, user1, user2, channel1_private):
             'name_first': "John", 
             'name_last': "Smith", 
             'handle_str': "johnsmith",
-        },
-
-        {
-            'u_id': user2['auth_user_id'], 
-            'email': "chris.elvin@gmail.com", 
-            'name_first': "Chris", 
-            'name_last': "Elvin", 
-            'handle_str': "chriselvin",
         }
     ]
 
@@ -131,7 +123,7 @@ def test_change_to_global_valid(reset_data, user1, user2, channel1_private):
 
     expected_data = {
         "name": "Channel1_Private",
-        "is_public": True,
+        "is_public": False,
         "owner_members": owner_members,
         "all_members": all_members,
     }
