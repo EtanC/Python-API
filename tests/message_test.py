@@ -85,7 +85,6 @@ def channel1(user1):
 
     return {'user_id' : user_id, 'channel_id' : channel_id}
 
-
 # message/remove/v1 tests
 def test_invalid_token_remove(reset_data, user1, channel1): #DELETE
 
@@ -166,7 +165,6 @@ def test_invalid_user_message_remove(reset_data, user1, channel1, user2): #DELET
     json=data_remove_message)
     assert response_remove_message.status_code == 403 
 
-# do owner permission test later (not done yet)
 def test_valid_message_remove(reset_data, user1, channel1): #DELETE
 
     # user1 sends a mesage in channel1
@@ -217,8 +215,6 @@ def test_valid_message_remove(reset_data, user1, channel1): #DELETE
     }
 
     assert response_data == expected_data
-
-
 
 # message/edit/v1 tests
 def test_invalid_token_edit(reset_data, user1, channel1): 
@@ -447,7 +443,6 @@ def test_valid_message_edit_empty(reset_data, user1, channel1): #PUT
     }
 
     assert response_data == expected_data
-
 
 # message/send/v1 tests
 def test_invalid_token_send(reset_data, user1, channel1): 
