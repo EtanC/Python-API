@@ -95,7 +95,7 @@ def test_return_type(reset):
 
 def test_most_recent(reset):
     data = {
-        'token' : reset[0]['token'], 
+        'token' : reset[1]['token'], 
         'dm_id' : reset[2]['dm_id'],
         'start' : 0
     }
@@ -103,6 +103,7 @@ def test_most_recent(reset):
         f"{config.url}dm/messages/v1",
         params=data
     )
+    
     assert response.json() == {
         'messages' : [], 
         'start' : 0,
@@ -110,5 +111,9 @@ def test_most_recent(reset):
     }
 
 
-def test_multiple(reset): 
+def test_send_dm(reset): 
+    pass
+
+
+def test_send_multiple(reset): 
     pass

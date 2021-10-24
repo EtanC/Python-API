@@ -222,15 +222,18 @@ def dm_messages_v1(token, dm_id, start):
         raise InputError(description="Invalid start")
 
     # check if user is authorised 
-    if store['dms'][dm_index]['user'] != user:
-        raise AccessError(description='Unauthorised user')
-    else:
-        # Returning up to 50 messages
-        end = start + 50
-        messages = store['dms'][dm_index]['messages'][start:end]
-        # Setting end to -1 if no more messages left
-        if start + 50 > len(store['dms'][dm_index]['messages']):
-            end = -1
+    for index in range(len(store['dms'][dm_index]['members'])):
+        if store['dms'][dm_index]['members'][index] == user:
+            break
+        else: 
+            raise AccessError(description='Unauthorised user')
+        
+    # Returning up to 50 messages
+    end = start + 50
+    messages = store['dms'][dm_index]['messages'][start:end]
+    # Setting end to -1 if no more messages left
+    if start + 50 > len(store['dms'][dm_index]['messages']):
+        end = -1
 
     return {
         'messages': messages,
