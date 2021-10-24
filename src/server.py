@@ -346,6 +346,33 @@ def message_edit():
     )
     return dumps(message)
 
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_remove():
+
+    '''
+    Given a message_id for a message, 
+    this message is removed from the channel/DM
+
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        
+    Exceptions: 
+        InputError  - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_remove_v1(
+        data['token'],
+        data['message_id'],
+    )
+    return dumps(message)
+
 
 @APP.route("/message/senddm/v1", methods=['POST'])
 def message_senddm():
@@ -539,7 +566,7 @@ def users_all():
     data = request.args
 
     users = users_all_v1(data['token'])
-    return dumps({'users': users}) 
+    return dumps(users) 
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile(): 
@@ -560,7 +587,7 @@ def user_profile():
     '''
     data = request.args
     user = user_profile_v1(data['token'], int(data['u_id']))
-    return dumps({'user': user})
+    return dumps(user)
 
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])

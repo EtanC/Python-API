@@ -158,6 +158,11 @@ def auth_register_v1(email, password, name_first, name_last):
     user_handle = handle(name_first, name_last, store)
     # Store user details
     user_id = len(store['users']) + 1
+    # Set permissions
+    if len(store['users']) == 0:
+        permission_id = 1
+    else:
+        permission_id = 2
     user = {
         'u_id' : user_id,
         'email' : email,
@@ -165,7 +170,8 @@ def auth_register_v1(email, password, name_first, name_last):
         'name_first' : name_first,
         'name_last' : name_last,
         'handle_str' : user_handle,
-        'active_session_ids' : [STARTING_SESSION_ID]
+        'active_session_ids' : [STARTING_SESSION_ID],
+        'permission_id' : permission_id,
     }
     store['users'].append(user)
     data_store.set(store)
