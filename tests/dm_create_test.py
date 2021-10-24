@@ -153,3 +153,84 @@ def test_multiple(reset):
     return_id = response.json()
 
     assert return_id == {'dm_id': dm_id,}
+
+
+def test_names(reset):
+    # person 2
+    data_register = {
+        "email": "realemail_2@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Beta",
+        "name_last": "Smith",
+    }
+    person2 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    u_id1 = person2.json()['auth_user_id']
+
+    # person 3
+    data_register = {
+        "email": "realemail_3@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Cooper",
+        "name_last": "Smith",
+    }
+    person3 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    u_id2 = person3.json()['auth_user_id']
+
+    # person 4
+    data_register = {
+        "email": "realemail_4@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Delta",
+        "name_last": "Smith",
+    }
+    person4 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    u_id3 = person4.json()['auth_user_id']
+
+    # person 5
+    data_register = {
+        "email": "realemail_5@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Eppa",
+        "name_last": "Smith",
+    }
+    person5 = requests.post(
+        f"{config.url}auth/register/v2",
+        json=data_register
+    )
+    u_id4 = person5.json()['auth_user_id']
+
+    # create dm
+    data = {
+        'token': reset[1]['token'],
+        'u_ids': [u_id1, u_id2, u_id3, u_id4]
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data
+    )
+    dm_id = response.json()['dm_id']
+
+    # person who receives the dms
+    receive_dm = {
+        'token': person2.json()['token']
+    }
+    list_dm = requests.get(
+        f"{config.url}dm/list/v1",
+        params=receive_dm
+    )
+
+    assert list_dm.json() == \
+        {
+            'dms': [
+                {'dm_id': dm_id, 'name': 'betasmith, coopersmith, deltasmith, eppasmith'}
+            ]
+    }
