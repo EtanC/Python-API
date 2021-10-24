@@ -40,19 +40,25 @@ def message_senddm_v1(token, dm_id, message):
     if user not in dm_user_list:
         raise AccessError(description="This user is NOT part of dm")
 
+    # using datetime to capture the time the message was created
     dt = datetime.now()
     time_created = dt.replace(tzinfo=timezone.utc).timestamp()
+    
+    # Get the contents for the new dm message
     dm_message_to_send = message
     user_id = user['u_id']
     message_id = store['message_id'] 
     store['message_id'] += 1
     
-    new_dm_message = {}
-    new_dm_message['message_id'] = message_id
-    new_dm_message['u_id'] = user_id
-    new_dm_message['message'] = dm_message_to_send
-    new_dm_message['time_created'] = time_created
-
+    # Create the new dm_message and its contents
+    new_dm_message = {
+        'message_id': message_id,
+        'u_id': user_id,
+        'message': dm_message_to_send,
+        'time_created': time_created,
+    }
+   
+    # Add the message to the dm
     all_dm_messages = dm['messages']
     all_dm_messages.append(new_dm_message)
 
