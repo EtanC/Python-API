@@ -34,14 +34,11 @@ def channel_invite_v1(token, channel_id, u_id):
 
     auth_user_id = token_data['auth_user_id']
     channel = get_channel(channel_id, store)
-    user = get_user(auth_user_id, store)
+    user = token_to_user(token, store)
 
     # if channel dosen't exist:
     if (channel == None):
         raise InputError(description="Invalid channel id")
-
-    if (user == None):
-        raise AccessError(description='Invalid token, auth_user_id does not refer to a valid user')
 
     if check_member_in_channel(auth_user_id, channel_id, store) == False:
         raise AccessError(description="Authorised user not a member of channel")
@@ -89,19 +86,15 @@ def channel_details_v1(token, channel_id):
         Returns { name , is_public , owner_members , all_members } on successful call
     '''
     token_data = decode_token(token)
-    
-    # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+    store = data_store.get() 
+
+
+    # if token is invalid
+    if token_to_user(token, store) is None: 
         raise AccessError(description='Invalid token')
 
     auth_user_id = token_data['auth_user_id']
 
-    store = data_store.get() 
-
-    # check for invalid user id 
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
-    
     # check for invalid channel id 
     if check_valid_channel(channel_id, store) == False: 
         raise InputError("Invalid channel id")
@@ -203,24 +196,22 @@ def check_valid_channel(channel_id, store):
 def channel_join_v1(token, channel_id):
 
     token_data = decode_token(token)
+    store = data_store.get() # get the data
+
+    user = get_user(auth_user_id, store)
 
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+    if user is None:  
         raise AccessError(description='Invalid token')
 
     auth_user_id = token_data['auth_user_id']
 
 
-    store = data_store.get() # get the data
     channel = get_channel(channel_id, store)
-    user = get_user(auth_user_id, store)
 
     # if channel dosen't exist:
     if (channel == None):
         raise InputError(description="channel ID is INVALID")
-
-    if (user == None):
-        raise AccessError(description="user is INVALID")
 
     else: 
         # if the user is ALREADY part of the channel:
