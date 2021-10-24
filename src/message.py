@@ -8,25 +8,15 @@ from src.helper import token_to_user, get_channel, decode_token, get_user, get_m
 from datetime import timezone, datetime
 
 def message_senddm_v1(token, dm_id, message):
-
-    token_data = decode_token(token)
-    # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
-        raise AccessError(description="Invalid token")
-        
-    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
-    dm = get_dm(dm_id, store)
     user = token_to_user(token, store)
-
-    # Checking if auth_user_id is valid
-    if get_user(auth_user_id, store) == None:
-        raise AccessError(description="auth_user_id is not valid")
 
     # check the token's validity:
     if user == None:
         raise AccessError(description="INVALID token passed in")
 
+    dm = get_dm(dm_id, store)
+ 
     # check message length:
     if (len(message) < 1 or len(message) > 1000):
         raise InputError(description="message is TOO SHORT or TOO LONG")
@@ -70,21 +60,19 @@ def message_remove_v1(token, message_id):
        
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
     token_data = decode_token(token)
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+
+    store = data_store.get()
+    user = token_to_user(token, store)
+
+    if user is None: 
         raise AccessError(description='Invalid token')
 
     auth_user_id = token_data['auth_user_id']
-    store = data_store.get()
-    user = token_to_user(token, store)
     message_to_remove = get_message(message_id, store)
 
     # Checking if auth_user_id is valid
     if get_user(auth_user_id, store) == None:
         raise AccessError(description="auth_user_id is not valid")
-
-    # check the token's validity:
-    if user == None:
-        raise AccessError(description="INVALID token passed in")
 
     # check message ID validity:
     if get_message(message_id, store) == None:
@@ -106,17 +94,15 @@ def message_edit_v1(token, message_id, message):
        
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
     token_data = decode_token(token)
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+
+    store = data_store.get()
+    user = token_to_user(token, store)
+
+    if user is None: 
         raise AccessError(description='Invalid token')
         
     auth_user_id = token_data['auth_user_id']    
-    store = data_store.get()
-    user = token_to_user(token, store)
     message_to_edit = get_message(message_id, store)
-
-    # check the token's validity:
-    if user == None:
-        raise AccessError(description="INVALID token passed in")
 
     # check message length:
     if (len(message) > 1000):
@@ -145,17 +131,13 @@ def message_edit_v1(token, message_id, message):
 def message_send_v1(token, channel_id, message):
 
     token_data = decode_token(token)
+    store = data_store.get()
+    user = token_to_user(token, store)
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+    if user is None: 
         raise AccessError(description="Invalid token")
         
-    store = data_store.get()
     channel = get_channel(channel_id, store)
-    user = token_to_user(token, store)
-
-    # check the token's validity:
-    if user == None:
-        raise AccessError(description="INVALID token passed in")
 
     # check message length:
     if (len(message) < 1 or len(message) > 1000):
