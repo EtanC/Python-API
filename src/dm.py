@@ -22,11 +22,11 @@ def dm_create_v1(token, u_ids):
     if token_to_user(token, store) is not None:
         owner = token_to_user(token, store)
     else:
-        raise AccessError('Invalid token')
+        raise AccessError(description='Invalid token')
 
     # INPUT ERROR: if any u_id in u_ids does not refer to a valid user
     if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
-        raise InputError("Invalid u_id")
+        raise InputError(description='Invalid u_id')
 
     # get dm_id by counting number of dm and adding one
     # assuming it starts at 1
@@ -81,7 +81,7 @@ def dm_list_v1(token):
         # extract the u_id from the user
         u_id = user['u_id']
     else:
-        raise AccessError('Invalid token')
+        raise AccessError(description='Invalid token')
 
     dm_data = []
 
@@ -191,9 +191,64 @@ def dm_details_v1(token, dm_id):
         'members': mem_list,
     }
 
+'''
+
+{dm_messages_v2}
+Given a DM with ID dm_id that the authorised user is a member of, 
+return up to 50 messages between index "start" and "start + 50".
+Message with index 0 is the most recent message in the DM. 
+This function returns a new index "end" which is the value of "start + 50", 
+or, if this function has returned the least recent messages in the DM, 
+returns -1 in "end" to indicate there are no more messages to load after this return.
+'''
+def dm_messages_v1(token, dm_id, start): 
+    store = data_store.get()
+    # token check
+    if token_to_user(token, store) is not None:
+        user = token_to_user(token, store)
+    else:
+        raise AccessError(description='Invalid token')
+
+    # check if dm_id is within the list of dms
+    if (not check_valid_dmid(dm_id, store)) or (dm_id == None):
+        raise InputError(description='Invalid dm_id')
+
+    for index in range(len(store['dms'])):
+        if store['dms'][index]['dm_id'] == dm_id:
+            dm_index = index    
+
+    # invalid start
+    if start > len(store['dms'][dm_index]['messages']):
+        raise InputError(description="Invalid start")
+
+    # check if user is authorised 
+    authorised = False
+    for index in range(len(store['dms'][dm_index]['members'])):
+        if store['dms'][dm_index]['members'][index] == user:
+            authorised = True
+            
+    if not authorised: 
+        raise AccessError(description='Unauthorised user')
+        
+    # Returning up to 50 messages
+    end = start + 50
+    messages = store['dms'][dm_index]['messages'][start:end]
+    # Setting end to -1 if no more messages left
+    if start + 50 > len(store['dms'][dm_index]['messages']):
+        end = -1
+
+    return {
+        'messages': messages,
+        'start': start,
+        'end': end,
+    }
+
+
 
 '''
+
 Function that checks if the whole u_ids is valid
+
 '''
 
 # function to check if individual ids are valid

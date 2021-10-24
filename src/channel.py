@@ -124,7 +124,6 @@ def is_channel_member(auth_user_id, members):
         if user['u_id'] == auth_user_id:
             return True
     return False
-            
 
 def channel_messages_v1(token, channel_id, start):
     '''

@@ -12,9 +12,9 @@ from src.channels import channels_create_v1, channels_list_v1, channels_listall_
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
 
-from src.dm import dm_create_v1, dm_list_v1, dm_details_v1, dm_remove_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_details_v1, dm_messages_v1, dm_remove_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1
-from src.message import message_edit_v1, message_send_v1, message_remove_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.helper import decode_token 
 
 
@@ -401,6 +401,38 @@ def message_remove():
     return dumps(message)
 
 
+@APP.route("/message/senddm/v1", methods=['POST'])
+def message_senddm():
+
+    '''
+    Send a message from authorised_user to the DM specified by dm_id. 
+    Note: Each message should have it's own unique ID, 
+    i.e. no messages should share an ID with another message, 
+    even if that other message is in a different channel or DM.
+    
+    Arguments:
+        token       (str) - token identifying user
+        dm_id       (int) - id of dm
+        message     (str) - message
+        
+    Exceptions: 
+        InputError  - message is too long or too short
+                    - invalid dm_id
+
+        AccessError - Authorised user not member of dm
+                    - Invalid token 
+    Return Value: 
+        Returns {message_id} on successful call  
+    '''
+
+    data = request.get_json()
+    message = message_senddm_v1(
+        data['token'],
+        data['dm_id'],
+        data['message']
+    )
+    return dumps(message)
+
 
 '''
 
@@ -505,6 +537,37 @@ def dm_details():
     return_dict = dm_details_v1(data['token'], int(data['dm_id']))
 
     return dumps(return_dict)
+
+@APP.route("/dm/messages/v1", methods=['GET'])
+def dm_messages_v2(): 
+    '''
+    Given a DM with ID dm_id that the authorised user is a member of, 
+    return up to 50 messages between index "start" and "start + 50". 
+    Message with index 0 is the most recent message in the DM. 
+    This function returns a new index "end" which is the value of "start + 50", 
+    or, if this function has returned the least recent messages in the DM, 
+    returns -1 in "end" to indicate there are no more messages to load after this return.
+
+    Arguments:
+        token (str): token identifying user
+        dm_id (int): specific dm_id of a message 
+        start (int): message index 
+        
+    Exceptions: 
+        InputError  - Invalid dm_id, 
+                    - Start is greater than the totla number of messages in the channel
+        AccessError - Invalid token 
+        
+
+    Returns: 
+        Returns {messages, start, end} on successful creation 
+    '''
+
+    data = request.args 
+
+    return_dict = dm_messages_v1(data['token'], int(data['dm_id']), int(data['start']))
+    
+    return dumps(return_dict) 
 
 '''
 
