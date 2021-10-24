@@ -475,7 +475,7 @@ def users_all():
     data = request.args
 
     users = users_all_v1(data['token'])
-    return dumps({'users': users}) 
+    return dumps(users) 
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile(): 
@@ -496,7 +496,7 @@ def user_profile():
     '''
     data = request.args
     user = user_profile_v1(data['token'], int(data['u_id']))
-    return dumps({'user': user})
+    return dumps(user)
 
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
