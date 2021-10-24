@@ -115,7 +115,7 @@ def dm_remove_v1(token, dm_id):
     else:
         raise AccessError(description='Invalid token')
 
-    if (check_valid_dmid(dm_id, store) == False) or (dm_id == None):
+    if (check_valid_dmid(dm_id, store) == False):
         raise InputError(description='Invalid dm_id')
 
     # find matching dm_id
@@ -200,9 +200,7 @@ Message with index 0 is the most recent message in the DM.
 This function returns a new index "end" which is the value of "start + 50", 
 or, if this function has returned the least recent messages in the DM, 
 returns -1 in "end" to indicate there are no more messages to load after this return.
-
 '''
-
 def dm_messages_v1(token, dm_id, start): 
     store = data_store.get()
     # token check
@@ -224,15 +222,20 @@ def dm_messages_v1(token, dm_id, start):
         raise InputError(description="Invalid start")
 
     # check if user is authorised 
-    if store['dms'][dm_index]['user'] != user:
+    authorised = False
+    for index in range(len(store['dms'][dm_index]['members'])):
+        if store['dms'][dm_index]['members'][index] == user:
+            authorised = True
+            
+    if not authorised: 
         raise AccessError(description='Unauthorised user')
-    else:
-        # Returning up to 50 messages
-        end = start + 50
-        messages = store['dms'][dm_index]['messages'][start:end]
-        # Setting end to -1 if no more messages left
-        if start + 50 > len(store['dms'][dm_index]['messages']):
-            end = -1
+        
+    # Returning up to 50 messages
+    end = start + 50
+    messages = store['dms'][dm_index]['messages'][start:end]
+    # Setting end to -1 if no more messages left
+    if start + 50 > len(store['dms'][dm_index]['messages']):
+        end = -1
 
     return {
         'messages': messages,
