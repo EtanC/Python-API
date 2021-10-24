@@ -170,41 +170,7 @@ def test_change_to_member_valid(reset_data, user1, user2, channel1_private):
     response_join_register = requests.post(f"{config.url}channel/join/v2",\
     json=join_register)
 
-    # get the channel1 details to check
-    response_join_register = requests.get(
-        f"{config.url}channel/details/v2", params=join_register
-    )
-
-    response_join_register_data = response_join_register.json()
-
-    owner_members = [
-        {
-            'u_id': channel1_private['user_id'], 
-            'email': "john.smith@gmail.com", 
-            'name_first': "John", 
-            'name_last': "Smith", 
-            'handle_str': "johnsmith",
-        }
-    ]
-
-    all_members = [
-        {
-            'u_id': channel1_private['user_id'], 
-            'email': "john.smith@gmail.com", 
-            'name_first': "John", 
-            'name_last': "Smith", 
-            'handle_str': "johnsmith",
-        }
-    ]
-
-    expected_data = {
-        "name": "Channel1_Private",
-        "is_public": True,
-        "owner_members": owner_members,
-        "all_members": all_members,
-    }
-
-    assert response_join_register_data == expected_data
+    assert response_join_register.status_code == 403
 
 
 def test_invalid_u_id(reset_data, user1, user2):
