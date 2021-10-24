@@ -3,7 +3,7 @@ from src.error import InputError
 from src.error import AccessError
 from src.channels import channels_list_v1, check_valid_user_id
 import re
-from src.helper import decode_token, token_to_user, get_channel, get_user
+from src.helper import decode_token, token_to_user, get_channel, get_user, is_global_owner
 
 def channel_invite_v1(token, channel_id, u_id):
     '''
@@ -217,21 +217,23 @@ def channel_join_v1(token, channel_id):
 
     # if channel dosen't exist:
     if (channel == None):
-        raise InputError("channel ID is INVALID")
+        raise InputError(description="channel ID is INVALID")
 
     if (user == None):
-        raise AccessError("user is INVALID")
+        raise AccessError(description="user is INVALID")
 
     else: 
         # if the user is ALREADY part of the channel:
         # includes the channel creator
         channel_user_list = channel['all_members']
         if user in channel_user_list: 
-            raise InputError("User ALREADY in channel")
+            raise InputError(description="User ALREADY in channel")
 
         # if the channel is a private channel:
         if channel['is_public'] == False:
-            raise AccessError("This channel is PRIVATE")
+            # If the user is not a global user
+            if not is_global_owner(user):
+                raise AccessError(description="This channel is PRIVATE")
             
     # otherwise, join the user to the channel by appending
     channel['all_members'].append(user)
