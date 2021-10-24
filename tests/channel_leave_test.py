@@ -127,7 +127,7 @@ def test_owner_leave_channel_leave(reset_data, two_member_channel):
         'token' : two_member_channel['owner']['token'],
         'channel_id' : two_member_channel['channel_id'],
     }
-    response_channel_leave = requests.post(
+    requests.post(
         f'{config.url}channel/leave/v1',
         json=data_channel_leave
     )
@@ -168,7 +168,7 @@ def test_only_owner_channel_leave(reset_data, channel1):
         'token' : channel1['user']['token'],
         'channel_id' : channel1['channel_id'],
     }
-    response_channel_leave = requests.post(
+    requests.post(
         f'{config.url}channel/leave/v1',
         json=data_channel_leave
     )
