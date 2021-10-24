@@ -76,6 +76,29 @@ def test_invalid_dm_id(reset):
     assert response.status_code == 400
 
 
+def test_not_member(reset): 
+    register_not_member = {
+        "email": "realemail_7@outlook.edu.au",
+        "password": "Password1",
+        "name_first": "Shabby",
+        "name_last": "Smith",
+    }
+    response_not_member = requests.post(
+        f"{config.url}auth/register/v2",
+        json=register_not_member
+    )
+    
+    data = {
+        'token': response_not_member.json()['token'],
+        'dm_id': reset[2]['dm_id']
+    }
+    response = requests.post(
+        f"{config.url}dm/leave/v1",
+        json=data
+    )
+    assert response.status_code == 403
+
+
 def test_short(reset): 
     data = {
         'token': reset[1]['token'],
