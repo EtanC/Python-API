@@ -45,9 +45,9 @@ def test_return_type(reset):
         'token': reset[0]['token'],
         'dm_id': reset[2]['dm_id']
     }
-    response = requests.get(
+    response = requests.post(
         f"{config.url}dm/leave/v1",
-        params=data
+        json=data
     )
     assert isinstance(response.json(), dict)
 
@@ -107,7 +107,7 @@ def test_short(reset):
     assert response_removed_user.status_code == 403
     assert response_list.json() == \
         {
-            'dms': [{}]
+            'dms': []
         }
 
 
@@ -201,46 +201,58 @@ def test_multiple(reset):
     )
     dm_id4 = response.json()['dm_id']
 
+    # leave dm_0
+    data = {
+        'token': reset[1]['token'],
+        'dm_id': reset[2]['dm_id']
+    }
+    requests.post(
+        f"{config.url}dm/leave/v1",
+        json=data
+    )
+    
+
     # leave dm_1
     data = {
-        'token': reset[0]['token'],
+        'token': reset[1]['token'],
         'dm_id': dm_id1
     }
-    response = requests.get(
+    requests.post(
         f"{config.url}dm/leave/v1",
-        params=data
+        json=data
     )
 
     # leave dm_2
     data = {
-        'token': reset[0]['token'],
+        'token': reset[1]['token'],
         'dm_id': dm_id2
     }
-    response = requests.get(
+    requests.post(
         f"{config.url}dm/leave/v1",
-        params=data
+        json=data
     )
 
     # leave dm_3
     data = {
-        'token': reset[0]['token'],
+        'token': reset[1]['token'],
         'dm_id': dm_id3
     }
-    response = requests.get(
+    requests.post(
         f"{config.url}dm/leave/v1",
-        params=data
+        json=data
     )
 
     # leave dm_4
     data = {
-        'token': reset[0]['token'],
+        'token': reset[1]['token'],
         'dm_id': dm_id4
     }
-    response = requests.get(
+    requests.post(
         f"{config.url}dm/leave/v1",
-        params=data
+        json=data
     )
 
+    # calls for dm_list
     data ={
         'token' : reset[1]['token']
     }
@@ -249,5 +261,16 @@ def test_multiple(reset):
         params=data
     )
 
+    # calls for dm_details
+    data = {
+        'token' : reset[1]['token'], 
+        'dm_id': reset[2]['dm_id']
+    } 
+    response_removed_user = requests.get(
+        f"{config.url}dm/details/v1",
+        params=data
+    )
+
+    assert response_removed_user.status_code == 403
     # should return empty list
-    assert response_list.json() == {'dms':[{}]}
+    assert response_list.json() == {'dms':[]}

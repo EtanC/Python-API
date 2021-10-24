@@ -265,31 +265,21 @@ def dm_leave_v1(token,dm_id):
 
     # check if they are owner first
     authorised = False
-    is_owner = False
-    dm_index = store['dms'][dm_index]
+    dm_member = store['dms'][dm_index]
 
-    if dm_index['owner'] != user:
-        for members in dm_index['members']: 
-            if user == members: 
-                authorised == True
-    else:
-        # if the person is the owner
-        authorised == True
-        is_owner == True
+    for members in dm_member['members']: 
+        if user == members: 
+            authorised = True
 
-    
     if not authorised: 
         raise AccessError(description='Invalid user')
     else: 
-        if is_owner: 
-            del store['dms'][dm_index]['owner']
-        else: 
-            # find the correct index of the user
-            for index in range(len(store['dms'][dm_index]['members'])):
-                if store['dms'][dm_index]['members'][index] == user:
-                    user_index = index
-            del store['dms'][dm_index]['members'][user_index]
-            data_store.set(store)
+        # find the correct index of the user
+        for index in range(len(store['dms'][dm_index]['members'])):
+            if store['dms'][dm_index]['members'][index] == user:
+                user_index = index
+        del store['dms'][dm_index]['members'][user_index]
+        data_store.set(store)
 
     return {}
 
