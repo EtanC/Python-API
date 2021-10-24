@@ -99,7 +99,6 @@ def dm_list_v1(token):
     return return_dms
 
 '''
-
 {dm_remove_v2}
 Remove an existing DM, so all members are no longer in the DM.
 This can only be done by the original creator of the DM.
@@ -132,11 +131,9 @@ def dm_remove_v1(token, dm_id):
 
 
 '''
-
 {dm_details_v2}
 Given a DM with ID dm_id that the authorised user is a member of, 
 provide basic details about the DM. 
-
 '''
 
 def dm_details_v1(token, dm_id): 
@@ -193,12 +190,9 @@ def dm_details_v1(token, dm_id):
 
 '''
 Function that checks if the whole u_ids is valid
-
 '''
 
 # function to check if individual ids are valid
-
-
 def check_id(u_id, store):
     result = False
     # if auth_user_id exists, return true, else return false
@@ -207,7 +201,6 @@ def check_id(u_id, store):
             result = True
 
     return result
-
 
 def check_valid_id(u_ids, store):
     result = True

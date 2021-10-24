@@ -11,9 +11,11 @@ from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
+<<<<<<< src/server.py
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
-from src.message import message_send_v1
+from src.message import message_edit_v1, message_send_v1
+from src.helper import decode_token 
 
 
 def quit_gracefully(*args):
@@ -211,7 +213,6 @@ channels.py section
 
 '''
 
-
 @APP.route("/channels/create/v2", methods=['POST'])
 def channels_create_v2(): 
     '''
@@ -244,21 +245,21 @@ def channels_list_v2():
         token       (str)     - token identifying user 
 
     Exceptions: 
-        AccessError - User not authorised 
+        InputError  - Channel_id not valid 
+        AccessError - Authorised user not member of existing channel 
+                    - Invalid token 
 
     Return Value: 
         Returns {channels} on successful creation 
     '''
 
     data = request.args
-
     channels = channels_list_v1(data['token'])
-
     return dumps(channels)
-
-
+    
 @APP.route("/channels/listall/v2", methods=['GET'])
 def channels_listall_v2(): 
+
     '''
     Arguments:
         token       (str)     - token identifying user 
@@ -276,6 +277,12 @@ def channels_listall_v2():
     channels = channels_listall_v1(data['token'])
 
     return dumps(channels)
+
+'''
+
+message.py section 
+
+'''
 
 @APP.route("/message/send/v1", methods=['POST'])
 def message_send():
@@ -308,6 +315,37 @@ def message_send():
     )
 
     return dumps(message_id)
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit():
+
+    '''
+    Given a message, update its text with new text. 
+    If the new message is an empty string, the message is deleted.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (int) - id of message
+        message     (str) - message
+        
+    Exceptions: 
+        InputError  - message is too long
+                    - invalid message_id
+
+        AccessError - Authorised user not member of existing channel 
+                    - User has no owner permissions
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_edit_v1(
+        data['token'],
+        data['message_id'],
+        data['message']
+    )
+    return dumps(message)
+
 
 
 '''
@@ -458,27 +496,9 @@ def user_profile():
         Returns { user } on successful call
     '''
     data = request.args
-
     user = user_profile_v1(data['token'], int(data['u_id']))
-
     return dumps({'user': user})
 
-@APP.route("/clear/v1", methods=['DELETE'])
-def clear():
-    '''
-    Resets the internal data of the application to its initial state
-
-    Arguments:
-        None
-
-    Exceptions:
-        None
-
-    Return Value:
-        Returns {} on successful call
-    '''
-    clear_v1()
-    return dumps({})
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
 def user_profile_sethandle(): 
@@ -501,7 +521,6 @@ def user_profile_sethandle():
     data = request.get_json()
     
     user_profile_sethandle_v1(data['token'], data['handle_str'])
-
     return dumps({})
 
 @APP.route("/user/profile/setemail/v1", methods=['PUT'])
@@ -523,9 +542,7 @@ def user_profile_setemail():
     '''
 
     data = request.get_json()
-
     user_profile_setemail_v1(data['token'], data['email'])
-
     return dumps({})
 
 @APP.route("/user/profile/setname/v1", methods=['PUT'])
@@ -548,9 +565,24 @@ def user_profile_setname():
     '''
 
     data = request.get_json() 
-
     user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
+    return dumps({})
 
+@APP.route("/clear/v1", methods=['DELETE'])
+def clear():
+    '''
+    Resets the internal data of the application to its initial state
+
+    Arguments:
+        None
+
+    Exceptions:
+        None
+
+    Return Value:
+        Returns {} on successful call
+    '''
+    clear_v1()
     return dumps({})
 
 #### NO NEED TO MODIFY BELOW THIS POINT
