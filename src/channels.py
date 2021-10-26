@@ -1,7 +1,7 @@
 from src.data_store import data_store
 from src.error import AccessError 
 from src.error import InputError 
-from src.helper import decode_token
+from src.helper import decode_token, token_to_user
 
 # if it is valid it shouldnt raise an error 
 
@@ -22,10 +22,6 @@ def channels_list_v1(token):
 
     auth_user_id = token_data['auth_user_id']
     store = data_store.get()
-
-    # merged from master, usual check of auth_user_id
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
 
     # access list within channels
     list_channels = store['channels']
@@ -59,12 +55,7 @@ def channels_listall_v1(token):
     if (token_data is None) or ('auth_user_id' not in token_data): 
         raise AccessError(description='Invalid token')
 
-    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
-
-    # merged from master, usual check of auth_user_id
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError("Invalid auth_user_id")
 
     list_channels = store['channels']
     # a list of dictionary that we return
@@ -79,13 +70,32 @@ def channels_listall_v1(token):
 
 '''
 ===============================================================================
+{channels_create_v1}
+
+Creates a new channel with the given name that is either a public or private channel. 
+The user who created it automatically joins the channel.
+
+Arguments: 
+    token       (str)   - token of the user 
+    name        (str)   - name of channel to be created
+    is_public   (bool)  - whether channel is public or not 
+
+Exceptions: 
+    InputError  - name length not between 1 and 20 characters
+    AccessError - unauthorised user / invalid token 
+
+Return Value: 
+    Returns { channel_id } on successful call 
+
 '''
             
 def channels_create_v1(token, name, is_public):
     token_data = decode_token(token)
     
+    store = data_store.get()
+
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+    if token_to_user(token, store) is None: 
         raise AccessError(description='Invalid token')
 
     auth_user_id = token_data['auth_user_id']
@@ -93,12 +103,7 @@ def channels_create_v1(token, name, is_public):
     # Checking for length of channel name 
     if len(name) < 1 or len(name) > 20: 
         raise InputError(description="Channel name must be between 1 and 20 characters long")
-    
-
     store = data_store.get()
-
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError(description="Invalid auth_user_id")
 
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 

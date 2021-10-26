@@ -15,6 +15,7 @@ MIN_PASSWORD_LENGTH = 6
 MIN_NAME_LENGTH = 1
 MAX_NAME_LENGTH = 50
 STARTING_SESSION_ID = 1
+STARTING_APPEND_NUMBER_HANDLE = 0
 
 def encode_token(data):
     return jwt.encode(data, SECRET, algorithm="HS256")
@@ -107,14 +108,25 @@ def handle(name_first, name_last, store):
         else:
             break
 
-    append_number = -1
-    for user in store['users']:
-        # Check if handle is taken
-        if user['handle_str'] == handle:
-            # Increment number if handle is taken
-            append_number += 1
+    append_number = STARTING_APPEND_NUMBER_HANDLE - 1
+    unique_handle = False
+    # Keep increasing append number until handle is unique
+    while unique_handle == False:
+        unique_handle = True
+        for user in store['users']:
+            # Check if handle + append_number is taken
+            if append_number != -1:
+                if user['handle_str'] + str(append_number) == handle:
+                    # Increment number if handle is taken
+                    append_number += 1
+                    unique_handle = False
+            else:
+                if user['handle_str'] == handle:
+                    # Increment number if handle is taken
+                    append_number += 1
+                    unique_handle = False
     # If number has been increased, append number to make handle unique
-    if append_number != -1:
+    if append_number != STARTING_APPEND_NUMBER_HANDLE - 1:
         handle += str(append_number)
     return handle
 
@@ -156,6 +168,11 @@ def auth_register_v1(email, password, name_first, name_last):
     user_handle = handle(name_first, name_last, store)
     # Store user details
     user_id = len(store['users']) + 1
+    # Set permissions
+    if len(store['users']) == 0:
+        permission_id = 1
+    else:
+        permission_id = 2
     user = {
         'u_id' : user_id,
         'email' : email,
@@ -163,7 +180,8 @@ def auth_register_v1(email, password, name_first, name_last):
         'name_first' : name_first,
         'name_last' : name_last,
         'handle_str' : user_handle,
-        'active_session_ids' : [STARTING_SESSION_ID]
+        'active_session_ids' : [STARTING_SESSION_ID],
+        'permission_id' : permission_id,
     }
     store['users'].append(user)
     data_store.set(store)
