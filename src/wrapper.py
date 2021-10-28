@@ -312,7 +312,7 @@ def standup_send(token, channel_id, message):
         f"{config.url}standup/send/v1",
         json={
             'token' : token,
-            'channel_id' : channel,
+            'channel_id' : channel_id,
             'message' : message,
         }
     )
