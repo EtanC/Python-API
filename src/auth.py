@@ -4,11 +4,12 @@ Handles registering and logging in users.
 Stores data about users when they register
 '''
 from src.data_store import data_store
-from src.error import InputError
+from src.error import InputError, AccessError
 import jwt
 import re
 import hashlib
 from src.config import SECRET, EMAIL_REGEX
+from src.helper import decode_token, get_user
 
 MIN_PASSWORD_LENGTH = 6
 MIN_NAME_LENGTH = 1
@@ -18,9 +19,6 @@ STARTING_APPEND_NUMBER_HANDLE = 0
 
 def encode_token(data):
     return jwt.encode(data, SECRET, algorithm="HS256")
-
-def decode_token(token):
-    return jwt.decode(token, SECRET, algorithms=["HS256"])
 
 def hash(string):
     return hashlib.sha256(string.encode()).hexdigest()
@@ -193,3 +191,30 @@ def auth_register_v1(email, password, name_first, name_last):
         ),
         'auth_user_id': user_id,
     }
+
+def auth_logout_v1(token):
+    '''
+    Given an active token, invalidates the token to log the user out.
+
+    Arguments:
+        token       (str) - token identifying user
+
+    Exceptions:
+        AccessError - Invalid token
+
+    Return Value: 
+        Returns {} on successful logout
+    '''
+    store = data_store.get()
+    # Check valid token
+    payload = decode_token(token)
+    if payload is None:
+        raise AccessError(description="Invalid token, payload is not valid")
+    user = get_user(payload['auth_user_id'], store)
+    if user is None:
+        raise AccessError(description="Invalid token, user id not valid")
+    if payload['session_id'] not in user['active_session_ids']:
+        raise AccessError(description="Invalid token, session id not valid")
+    user['active_session_ids'].remove(payload['session_id'])
+    data_store.set(store)
+    return {}
