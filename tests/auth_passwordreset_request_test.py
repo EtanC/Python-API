@@ -31,21 +31,21 @@ def setup_imap_server(email, password):
 
 def get_reset_code(server):
     # Get all messages in inbox
-    status, ids = server.search(None, 'ALL')
+    _, ids = server.search(None, 'ALL')
     # Get message id of most recent email (most likely the one Streams has sent)
     message_id = ids[0].split()[-1]
     # Retrieve message
     message = server.fetch(message_id, 'BODY[]')[1]
+    body = message[0][1].decode('utf-8')
     # Check the subject of the email
-    returnlist = re.findall(b'Subject:[A-Za-z\ ]*', message[0][1])
-    
+    returnlist = re.findall(r'Subject:[A-Za-z ]*', body)
     # Verify that this is the email sent from Streams app
     #-------------------------------------------------------------------
     # TODO: make sure these hard coded pieces of text go into config.py
     #-------------------------------------------------------------------
-    if returnlist[0] == b"Subject:Streams password reset":
+    if returnlist[0] == "Subject:Streams password reset":
         # Read reset code
-        returnlist = re.findall(b'Your password reset code is: [0-9]*', message[0][1])
+        returnlist = re.findall(r'Your password reset code is: [0-9]*', body)
         reset_code = returnlist[0][-RESET_CODE_LENGTH:]
     # Delete email so that it doesnt clog up space
     server.store(message_id, '+FLAGS', '\\Deleted')

@@ -238,6 +238,9 @@ def auth_passwordreset_request_v1(email):
     # Store reset_code for later use
     target_user['reset_code'] = reset_code
     # Send email with reset_code
+    #-------------------------------------------------------------------
+    # TODO: make sure these hard coded pieces of text go into config.py
+    #-------------------------------------------------------------------
     msg = f"""\
 Subject:Streams password reset
 
