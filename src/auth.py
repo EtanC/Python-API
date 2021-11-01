@@ -8,7 +8,8 @@ from src.error import InputError, AccessError
 import jwt
 import re
 import hashlib
-from src.config import SECRET, EMAIL_REGEX
+import smtplib, ssl
+from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD
 from src.helper import decode_token, get_user
 
 MIN_PASSWORD_LENGTH = 6
@@ -217,4 +218,35 @@ def auth_logout_v1(token):
         raise AccessError(description="Invalid token, session id not valid")
     user['active_session_ids'].remove(payload['session_id'])
     data_store.set(store)
+    return {}
+
+def generate_reset_code():
+    return '123456'
+
+def auth_passwordreset_request_v1(email):
+    store = data_store.get()
+    target_user = None
+    # Check if email is in system
+    for user in store['users']:
+        if user['email'] == email:
+            target_user = user
+    if target_user is None:
+        return {}
+    target_user['active_session_ids'] = []
+    # Make reset_code
+    reset_code = generate_reset_code()
+    # Store reset_code for later use
+    target_user['reset_code'] = reset_code
+    # Send email with reset_code
+    msg = f"""\
+Subject:Streams password reset
+
+Your password reset code is: {reset_code}
+If you haven't recently requested a password reset, please ignore this email
+"""
+    context = ssl.create_default_context()
+    server = smtplib.SMTP_SSL(host='smtp.gmail.com', port=465, context=context)
+    server.login(DUMMY_EMAIL, DUMMY_PASSWORD)
+    server.sendmail(DUMMY_EMAIL, email, msg)
+    server.quit()
     return {}
