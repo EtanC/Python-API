@@ -67,7 +67,7 @@ def get_reset_code(server):
 def test_logout_all_sessions_passwordreset_request(reset_data, user1):
     auth_passwordreset_request('smithjohn177013@gmail.com')
     server = setup_imap_server(DUMMY_EMAIL, DUMMY_PASSWORD)
-    reset_code = get_reset_code(server)
+    get_reset_code(server)
     with pytest.raises(AccessError):
         channels_create(user1['token'], 'channel_name', True)
 
