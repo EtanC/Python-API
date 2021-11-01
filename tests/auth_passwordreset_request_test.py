@@ -5,7 +5,7 @@ from fake.auth import auth_passwordreset_request, auth_passwordreset_reset, auth
 from fake.channels import channels_create
 from fake.other import clear
 from json import dumps
-from src.config import RESET_CODE_LENGTH
+from src.config import RESET_CODE_LENGTH, DUMMY_EMAIL, DUMMY_PASSWORD
 
 @pytest.fixture
 def reset_data():
@@ -37,9 +37,13 @@ def get_reset_code(server):
     # Retrieve message
     message = server.fetch(message_id, 'BODY[]')[1]
     # Check the subject of the email
-    returnlist = re.findall(b'Subject: [A-Za-z\ ]*', message[0][1])
+    returnlist = re.findall(b'Subject:[A-Za-z\ ]*', message[0][1])
+    
     # Verify that this is the email sent from Streams app
-    if returnlist[0] == b"Subject: Streams password reset":
+    #-------------------------------------------------------------------
+    # TODO: make sure these hard coded pieces of text go into config.py
+    #-------------------------------------------------------------------
+    if returnlist[0] == b"Subject:Streams password reset":
         # Read reset code
         returnlist = re.findall(b'Your password reset code is: [0-9]*', message[0][1])
         reset_code = returnlist[0][-RESET_CODE_LENGTH:]
@@ -48,21 +52,22 @@ def get_reset_code(server):
     server.expunge()
     return reset_code
 
-# Test valid password reset
-def test_valid_passwordreset_request(reset_data, user1):
-    auth_passwordreset_request('smithjohn177013@gmail.com')
-    server = setup_imap_server()
-    reset_code = get_reset_code(server)
-    auth_passwordreset_reset(reset_code, "new_password")
-    # Login should not raise error, password changed
-    auth_login('smithjohn177013@gmail.com', 'new_password')
+## VALID TEST NEEDS auth/passwordreset/reset/v1
+
+# # Test valid password reset
+# def test_valid_passwordreset_request(reset_data, user1):
+#     auth_passwordreset_request('smithjohn177013@gmail.com')
+#     server = setup_imap_server(DUMMY_EMAIL, DUMMY_PASSWORD)
+#     reset_code = get_reset_code(server)
+#     auth_passwordreset_reset(reset_code, "new_password")
+#     # Login should not raise error, password changed
+#     auth_login('smithjohn177013@gmail.com', 'new_password')
 
 # Test log out of all sessions passwordreset_request
 def test_logout_all_sessions_passwordreset_request(reset_data, user1):
     auth_passwordreset_request('smithjohn177013@gmail.com')
-    server = setup_imap_server()
+    server = setup_imap_server(DUMMY_EMAIL, DUMMY_PASSWORD)
     reset_code = get_reset_code(server)
-    auth_passwordreset_reset(reset_code, "new_password")
     with pytest.raises(AccessError):
         channels_create(user1['token'], 'channel_name', True)
 
