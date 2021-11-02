@@ -239,7 +239,6 @@ def auth_passwordreset_request_v1(email):
     target_user['active_session_ids'] = []
     # Make reset_code
     reset_code = generate_reset_code()
-    print(reset_code)
     # Store reset_code for later use
     target_user['reset_code'] = reset_code
     # Send email with reset_code
