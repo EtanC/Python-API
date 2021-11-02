@@ -230,15 +230,19 @@ def dm_messages_v1(token, dm_id, start):
     if not authorised: 
         raise AccessError(description='Unauthorised user')
         
-    # Returning up to 50 messages
+    # Returning up to 50 messages from most recent to least
+    start = len(store['dms'][dm_index]['messages']) - 50
+    if start < 0: 
+        start = 0 
     end = start + 50
+
     messages = store['dms'][dm_index]['messages'][start:end]
     # Setting end to -1 if no more messages left
     if start + 50 > len(store['dms'][dm_index]['messages']):
         end = -1
 
     return {
-        'messages': messages,
+        'messages': messages[::-1],
         'start': start,
         'end': end,
     }

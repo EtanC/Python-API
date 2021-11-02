@@ -182,8 +182,8 @@ def test_multiple(reset):
 
     expected = {
         'messages' : [],
-        'start' : 0,
-        'end' : 50,
+        'start' : 10,
+        'end' : 60,
     }
     message = response_message.json()
 
@@ -198,8 +198,8 @@ def test_multiple(reset):
 
         expected['messages'].append({
             'message' : 'I just sent a message lol xd',
-            'message_id': message_id[i],
+            'message_id': message_id[i] + 10,
             'u_id': reset[1]['auth_user_id'],
         })
-        
+    expected['messages'] = expected['messages'][::-1]
     assert message == expected
