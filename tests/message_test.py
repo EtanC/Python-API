@@ -108,6 +108,57 @@ def dm1(user1, user2):
     return {'dm_id' : dm_id, 'owner': owner, 'all_users': u_ids}
 
 # message/remove/v1 tests
+def test_owners_are_valid_remove(reset_data, channel1, user2, user1): 
+    data_join = { 
+        'token': user2['token'],
+        'channel_id': channel1['channel_id']
+    }
+
+    requests.post(f"{config.url}channel/join/v2", json=data_join)
+    
+    token_register_send = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id'],
+        "message": "valid_message"
+    }
+    
+    # message/send/v1
+    response_register_send = requests.post(f"{config.url}message/send/v1",\
+    json=token_register_send)
+
+    message_id = response_register_send.json()['message_id']
+
+    data_remove_message = {
+        "token": user1['token'],
+        "message_id": message_id,
+    }
+
+    #message/remove/v1
+    requests.delete(f"{config.url}message/remove/v1", \
+        json=data_remove_message)
+
+
+    channel_messages = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id'],
+        "start": 0
+    }
+
+    response_channel_messages_data =requests.get(f"{config.url}channel/messages/v2", \
+        params=channel_messages)
+
+    response_data = response_channel_messages_data.json()
+    
+
+    expected_data = {
+        'messages': [],
+        'start': 0,
+        'end': -1 # -1 : no more messages to load
+    }
+
+    assert response_data == expected_data
+
+
 def test_invalid_token_remove(reset_data, user1, channel1): #DELETE
 
     token_register_send = {
@@ -239,6 +290,75 @@ def test_valid_message_remove(reset_data, user1, channel1): #DELETE
     assert response_data == expected_data
 
 # message/senddm/v1 tests
+def test_owners_are_valid_edit(reset_data, channel1, user2, user1): 
+    data_join = { 
+        'token': user2['token'],
+        'channel_id': channel1['channel_id']
+    }
+
+    requests.post(f"{config.url}channel/join/v2", json=data_join)
+    
+    data_send_message = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id'],
+        "message": "valid_message"
+    }
+    
+    # message/send/v1
+    response_send_message = requests.post(f"{config.url}message/send/v1",\
+        json=data_send_message
+    )
+    response_send_message_data = response_send_message.json()
+
+    dt = datetime.now()
+    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+
+    # user1(channel1 owner) edits the message user2 sent
+    message_id = response_send_message_data['message_id']
+    edited_message = "user1_new_valid_message"
+
+    data_edit_message = {
+        "token": user1['token'],
+        "message_id": message_id,
+        "message": edited_message
+    }
+
+    #message/edit/v1
+    requests.put(f"{config.url}message/edit/v1", \
+        json=data_edit_message)
+
+    #display the edited message using channel/messages/v2
+    channel_messages = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id'],
+        "start": 0
+    }
+
+    response_channel_messages_data =requests.get(f"{config.url}channel/messages/v2", \
+        params=channel_messages)
+
+    response_data = response_channel_messages_data.json()
+    
+    messages_result = response_data['messages']
+    actual_time = messages_result[0]['time_created']
+    time_difference = actual_time - expected_time
+    assert time_difference < 2
+    del response_data['messages'][0]['time_created']
+
+    expected_data = {
+        'messages': [
+            {
+            'message_id': message_id,
+            'u_id': user2['auth_user_id'],
+            'message': edited_message,
+            }
+        ], 
+        'start': 0,
+        'end': -1 # -1 : no more messages to load
+    }
+
+    assert response_data == expected_data
+
 def test_invalid_token_senddm(reset_data, user1, dm1): 
 
     token_register_send = {
