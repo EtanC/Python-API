@@ -4,7 +4,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError, AccessError 
-from src.auth import auth_login_v1, auth_register_v1
+from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1
 from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1

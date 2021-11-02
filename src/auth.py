@@ -4,7 +4,8 @@ Handles registering and logging in users.
 Stores data about users when they register
 '''
 from src.data_store import data_store
-from src.error import InputError
+from src.error import InputError, AccessError
+from src.helper import get_user, decode_token
 import jwt
 import re
 import hashlib
@@ -18,9 +19,6 @@ STARTING_APPEND_NUMBER_HANDLE = 0
 
 def encode_token(data):
     return jwt.encode(data, SECRET, algorithm="HS256")
-
-def decode_token(token):
-    return jwt.decode(token, SECRET, algorithms=["HS256"])
 
 def hash(string):
     return hashlib.sha256(string.encode()).hexdigest()
