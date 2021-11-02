@@ -183,7 +183,7 @@ def test_multiple(reset):
     expected = {
         'messages' : [],
         'start' : 10,
-        'end' : 60,
+        'end' : -1,
     }
     message = response_message.json()
 

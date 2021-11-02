@@ -238,7 +238,7 @@ def dm_messages_v1(token, dm_id, start):
 
     messages = store['dms'][dm_index]['messages'][start:end]
     # Setting end to -1 if no more messages left
-    if start + 50 > len(store['dms'][dm_index]['messages']):
+    if start + 50 >= len(store['dms'][dm_index]['messages']):
         end = -1
 
     return {
