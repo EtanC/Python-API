@@ -93,12 +93,8 @@ def message_remove_v1(token, message_id):
 
     # check if user is allowed to edit the right message (might need to change for the owener permissions)
     # assuming no need to check if user in channel 
-    for channel in store['channels']:
-        for message in channel['messages']:
-            if message['message_id'] == message_id: 
-                if auth_user_id != message_to_remove['u_id'] or \
-                    not is_channel_member(auth_user_id, channel['owner_members']) or not is_global_owner(user):
-                    raise AccessError(description="User is NOT AUTHORISED to edit message")
+    if auth_user_id != message_to_remove['u_id'] and not has_owner_perms(auth_user_id, store, user, message_id): 
+        raise AccessError(description="User is NOT AUTHORISED to edit message")
 
     # remove the message
     for i,channel in enumerate(store['channels']):
@@ -135,12 +131,8 @@ def message_edit_v1(token, message_id, message):
 
     # check if user is allowed to edit the right message (might need to change for the owener permissions)
     # assuming no need to check if user in channel 
-    for channel in store['channels']:
-        for msg in channel['messages']:
-            if msg['message_id'] == message_id: 
-                if auth_user_id != message_to_edit['u_id'] or not is_channel_member(auth_user_id, channel['owner_members']) \
-                    or not is_global_owner(user):
-                    raise AccessError(description="User is NOT AUTHORISED to edit message")
+    if auth_user_id != message_to_edit['u_id'] and not has_owner_perms(auth_user_id, store, user, message_id):
+        raise AccessError(description="User is NOT AUTHORISED to edit message")
 
     # edit the message
     message_to_edit['message'] = message
@@ -210,3 +202,10 @@ def message_send_v1(token, channel_id, message):
         'message_id': message_id
     }
 
+def has_owner_perms(auth_user_id, store, user, message_id): 
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id: 
+                if not is_channel_member(auth_user_id, channel['owner_members']) and not is_global_owner(user):
+                    return False
+    return True
