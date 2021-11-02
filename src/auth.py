@@ -193,3 +193,30 @@ def auth_register_v1(email, password, name_first, name_last):
         ),
         'auth_user_id': user_id,
     }
+
+def auth_logout_v1(token):
+    '''
+    Given an active token, invalidates the token to log the user out.
+
+    Arguments:
+        token       (str) - token identifying user
+
+    Exceptions:
+        AccessError - Invalid token
+
+    Return Value: 
+        Returns {} on successful logout
+    '''
+    store = data_store.get()
+    # Check valid token
+    payload = decode_token(token)
+    if payload is None:
+        raise AccessError(description="Invalid token, payload is not valid")
+    user = get_user(payload['auth_user_id'], store)
+    if user is None:
+        raise AccessError(description="Invalid token, user id not valid")
+    if payload['session_id'] not in user['active_session_ids']:
+        raise AccessError(description="Invalid token, session id not valid")
+    user['active_session_ids'].remove(payload['session_id'])
+    data_store.set(store)
+    return {}

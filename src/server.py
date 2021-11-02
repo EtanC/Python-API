@@ -110,6 +110,22 @@ def auth_register_v2():
     )
     return dumps(user_id)
 
+@APP.route("/auth/logout/v1", methods=['POST'])
+def auth_logout():
+    '''
+    Given an active token, invalidates the token to log the user out.
+
+    Arguments:
+        token       (str) - token identifying user
+
+    Exceptions: 
+        AccessError - Invalid token
+
+    Return Value: 
+        Returns {} on successful logout
+    '''
+    data = request.get_json()
+    return dumps(auth_logout_v1(data['token']))
 
 '''
 
