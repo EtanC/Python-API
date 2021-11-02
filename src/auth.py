@@ -9,7 +9,8 @@ import jwt
 import re
 import hashlib
 import smtplib, ssl
-from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD
+import secrets
+from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD, RESET_CODE_LENGTH
 from src.helper import decode_token, get_user
 
 MIN_PASSWORD_LENGTH = 6
@@ -222,7 +223,9 @@ def auth_logout_v1(token):
     return {}
 
 def generate_reset_code():
-    return '123456'
+    # Specifying number of bytes, where 1 byte = 2 hex digits, so
+    # reset codes can only be multiples of 2 digits long
+    return secrets.token_hex(RESET_CODE_LENGTH // 2)
 
 def auth_passwordreset_request_v1(email):
     store = data_store.get()
@@ -236,6 +239,7 @@ def auth_passwordreset_request_v1(email):
     target_user['active_session_ids'] = []
     # Make reset_code
     reset_code = generate_reset_code()
+    print(reset_code)
     # Store reset_code for later use
     target_user['reset_code'] = reset_code
     # Send email with reset_code
