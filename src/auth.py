@@ -103,8 +103,8 @@ def handle(name_first, name_last, store):
     Also checks if the handle is already taken.
     If it is, will append a number to handle to make it unique.
     '''
-    handle = filter_only_alphanumeric(name_first) +
-             filter_only_alphanumeric(name_last)
+    handle = filter_only_alphanumeric(name_first)\
+             + filter_only_alphanumeric(name_last)
     # Limit handle to 20 characters
     handle = handle[:20]
 
