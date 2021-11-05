@@ -191,7 +191,7 @@ def message_send_v1(token, channel_id, message):
     all_channel_messages = channel['messages']
 
     #add the new message to the channel
-    all_channel_messages.append(new_message)
+    all_channel_messages.insert(0, new_message)
 
     return {
         'message_id': message_id
