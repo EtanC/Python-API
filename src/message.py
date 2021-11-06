@@ -4,8 +4,9 @@ from src.error import InputError
 from src.error import AccessError
 from json import dumps
 from flask import Flask, request
-from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm
+from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm, is_global_owner
 from datetime import timezone, datetime
+from src.channel import is_channel_member
 
 def message_senddm_v1(token, dm_id, message):
 
@@ -61,7 +62,7 @@ def message_senddm_v1(token, dm_id, message):
     # Add the message to the dm
     all_dm_messages = dm['messages']
     all_dm_messages.append(new_dm_message)
-
+    data_store.set(store)
     return {
         'message_id': message_id
     }
@@ -91,7 +92,8 @@ def message_remove_v1(token, message_id):
         raise InputError(description="message ID is INVALID")
 
     # check if user is allowed to edit the right message (might need to change for the owener permissions)
-    if auth_user_id != message_to_remove['u_id']:
+    # assuming no need to check if user in channel 
+    if auth_user_id != message_to_remove['u_id'] and not has_owner_perms(auth_user_id, store, user, message_id): 
         raise AccessError(description="User is NOT AUTHORISED to edit message")
 
     # remove the message
@@ -100,6 +102,7 @@ def message_remove_v1(token, message_id):
             if message['message_id'] == message_id:
                 del store['channels'][i]['messages'][j]
 
+    data_store.set(store)
     return {}
 
 def message_edit_v1(token, message_id, message):
@@ -127,7 +130,8 @@ def message_edit_v1(token, message_id, message):
         raise InputError(description="message ID is INVALID")
 
     # check if user is allowed to edit the right message (might need to change for the owener permissions)
-    if auth_user_id != message_to_edit['u_id']:
+    # assuming no need to check if user in channel 
+    if auth_user_id != message_to_edit['u_id'] and not has_owner_perms(auth_user_id, store, user, message_id):
         raise AccessError(description="User is NOT AUTHORISED to edit message")
 
     # edit the message
@@ -140,6 +144,7 @@ def message_edit_v1(token, message_id, message):
                 if message['message_id'] == message_id:
                     del store['channels'][i]['messages'][j]
 
+    data_store.set(store)
     return {}
 
 def message_send_v1(token, channel_id, message):
@@ -192,8 +197,15 @@ def message_send_v1(token, channel_id, message):
 
     #add the new message to the channel
     all_channel_messages.append(new_message)
-
+    data_store.set(store)
     return {
         'message_id': message_id
     }
 
+def has_owner_perms(auth_user_id, store, user, message_id): 
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id: 
+                if not is_channel_member(auth_user_id, channel['owner_members']) and not is_global_owner(user):
+                    return False
+    return True
