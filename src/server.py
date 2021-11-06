@@ -17,6 +17,7 @@ from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
+from src.standup import standup_start_v1
 from src.helper import decode_token 
 
 def quit_gracefully(*args):
@@ -861,6 +862,37 @@ def admin_userpermission_change():
 
     return dumps(return_dict)
 
+'''
+
+standup.py section
+
+'''
+
+@APP.route("/standup/start/v1", methods=['POST'])
+def standup_start():
+    '''
+    Given a token, channel id and standup length, starts a standup in the given
+    channel
+
+    Arguments: 
+        token       (str)   - Token of user starting the standup
+        channel_id  (int)   - Id of the channel the standup belongs to
+        length      (int)   - Length of the standup in seconds
+
+    Exceptions: 
+        InputError  - Invalid channel id
+                    - Length is negative
+                    - Active standup already running in channel
+        AccessError - Token is invalid
+                    - Channel id is valid and user is not member of channel
+    Return Value:
+        Returns {time_finish} on successful call
+    '''
+
+    data = request.get_json()
+    return dumps(
+        standup_start_v1(data['token'], data['channel_id'], data['length'])
+    )
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
