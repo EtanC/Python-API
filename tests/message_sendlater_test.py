@@ -31,7 +31,7 @@ def reset():
 
 def test_valid(reset): 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + timedelta(seconds=3)
+    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlater = {
         'token': reset['user']['token'], 
         'channel_id': reset['channel_id'],
@@ -87,7 +87,7 @@ def test_valid(reset):
 
 def test_two_messages(reset): 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + timedelta(seconds=3)
+    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlater = {
         'token': reset['user']['token'], 
         'channel_id': reset['channel_id'],
@@ -99,7 +99,7 @@ def test_two_messages(reset):
     assert type(response_sendlater_1.json()['message_id']) is int
 
     # send another message 5 secs after
-    time_sent_2 = datetime.now().replace(tzinfo=timezone.utc).timestamp() + timedelta(seconds=5)
+    time_sent_2 = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 5
     data_sendlater = {
         'token': reset['user']['token'], 
         'channel_id': reset['channel_id'],
@@ -188,7 +188,7 @@ def test_two_messages(reset):
 
 def test_invalid_channel_id(reset): 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + timedelta(seconds=3)
+    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlater = { 
         'token': reset['user']['token'], 
         'channel_id': reset['channel_id'] + 1, 
@@ -201,7 +201,7 @@ def test_invalid_channel_id(reset):
 
 def test_message_too_long(reset): 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + timedelta(seconds=3)
+    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlater = { 
         'token': reset['user']['token'], 
         'channel_id': reset['channel_id'], 
@@ -213,7 +213,7 @@ def test_message_too_long(reset):
 
 def test_time_sent_in_past(reset): 
     # time_sent = current time - 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() - timedelta(seconds=3)
+    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() - 3
     data_sendlater = { 
         'token': reset['user']['token'], 
         'channel_id': reset['channel_id'], 
@@ -237,7 +237,7 @@ def test_user_not_in_channel(reset):
 
 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + timedelta(seconds=3)
+    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlater = { 
         'token': response_register.json()['token'], 
         'channel_id': reset['channel_id'], 
@@ -250,7 +250,7 @@ def test_user_not_in_channel(reset):
 
 def test_invalid_token(reset): 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + timedelta(seconds=3)
+    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlater = { 
         'token': 'invalid_token', 
         'channel_id': reset['channel_id'], 
