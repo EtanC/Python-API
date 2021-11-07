@@ -11,10 +11,6 @@ def start_standup(token, channel_id, length):
     standup_message = ""
     store = data_store.get()
     channel = get_channel(channel_id, store)
-    # If somehow standup got deleted before standup message got sent,
-    # Dont send standup message
-    if channel is None or 'standup' not in channel:
-        return
     for message in channel['standup']['messages']:
         standup_message += (
             f"{message['user']['handle_str']}: {message['message']}\n"
