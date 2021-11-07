@@ -294,7 +294,9 @@ def channel_addowner_v1(token, channel_id, u_id):
         raise InputError(description="Invalid channel")
     # Checking if inviting user has owner permissions
     if not is_channel_member(current_owner['u_id'], channel['owner_members']):
-        raise AccessError(description="User does not have owner permissions")
+        if not (is_global_owner(current_owner) and 
+                is_channel_member(current_owner['u_id'], channel['all_members'])):
+            raise AccessError(description="User does not have owner permissions")
     # Checking if u_id is valid
     user = get_user(u_id, store)
     if user == None:
