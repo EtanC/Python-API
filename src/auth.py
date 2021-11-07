@@ -184,7 +184,6 @@ def auth_register_v1(email, password, name_first, name_last):
         'handle_str' : user_handle,
         'active_session_ids' : [STARTING_SESSION_ID],
         'permission_id' : permission_id,
-        'reset_code' : None,
     }
     store['users'].append(user)
     data_store.set(store)
@@ -256,4 +255,5 @@ If you haven't recently requested a password reset, please ignore this email
     server.login(DUMMY_EMAIL, DUMMY_PASSWORD)
     server.sendmail(DUMMY_EMAIL, email, msg)
     server.quit()
+    data_store.set(store)
     return {}
