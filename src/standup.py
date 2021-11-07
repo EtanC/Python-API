@@ -16,8 +16,8 @@ def start_standup(token, channel_id, length):
     if channel is None or 'standup' not in channel:
         return
     for message in channel['standup']['messages']:
-        standup_message.append(
-            f"{message['user']['handle_str']}: {message['message']}"
+        standup_message += (
+            f"{message['user']['handle_str']}: {message['message']}\n"
         )
     message_send_v1(token, channel_id, standup_message)
     del channel['standup']
