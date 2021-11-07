@@ -39,7 +39,7 @@ def two_member_channel(channel1, user2):
 
 
 # Test valid addowner
-def test_valid_addowner(reset_data, two_member_channel):
+def test_valid_addowner(two_member_channel):
     channel_addowner(
         two_member_channel['owner']['token'],
         two_member_channel['channel_id'],
@@ -99,7 +99,7 @@ def test_valid_addowner(reset_data, two_member_channel):
 
 # Test errors addowner
 
-def test_invalid_channel_id_addowner(reset_data, two_member_channel):
+def test_invalid_channel_id_addowner(two_member_channel):
     with pytest.raises(InputError):
         channel_addowner(
             two_member_channel['owner']['token'],
@@ -107,7 +107,7 @@ def test_invalid_channel_id_addowner(reset_data, two_member_channel):
             two_member_channel['member']['auth_user_id'],
         )
 
-def test_invalid_u_id_addowner(reset_data, two_member_channel):
+def test_invalid_u_id_addowner(two_member_channel):
     with pytest.raises(InputError):
         channel_addowner(
             two_member_channel['owner']['token'],
@@ -116,7 +116,7 @@ def test_invalid_u_id_addowner(reset_data, two_member_channel):
             two_member_channel['owner']['auth_user_id'] + 1
         )
 
-def test_nonmember_addowner(reset_data, channel1, user2):
+def test_nonmember_addowner(channel1, user2):
     with pytest.raises(InputError):
         channel_addowner(
             channel1['user']['token'],
@@ -124,7 +124,7 @@ def test_nonmember_addowner(reset_data, channel1, user2):
             user2['auth_user_id']
         )
 
-def test_already_owner_addowner(reset_data, channel1):
+def test_already_owner_addowner(channel1):
     with pytest.raises(InputError):
         channel_addowner(
             channel1['user']['token'],
@@ -132,7 +132,7 @@ def test_already_owner_addowner(reset_data, channel1):
             channel1['user']['auth_user_id']
         )
 
-def test_no_owner_permissions_addowner(reset_data, two_member_channel):
+def test_no_owner_permissions_addowner(two_member_channel):
     with pytest.raises(AccessError):
         channel_addowner(
             two_member_channel['member']['token'],
@@ -140,7 +140,7 @@ def test_no_owner_permissions_addowner(reset_data, two_member_channel):
             two_member_channel['member']['auth_user_id']
         )
 
-def test_invalid_token_addowner(reset_data, two_member_channel):
+def test_invalid_token_addowner(two_member_channel):
     with pytest.raises(AccessError):
         channel_addowner(
             "INVALID_TOKEN",
