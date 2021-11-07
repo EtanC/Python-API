@@ -28,12 +28,14 @@ def channel1(user1):
 
 # Test valid standup
     # All messages from standup packaged as single message from standup starter
-def test_valid_standup_start(channel1):
-    standup_start(channel1['user']['token'], channel1['channel_id'], 2)
-    assert standup_active(
-        channel1['user']['token'],
-        channel1['channel_id']
-    )['is_active']
+
+## REQUIRES standup/active/v1 IMPLEMENTATION
+# def test_valid_standup_start(channel1):
+#     standup_start(channel1['user']['token'], channel1['channel_id'], 2)
+#     assert standup_active(
+#         channel1['user']['token'],
+#         channel1['channel_id']
+#     )['is_active']
 
 # Test invalid token
 def test_invalid_token_standup_start(channel1):
