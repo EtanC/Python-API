@@ -254,7 +254,7 @@ def test_valid_pin2(reset_data, user1, channel1, message_to_pin, other_message):
     assert response_data == expected_data
 
 # cannot pin an already pinned message
-def invalid_already_pinned(reset_data, user1, channel1, message_to_pin):
+def test_invalid_already_pinned(reset_data, user1, channel1, message_to_pin):
 
     # user1 is the owner so can pin the message
     token = user1['token']
@@ -280,7 +280,7 @@ def invalid_already_pinned(reset_data, user1, channel1, message_to_pin):
     assert response.status_code == 400
 
 # cannot pin an invalid message
-def invalid_messageID(reset_data, user1, channel1, message_to_pin):
+def test_invalid_messageID(reset_data, user1, channel1, message_to_pin):
 
     # user1 tries to pin an invalid message (invalid ID)
     data_pin_message = {
@@ -295,7 +295,27 @@ def invalid_messageID(reset_data, user1, channel1, message_to_pin):
     assert response.status_code == 400
 
 # non-owners cannot pin messages
-def no_owner_permissions(reset_data, user1, channel1, message_to_pin):
-#
-##
+def test_no_owner_permissions(reset_data, user1, user2, channel1, message_to_pin):
+
+    # get user2 to join channel1 
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
+    )
+
+    # user2 tries to pin a message but is NOT AN OWNER
+    data_pin_message = {
+        "token": user2['token'],
+        "message_id": message_to_pin['message_id'],
+    }
+
+    response = requests.post(f"{config.url}message/pin/v1", \
+        json=data_pin_message)
+    
+    assert response.status_code == 403
+
+    
 
