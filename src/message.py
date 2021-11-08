@@ -250,37 +250,26 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     
     if (time_sent < time_now): 
         raise InputError(description='Time sent is in the past')
+
+    # save the message_id of message that is not sent yet, move the message id
+    # in store ahead by one so the message_id of message after doesn't clash 
+    # with this one
+    store = data_store.get()
+    reserved_message_id = store['message_id']
+    store['message_id'] += 1 
+    data_store.set(store)
     
     # calculate the number of seconds to wait and call threading function
     wait_seconds = time_sent - time_now
 
     # start the thread
     thread = threading.Thread(target=sendlater_thread, args=[token, channel_id, \
-        message, wait_seconds])
+        message, wait_seconds, reserved_message_id])
     thread.start()
 
-    # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     data_args = {
-    #         'token': token,
-    #         'channel_id': channel_id, 
-    #         'message': message,
-    #         'seconds': wait_seconds,
-    #     }
-    #     thread = executor.submit(sendlater_thread, data_args)
+    return {'message_id':reserved_message_id}
 
-    # return the message_id in store, as this will most likely be the one 
-    # right after the command was called, however have to - 1
-    # for the message_id to be the one of the message sent just before this
-    return {'message_id': store['message_id'] - 1}
-
-def sendlater_thread(token, channel_id, message, seconds):
-    # save the message_id of message that is not sent yet, move the message id
-    # in store ahead by one so it doesn't clash
-    store = data_store.get()
-    reserved_message_id = store['message_id']
-    store['message_id'] += 1 
-    data_store.set(store)
-
+def sendlater_thread(token, channel_id, message, seconds, reserved_message_id):
     # wait until it is time to send message
     time.sleep(seconds)
 
