@@ -4,7 +4,7 @@ from fake.auth import auth_register
 from fake.channels import channels_create
 from fake.other import clear
 from src.error import InputError, AccessError
-
+import time
 @pytest.fixture(autouse=True)
 def reset_data():
     clear()
@@ -57,6 +57,7 @@ def test_standup_already_active_standup_start(channel1):
     standup_start(channel1['user']['token'], channel1['channel_id'], 2)
     with pytest.raises(InputError):
         standup_start(channel1['user']['token'], channel1['channel_id'], 2)
+    time.sleep(2)
 
 # Test user not in channel
 def test_user_not_in_channel_standup_start(channel1, user2):
