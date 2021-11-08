@@ -191,6 +191,8 @@ def message_send_v1(token, channel_id, message):
     new_message['u_id'] = user_id
     new_message['message'] = message_to_add
     new_message['time_created'] = time_created
+    new_message['reacts'] = []
+    new_message['is_pinned'] = False
     
     #get list of all messages (not deleted) from the channel 
     all_channel_messages = channel['messages']
@@ -209,3 +211,32 @@ def has_owner_perms(auth_user_id, store, user, message_id):
                 if not is_channel_member(auth_user_id, channel['owner_members']) and not is_global_owner(user):
                     return False
     return True
+
+def message_unpin_v1(token, message_id):
+
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    token_data = decode_token(token)
+    if (token_data is None) or ('auth_user_id' not in token_data): 
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = token_data['auth_user_id']
+    store = data_store.get()
+    message = get_message(message_id, store)
+    user = token_to_user(token, store)
+
+
+    # check message ID validity:
+    if message == None:
+        raise InputError(description="message ID is INVALID")
+
+    if not has_owner_perms(auth_user_id, store, user, message_id):
+        raise AccessError(description="User CANNOT unpin message")
+
+    if message['is_pinned'] == False:
+        raise InputError(description="message is ALREADY UNPINNED")
+    else:    
+        message['is_pinned'] = False
+
+    data_store.set(store)
+
+    return {}
