@@ -13,10 +13,7 @@ def reset_data():
 
 @pytest.fixture
 def user1():
-    user = auth_register(
-        DUMMY_EMAIL, 'Password1', 'John', 'Smith'
-    )
-    return user
+    return auth_register(DUMMY_EMAIL, 'Password1', 'John', 'Smith')
 
 def setup_imap_server(email, password):
     # Setup context
@@ -45,7 +42,7 @@ def get_reset_code(server):
     #-------------------------------------------------------------------
     if returnlist[0] == "Subject:Streams password reset":
         # Read reset code
-        returnlist = re.search(r'Your password reset code is: [0-9]*', body)
+        returnlist = re.search(r'Your password reset code is: [0-9a-f]*', body)
         reset_code = returnlist[0][-RESET_CODE_LENGTH:]
     # Delete email so that it doesnt clog up space
     server.store(message_id, '+FLAGS', '\\Deleted')
@@ -58,8 +55,7 @@ def test_valid_passwordreset_reset(user1):
     auth_passwordreset_request(DUMMY_EMAIL)
     server = setup_imap_server(DUMMY_EMAIL, DUMMY_PASSWORD)
     reset_code = get_reset_code(server)
-    with pytest.raises(InputError):
-        auth_passwordreset_reset(reset_code, "new_password")
+    auth_passwordreset_reset(reset_code, "new_password")
     auth_login(DUMMY_EMAIL, "new_password")
 
 # Test invalid reset

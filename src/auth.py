@@ -256,3 +256,21 @@ If you haven't recently requested a password reset, please ignore this email
     server.quit()
     data_store.set(store)
     return {}
+
+def auth_passwordreset_reset_v1(reset_code, new_password):
+    # Check if password is valid
+    if not valid_password(new_password):
+        raise InputError(description="Password too short")
+    # Check if reset_code is valid
+    store = data_store.get()
+    target_user = None
+    for user in store['users']:
+        if 'reset_code' in user and user['reset_code'] == reset_code:
+            target_user = user
+    if target_user is None:
+        raise InputError(description="Invalid reset code")
+    # Invalidate the one time use reset_code, change password to new_password
+    del target_user['reset_code']
+    target_user['password'] = hash(new_password)
+    data_store.set(store)
+    return {}

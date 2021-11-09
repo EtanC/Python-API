@@ -4,7 +4,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError, AccessError 
-from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1, auth_passwordreset_request_v1
+from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
 from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
@@ -126,6 +126,7 @@ def auth_logout():
     '''
     data = request.get_json()
     return dumps(auth_logout_v1(data['token']))
+
 @APP.route("/auth/passwordreset/request/v1", methods=['POST'])
 def auth_passwordreset_request():
     '''
@@ -143,6 +144,28 @@ def auth_passwordreset_request():
     '''
     data = request.get_json()
     return dumps(auth_passwordreset_request_v1(data['email']))
+
+@APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
+def auth_passwordreset_reset():
+    '''
+    Given a reset code and new password, changes the user's password to
+    the new password if reset code and new password are valid
+
+    Arguments:
+        reset_code      (str) - reset_code sent by Streams app to user's email
+        new_password    (str) - new password specified by user
+
+    Exceptions: 
+        InputError  - reset_code is not a valid reset code
+                    - new_password less than 6 characters long
+
+    Return Value: 
+        Returns {}
+    '''
+    data = request.get_json()
+    return dumps(auth_passwordreset_reset_v1(
+        data['reset_code'], data['new_password']
+    ))
 
 '''
 
