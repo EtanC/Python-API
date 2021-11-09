@@ -62,13 +62,3 @@ def dm_messages(token, dm_id, start):
     )
     return parse_response(res)
 
-def message_senddm(token, dm_id, message):
-    res = requests.post(
-        f"{config.url}message/senddm/v1",
-        json={
-            'token' : token,
-            'dm_id' : dm_id,
-            'message' : message,
-        }
-    )
-    return parse_response(res)
