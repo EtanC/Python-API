@@ -186,6 +186,60 @@ def test_valid_unpin(reset_data, user1, channel1, message_to_unpin): #POST
     del response_data['messages'][0]['time_created']
     assert response_data == expected_data
 
+# unpin one message in dm
+def test_valid_unpin_dm(reset_data, user1, dm1, message_to_unpin) : #POST:
+    # user1 is the owner so can pin the message
+    token = user1['token']
+    dm_id = dm1['dm_id']
+    message_id = message_to_unpin['message_id']
+
+    data_unpin_message = {
+        "token": token,
+        "message_id": message_id,
+    }
+
+    requests.post(f"{config.url}message/pin/v1", \
+        json=data_unpin_message)
+    
+    requests.post(f"{config.url}message/unpin/v1", \
+        json=data_unpin_message)
+
+    # display any pinned messages
+    channel_messages = {
+        "token": token,
+        "channel_id": dm_id,
+        "start": 0
+    }
+
+    response_channel_messages_details =requests.get(f"{config.url}channel/messages/v2", \
+        params=channel_messages)
+
+    expected_data = {
+        'messages': [
+            {
+                'message_id': message_to_unpin['message_id'],
+                'u_id': user1['auth_user_id'],
+                'message': "user1_valid_message_to_unpin",
+                'reacts': [],
+                'is_pinned': False,
+                
+            }
+        ],
+        'start': 0,
+        'end': -1 
+    }
+
+    dt = datetime.now()
+    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+    response_data = response_channel_messages_details.json()
+    messages_result = response_data['messages']
+    actual_time = messages_result[0]['time_created']
+    time_difference = actual_time - expected_time
+    assert time_difference < 2
+
+    del response_data['messages'][0]['time_created']
+    assert response_data == expected_data
+
 # unpin the correct message from multiple messages
 def test_valid_unpin2(reset_data, user1, channel1, message_to_unpin, other_message): #POST
 

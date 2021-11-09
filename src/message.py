@@ -214,7 +214,6 @@ def has_owner_perms(auth_user_id, store, user, message_id):
 
 def message_unpin_v1(token, message_id):
 
-
     store = data_store.get()
 
     # if token is invalid or doesn't have an 'auth_user_id' which it should 
@@ -223,7 +222,7 @@ def message_unpin_v1(token, message_id):
     else:
         raise AccessError(description='Invalid token')
 
-    auth_user_id = user['auth_user_id']
+    auth_user_id = user['u_id']
     message = get_message(message_id, store)
 
     # check message ID validity:
