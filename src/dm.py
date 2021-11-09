@@ -3,6 +3,8 @@ from src.error import InputError
 from src.error import AccessError
 from src.helper import token_to_user, decode_token
 
+STARTING_DM_ID = 1
+
 '''
 
 {dm_create_v2}
@@ -28,13 +30,16 @@ def dm_create_v1(token, u_ids):
     if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
         raise InputError(description='Invalid u_id')
 
-    # get dm_id by counting number of dm and adding one
-    # assuming it starts at 1
-    dm_id = len(store['dms']) + 1
+    # new dm_id  = last dm_id + 1
+    if len(store['dms']) < 1:
+        dm_id = STARTING_DM_ID
+    else:
+        dm_id = store['dms'][-1]['dm_id'] + 1
 
     # based on user_id passed in,
     # copy creator user's dictionary into user_list
-    user_list = []
+    # include the owner
+    user_list = [owner]
     for u_id in u_ids:
         for users in store['users']:
             if u_id == users['u_id']:
@@ -55,6 +60,7 @@ def dm_create_v1(token, u_ids):
         'messages': [],
         'name': dm_name
     }
+
     # Append channel_data to 'dms' list in data_store
     store['dms'].append(dm_data)
     data_store.set(store)

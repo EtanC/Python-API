@@ -8,7 +8,9 @@ from src.error import InputError, AccessError
 import jwt
 import re
 import hashlib
-from src.config import SECRET, EMAIL_REGEX
+import smtplib, ssl
+import secrets
+from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD, RESET_CODE_LENGTH
 from src.helper import decode_token, get_user
 
 MIN_PASSWORD_LENGTH = 6
@@ -84,47 +86,46 @@ def valid_password(password):
 def valid_name(name):
     return MIN_NAME_LENGTH <= len(name) <= MAX_NAME_LENGTH
 
+def filter_only_alphanumeric(string):
+    '''
+    Helper function for handle creation. Given a string, will return the
+    string with only the alphanumeric characters remaining and lower cased
+    '''
+    return ''.join(list(filter(lambda l: l.isalnum(), string))).lower()
+
+def handle_is_unique(handle, store):
+    for user in store['users']:
+        if user['handle_str'] == handle:
+            return False
+    return True
+
 def handle(name_first, name_last, store):
     '''
     Returns a handle based on the first and last name provided.
     Also checks if the handle is already taken.
     If it is, will append a number to handle to make it unique.
     '''
-    handle = ""
-    # Append alphanumeric characters from name_first
-    for letter in name_first:
-        # Checking that handle is less than 20 characters
-        if len(handle) < 20:
-            if letter.isalnum():
-                handle += letter.lower()
-        else:
-            break
-    # Append alphanumeric characters from name_last
-    for letter in name_last:
-        # Checking that handle is less than 20 characters
-        if len(handle) < 20:
-            if letter.isalnum():
-                handle += letter.lower()
-        else:
-            break
+    handle = filter_only_alphanumeric(name_first)\
+             + filter_only_alphanumeric(name_last)
+    # Limit handle to 20 characters
+    handle = handle[:20]
 
     append_number = STARTING_APPEND_NUMBER_HANDLE - 1
     unique_handle = False
     # Keep increasing append number until handle is unique
     while unique_handle == False:
         unique_handle = True
-        for user in store['users']:
-            # Check if handle + append_number is taken
-            if append_number != -1:
-                if user['handle_str'] + str(append_number) == handle:
-                    # Increment number if handle is taken
-                    append_number += 1
-                    unique_handle = False
-            else:
-                if user['handle_str'] == handle:
-                    # Increment number if handle is taken
-                    append_number += 1
-                    unique_handle = False
+        # Check if handle is taken
+        if append_number != -1:
+            if not handle_is_unique(handle + str(append_number), store):
+                # Increment number if handle is taken
+                append_number += 1
+                unique_handle = False
+        else:
+            if not handle_is_unique(handle, store):
+                # Increment number if handle is taken
+                append_number += 1
+                unique_handle = False
     # If number has been increased, append number to make handle unique
     if append_number != STARTING_APPEND_NUMBER_HANDLE - 1:
         handle += str(append_number)
@@ -216,5 +217,42 @@ def auth_logout_v1(token):
     if payload['session_id'] not in user['active_session_ids']:
         raise AccessError(description="Invalid token, session id not valid")
     user['active_session_ids'].remove(payload['session_id'])
+    data_store.set(store)
+    return {}
+
+def generate_reset_code():
+    # Specifying number of bytes, where 1 byte = 2 hex digits, so
+    # reset codes can only be multiples of 2 digits long
+    return secrets.token_hex(RESET_CODE_LENGTH // 2)
+
+def auth_passwordreset_request_v1(email):
+    store = data_store.get()
+    target_user = None
+    # Check if email is in system
+    for user in store['users']:
+        if user['email'] == email:
+            target_user = user
+    if target_user is None:
+        return {}
+    target_user['active_session_ids'] = []
+    # Make reset_code
+    reset_code = generate_reset_code()
+    # Store reset_code for later use
+    target_user['reset_code'] = reset_code
+    # Send email with reset_code
+    #-------------------------------------------------------------------
+    # TODO: make sure these hard coded pieces of text go into config.py
+    #-------------------------------------------------------------------
+    msg = f"""\
+Subject:Streams password reset
+
+Your password reset code is: {reset_code}
+If you haven't recently requested a password reset, please ignore this email
+"""
+    context = ssl.create_default_context()
+    server = smtplib.SMTP_SSL(host='smtp.gmail.com', port=465, context=context)
+    server.login(DUMMY_EMAIL, DUMMY_PASSWORD)
+    server.sendmail(DUMMY_EMAIL, email, msg)
+    server.quit()
     data_store.set(store)
     return {}

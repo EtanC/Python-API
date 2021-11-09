@@ -65,7 +65,7 @@ def test_valid(reset):
     }
 
     response = requests.get(f"{config.url}dm/details/v1", params=data_details)
-    assert response.json()['name'] == 'abbysmith, betasmith, charliesmith'
+    assert response.json()['name'] == 'abbysmith, betasmith, charliesmith, johnsmith'
 
     expected_list = [{
         'u_id': u_id2,
@@ -85,6 +85,12 @@ def test_valid(reset):
         'name_first': 'Charlie', 
         'name_last': 'Smith', 
         'handle_str': 'charliesmith',
+    }, {
+        'u_id': reset[0]['auth_user_id'], 
+        "email": "realemail_812@outlook.edu.au",
+        "name_first": "John",
+        "name_last": "Smith",
+        'handle_str': 'johnsmith',
     }]
 
     returned_list = response.json()['members']
@@ -150,7 +156,8 @@ def test_more_valid(reset):
     }
 
     response = requests.get(f"{config.url}dm/details/v1", params=data_details)
-    assert response.json()['name'] == 'abbysmith, betasmith, charliesmith, deltasmith, evansmith'
+    assert response.json()['name'] == 'abbysmith, betasmith, charliesmith, deltasmith, evansmith'\
+        + ', johnsmith'
 
     expected_list = [{
         'u_id': u_id2,
@@ -182,6 +189,12 @@ def test_more_valid(reset):
         'name_first': 'Delta', 
         'name_last': 'Smith', 
         'handle_str': 'deltasmith',
+    }, {
+        'u_id': reset[0]['auth_user_id'], 
+        "email": "realemail_812@outlook.edu.au",
+        "name_first": "John",
+        "name_last": "Smith",
+        'handle_str': 'johnsmith',
     }]
 
     returned_list = response.json()['members']
@@ -190,7 +203,6 @@ def test_more_valid(reset):
     sorted_ret_list = sorted(returned_list, key = lambda k: k['u_id']) 
 
     assert sorted_ret_list == sorted_exp_list
-
 
 def test_invalid_token(reset): 
     u_id1 = reset[1]['auth_user_id']
@@ -267,8 +279,9 @@ def test_invalid_member(reset):
 
     response = requests.post(f"{config.url}dm/create/v1", json=data_create)
     dm_id = response.json()['dm_id']
+
     data_details = { 
-        'token': reset[0]['token'], 
+        'token': 'INVALID TOKEN', 
         'dm_id': dm_id, 
     }
 
