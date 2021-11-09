@@ -263,28 +263,35 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     wait_seconds = time_sent - time_now
 
     # start the thread
-    thread = threading.Thread(target=sendlater_thread, args=[token, channel_id, \
+    thread = threading.Thread(target=sendlater_thread, args=[user['u_id'], channel_id, \
         message, wait_seconds, reserved_message_id])
     thread.start()
 
     return {'message_id':reserved_message_id}
 
-def sendlater_thread(token, channel_id, message, seconds, reserved_message_id):
+def sendlater_thread(user_id, channel_id, message, seconds, reserved_message_id):
     # wait until it is time to send message
     time.sleep(seconds)
 
-    # set message_id back to the reserved one before calling the function
-    # keep the most current message id 
+    # send the message, don't use message_send function as that checks for 
+    # session id which means that if the user logs out before sendlater message is 
+    # sent, the message won't be sent due to token error 
     store = data_store.get()
-    most_current_message_id = store['message_id']
-    store['message_id'] = reserved_message_id
-    data_store.set(store)
-
-    message_send_v1(token, channel_id, message)
     
-    # set message id back to the most current one 
-    store = data_store.get() 
-    store['message_id'] = most_current_message_id
+    channel = get_channel(channel_id, store)
+    time_created = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    new_message = {
+        'message_id': reserved_message_id,
+        'u_id': user_id,
+        'message': message, 
+        'time_created': time_created,
+    }
+    
+    # append new message and its stats to the channel directly without 
+    # checking for token, already checked message length (will post empty messages, 
+    # since interface doesn't say anything about this and forums say 'you can decide')
+    channel['messages'].append(new_message)
+    
     data_store.set(store)
 
 def has_owner_perms(auth_user_id, store, user, message_id): 
