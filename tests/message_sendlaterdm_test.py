@@ -118,14 +118,14 @@ def test_two_dms(reset):
 
     # send another dm 5 secs after
     time_sent_2 = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 5
-    data_sendlater = {
+    data_sendlaterdm = {
         'token': reset['creator']['token'], 
         'dm_id': reset['dm_id'],
         'message': 'its me again', 
         'time_sent': time_sent_2,
     }
 
-    response_sendlaterdm_2 = requests.post(f"{config.url}message/sendlaterdm/v1", json=data_sendlater)
+    response_sendlaterdm_2 = requests.post(f"{config.url}message/sendlaterdm/v1", json=data_sendlaterdm)
     assert type(response_sendlaterdm_2.json()['message_id']) is int
 
     # sleep 2 seconds and make sure first and second dms aren't there yet
@@ -268,7 +268,7 @@ def test_invalid_token(reset):
     time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlaterdm = { 
         'token': 'invalid_token', 
-        'channel_id': reset['channel_id'], 
+        'dm_id': reset['dm_id'], 
         'message': 'valid message', 
         'time_sent': time_sent, 
     }
@@ -287,7 +287,7 @@ def test_send_dm_before_sendlaterdm(reset):
     time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
     data_sendlaterdm = {
         'token': reset['creator']['token'], 
-        'dm_id': reset['dm)id'],
+        'dm_id': reset['dm_id'],
         'message': 'valid message', 
         'time_sent': time_sent,
     }

@@ -7,6 +7,8 @@ from flask import Flask, request
 from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm, is_global_owner
 from datetime import timezone, datetime
 from src.channel import is_channel_member
+import time
+import threading
 
 def message_senddm_v1(token, dm_id, message):
 
@@ -239,7 +241,7 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
     # check if user is in dm
     if user not in dm['members']: 
         raise AccessError(description='User not in DM')
-    
+
     # check message length
     if len(message) > 1000: 
         raise InputError(description='Message too long')
@@ -252,9 +254,44 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
     # save the message_id of message that is not sent yet, move the message id
     # in store ahead by one so the message_id of message after doesn't clash 
     # with this one
+    reserved_message_id = store['message_id']
+    store['message_id'] += 1
+    data_store.set(store)
     
+    # calculate the number of seconds to wait and call the threading function
+    wait_seconds = time_sent - time_now
     
-    pass
+    # start thread
+    thread = threading.Thread(target=sendlaterdm_thread, args=[user['u_id'], dm_id, \
+        message, wait_seconds, reserved_message_id])
+    thread.start()
+    
+    return { 'message_id': reserved_message_id }
+
+def sendlaterdm_thread(user_id, dm_id, message, seconds, reserved_message_id):
+    # wait until it is time to send message to dm 
+    time.sleep(seconds)
+    
+    # send the message, don't use senddm function as that checks for 
+    # session id which means that if the user logs out before sendlaterdm message is 
+    # sent, the message won't be sent due to token error 
+    store = data_store.get()
+    dm = get_dm(dm_id, store)
+    time_created = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    new_message = {
+        'message_id': reserved_message_id,
+        'u_id': user_id,
+        'message': message,
+        'time_created': time_created,
+    }
+    
+    # append new message and its stats to the DM directly without 
+    # checking for token, already checked message length (will post empty messages, 
+    # since interface doesn't say anything about this and forums say 'you can decide')
+    dm['messages'].append(new_message)
+    
+    data_store.set(store)
+    
 
 def has_owner_perms(auth_user_id, store, user, message_id): 
     for channel in store['channels']:
