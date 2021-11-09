@@ -1,6 +1,4 @@
 import pytest
-import requests
-from src import config
 from src.error import InputError, AccessError
 from fake.other import clear
 from fake.auth import auth_register
