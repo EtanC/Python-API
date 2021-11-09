@@ -254,7 +254,6 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     # save the message_id of message that is not sent yet, move the message id
     # in store ahead by one so the message_id of message after doesn't clash 
     # with this one
-    store = data_store.get()
     reserved_message_id = store['message_id']
     store['message_id'] += 1 
     data_store.set(store)
