@@ -341,6 +341,8 @@ def test_channel_messages_remove(reset_data, user1, user2, channel1):
                 'message_id' : response_send_message.json()['message_id'],
                 'u_id' : user2['auth_user_id'],
                 'message' : 'Removed user',
+                'reacts' : [],
+                'is_pinned' : False
             }
         ],
         'start' : 0,

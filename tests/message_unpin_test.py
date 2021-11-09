@@ -216,7 +216,15 @@ def test_valid_unpin2(reset_data, user1, channel1, message_to_unpin, other_messa
         params=channel_messages)
 
     expected_data = {
+
         'messages': [
+            {
+                'message_id': other_message['message_id'],
+                'u_id': channel1['user_id'],
+                'message': other_message['message'],
+                'reacts': [],
+                'is_pinned': False,
+            },
             {
                 'message_id': message_to_unpin['message_id'],
                 'u_id': channel1['user_id'],
@@ -225,14 +233,6 @@ def test_valid_unpin2(reset_data, user1, channel1, message_to_unpin, other_messa
                 'is_pinned': False,
             },
             
-            {
-                'message_id': other_message['message_id'],
-                'u_id': channel1['user_id'],
-                'message': other_message['message'],
-                'reacts': [],
-                'is_pinned': False,
-            },
-
         ],
         'start': 0,
         'end': -1 
