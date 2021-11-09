@@ -27,14 +27,11 @@ def channel_invite_v1(token, channel_id, u_id):
 
     store = data_store.get()
     
-    token_data = decode_token(token)
-
-    if (token_data is None) or ('auth_user_id' not in token_data): 
+    user = token_to_user(token, store)
+    if user is None:
         raise AccessError(description='Invalid token')
-
-    auth_user_id = token_data['auth_user_id']
+    auth_user_id = user['u_id']
     channel = get_channel(channel_id, store)
-    user = get_user(auth_user_id, store)
 
     # if channel dosen't exist:
     if (channel == None):
@@ -88,19 +85,14 @@ def channel_details_v1(token, channel_id):
     Return Value: 
         Returns { name , is_public , owner_members , all_members } on successful call
     '''
-    token_data = decode_token(token)
-    
-    # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
-        raise AccessError(description='Invalid token')
-
-    auth_user_id = token_data['auth_user_id']
 
     store = data_store.get() 
 
-    # check for invalid user id 
-    if check_valid_user_id(auth_user_id, store) == False: 
-        raise AccessError(description="Invalid auth_user_id")
+    # check for invalid token
+    user = token_to_user(token, store)
+    if user is None: 
+        raise AccessError(description="Invalid token")
+    auth_user_id = user['u_id']
     
     # check for invalid channel id 
     if check_valid_channel(channel_id, store) == False: 
@@ -201,19 +193,10 @@ def check_valid_channel(channel_id, store):
     return result
 
 def channel_join_v1(token, channel_id):
-
-    token_data = decode_token(token)
-
-    # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
-        raise AccessError(description='Invalid token')
-
-    auth_user_id = token_data['auth_user_id']
-
-
     store = data_store.get() # get the data
+    user = token_to_user(token, store)
+
     channel = get_channel(channel_id, store)
-    user = get_user(auth_user_id, store)
 
     # if channel dosen't exist:
     if (channel == None):
