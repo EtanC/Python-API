@@ -4,7 +4,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError, AccessError 
-from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1
+from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1, auth_passwordreset_request_v1
 from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
@@ -126,6 +126,26 @@ def auth_logout():
     '''
     data = request.get_json()
     return dumps(auth_logout_v1(data['token']))
+<<<<<<< HEAD
+=======
+@APP.route("/auth/passwordreset/request/v1", methods=['POST'])
+def auth_passwordreset_request():
+    '''
+    Given a valid email, sends the email a password reset code to reset the
+    user's password. Does not raise an error when email is invalid
+
+    Arguments:
+        email       (str) - email that the user used to register
+
+    Exceptions: 
+        N/A
+
+    Return Value: 
+        Returns {}
+    '''
+    data = request.get_json()
+    return dumps(auth_passwordreset_request_v1(data['email']))
+>>>>>>> 32cd25abfae54ef995669ef0dc93355cf214a393
 
 '''
 
@@ -274,7 +294,6 @@ def channel_invite_v2():
 
     return_dict = channel_invite_v1(data['token'], int(data['channel_id']), int(data['u_id']))
     return dumps(return_dict)
-
 
 '''
 

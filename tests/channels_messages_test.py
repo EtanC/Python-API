@@ -109,7 +109,7 @@ def test_single_message(reset_data, channel1):
 def test_pagination(reset_data, channel1):
     # Send 60 messages with 'hi'
     message_ids = []
-    for i in range(60):
+    for _ in range(60):
         data_send_message = {
             'token' : channel1['user']['token'],
             'channel_id' : channel1['channel_id'],
@@ -119,7 +119,7 @@ def test_pagination(reset_data, channel1):
             f'{config.url}message/send/v1',
             json=data_send_message
         )
-        message_ids.append(response_send_message.json()['message_id'])
+        message_ids.insert(0, response_send_message.json()['message_id'])
     expected = ''
     data_messages = {
         'token' : channel1['user']['token'],
