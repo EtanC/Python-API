@@ -112,3 +112,14 @@ def message_sendlaterdm(token, dm_id, message, time_sent):
         }
     )
     return parse_response(res)
+
+def message_senddm(token, dm_id, message):
+    res = requests.post(
+        f"{config.url}message/senddm/v1",
+        json={
+            'token' : token,
+            'dm_id' : dm_id,
+            'message' : message,
+        }
+    )
+    return parse_response(res)
