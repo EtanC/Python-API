@@ -66,7 +66,7 @@ def channel1(user1):
     data_send_message = {
        "token": user1['token'],
        "message": "before",
-       "channel_id": channel1['channel_id']
+       "channel_id": channel_id
     }
 
     requests.post(f"{config.url}message/send/v1",
@@ -105,10 +105,12 @@ def dm1(user1, user2):
         json=data_create
     )
 
+    dm_id = response_create.json()['dm_id']
+
     data_send_dm = {
        "token": user1['token'],
        "message": "factor",
-       "dm_id": dm1['dm_id']
+       "dm_id": dm_id
     }
 
     requests.post(f"{config.url}message/senddm/v1",

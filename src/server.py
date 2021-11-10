@@ -18,6 +18,7 @@ from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.helper import decode_token 
+from src.search import search_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -126,6 +127,7 @@ def auth_logout():
     '''
     data = request.get_json()
     return dumps(auth_logout_v1(data['token']))
+
 @APP.route("/auth/passwordreset/request/v1", methods=['POST'])
 def auth_passwordreset_request():
     '''
@@ -877,6 +879,25 @@ def admin_userpermission_change():
     return_dict = admin_userpermission_change_v1(data['token'], int(data['u_id']), int(data['permission_id']))
 
     return dumps(return_dict)
+
+@APP.route("/search/v1", methods=['GET'])
+def search(): 
+    '''
+    Arguments:
+        token       (str)     - token identifying user 
+        query_str   (str)     - string to search message
+
+    Exceptions: 
+        InputError  - query string length is <0 or >1000 
+        AccessError - Invalid token
+
+    Return Value: 
+        Returns {messages} on successful creation 
+    '''
+
+    data = request.args
+    messages = search_v1(data['token'], data['query_str'])
+    return dumps(messages)
 
 
 @APP.route("/clear/v1", methods=['DELETE'])
