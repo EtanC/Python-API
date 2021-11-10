@@ -140,7 +140,7 @@ def test_have_not_reacted(reset,create_dm):
     )
     
     data = {
-        'token' : create_dm[1]['token'],
+        'token' : create_dm[0]['token'],
         'dm_id' : create_dm[2]['dm_id'],
         'start' : 0
     }
