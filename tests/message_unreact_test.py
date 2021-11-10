@@ -151,6 +151,7 @@ def test_have_not_reacted(reset,create_dm):
 
     response = response.json()
 
+    # delete the time_created because it is unnecessary
     del response['messages'][0]['time_created']
     assert response['messages'] ==   \
     [{
