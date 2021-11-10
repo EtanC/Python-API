@@ -42,11 +42,7 @@ def message_senddm_v1(token, dm_id, message):
         raise AccessError(description="This user is NOT part of dm")
 
     # Recording messages_sent data for user/stats/v1
-    try:
-        messages_sent = user['messages_sent'][-1]['num_messages_sent']
-    except KeyError:
-        print(user)
-        raise KeyError
+    messages_sent = user['messages_sent'][-1]['num_messages_sent']
     user['messages_sent'].append({
         'num_messages_sent' : messages_sent + 1,
         'time_stamp' : current_timestamp(),
