@@ -12,7 +12,13 @@ from src.channels import channels_list_v1
 
 def search_v1(token, query_str):
 
-    if len(query_str) < 0 or len(query_str) > 1000:
+    store = data_store.get()
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if token_to_user(token, store) is None:
+        raise AccessError(description='Invalid token')
+
+
+    if len(query_str) < 1 or len(query_str) > 1000:
         raise InputError(description= "search query is TOO SHORT or TOO LONG")
 
     messages = []

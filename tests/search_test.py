@@ -91,7 +91,6 @@ def channel1(user1):
 def dm1(user1, user2):
 
     u_ids = []
-    u_ids.append(user1['auth_user_id'])
     u_ids.append(user2['auth_user_id'])
 
     #user1 creates a dm with user2 included
@@ -144,9 +143,9 @@ def test_valid_search(reset_data, channel1, dm1, user1):
     expected_data_channel = {
         'messages': [
             {
-                'message_id': 1,
+                'message_id': 4,
                 'u_id': channel1['user_id'],
-                'message': "before",
+                'message': "format",
                 'reacts': [],
                 'is_pinned': False,
             },
@@ -158,12 +157,12 @@ def test_valid_search(reset_data, channel1, dm1, user1):
                 'is_pinned': False,
             },
             {
-                'message_id': 4,
+                'message_id': 1,
                 'u_id': channel1['user_id'],
-                'message': "format",
+                'message': "before",
                 'reacts': [],
                 'is_pinned': False,
-            },
+            },   
             {
                 'message_id': 5,
                 'u_id': user1['auth_user_id'],
@@ -185,42 +184,15 @@ def test_valid_search(reset_data, channel1, dm1, user1):
     dt = datetime.now()
     expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
     response_data_search_channel = response_search.json()
-    messages_result = response_data_search_channel['messages']
-
-    actual_time = messages_result[0]['time_created']
-    time_difference = actual_time - expected_time
-    assert time_difference < 2
-
-    actual_time = messages_result[1]['time_created']
-    time_difference = actual_time - expected_time
-    assert time_difference < 2
-
-    actual_time = messages_result[2]['time_created']
-    time_difference = actual_time - expected_time
-    assert time_difference < 2
-
-    actual_time = messages_result[3]['time_created']
-    time_difference = actual_time - expected_time
-    assert time_difference < 2
-
-    actual_time = messages_result[4]['time_created']
-    time_difference = actual_time - expected_time
-    assert time_difference < 2
-
-    del response_data_search_channel['messages'][0]['time_created']
-    del response_data_search_channel['messages'][1]['time_created']
-    del response_data_search_channel['messages'][2]['time_created']
-    del response_data_search_channel['messages'][3]['time_created']
-    del response_data_search_channel['messages'][4]['time_created']
-
-
-    assert expected_data_channel == response_data_search_channel
-
-    '''
-    for time in messages_result:
-        actual_time = time['time_created']
+    
+    
+    for message in response_data_search_channel['messages']:
+        actual_time  = message['time_created']
         time_difference = actual_time - expected_time
-    '''
+        assert time_difference < 2
+        del message['time_created']
+    
+    assert expected_data_channel == response_data_search_channel
 
 def test_invalid_query_str(reset_data, channel1, user1):
    
@@ -238,4 +210,16 @@ def test_invalid_query_str(reset_data, channel1, user1):
     response_search = requests.get(f"{config.url}search/v1", \
         params=data_search)
     assert response_search.status_code == 400
+
+def test_invalid_token(reset_data, user1, channel1): 
+
+    token_register = {
+        "token": "INVALID TOKEN",
+        "query_str": "apple",
+    }
+    
+    response_register = requests.get(f"{config.url}search/v1",\
+    params=token_register)
+
+    assert response_register.status_code == 403
 
