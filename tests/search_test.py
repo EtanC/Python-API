@@ -165,14 +165,14 @@ def test_valid_search(reset_data, channel1, dm1, user1):
                 'is_pinned': False,
             },
             {
-                'message_id': 1,
+                'message_id': 5,
                 'u_id': user1['auth_user_id'],
                 'message': "factor",
                 'reacts': [],
                 'is_pinned': False,
             },
             {
-                'message_id': 2,
+                'message_id': 6,
                 'u_id': user1['auth_user_id'],
                 'message': "resort",
                 'reacts': [],

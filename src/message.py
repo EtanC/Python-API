@@ -57,6 +57,8 @@ def message_senddm_v1(token, dm_id, message):
         'u_id': user_id,
         'message': dm_message_to_send,
         'time_created': time_created,
+        'reacts' : [],
+        'is_pinned' : False
     }
    
     # Add the message to the dm
@@ -191,6 +193,8 @@ def message_send_v1(token, channel_id, message):
     new_message['u_id'] = user_id
     new_message['message'] = message_to_add
     new_message['time_created'] = time_created
+    new_message['reacts'] = []
+    new_message['is_pinned'] = False
     
     #get list of all messages (not deleted) from the channel 
     all_channel_messages = channel['messages']
