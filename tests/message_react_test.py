@@ -164,7 +164,6 @@ def test_valid_dm_unreact(reset, create_dm):
                 'is_this_user_reacted' : True,
                 'react_id' : 1,
                 'u_ids': [create_dm[1]['auth_user_id']]}],
-                'u_id': 1,
     }]
 
 
@@ -203,7 +202,6 @@ def test_false_react(reset, create_dm):
                 'is_this_user_reacted' : False,
                 'react_id' : 1,
                 'u_ids': [create_dm[1]['auth_user_id']]}],
-                'u_id': 1,
     }]
 
 
