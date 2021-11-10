@@ -14,7 +14,7 @@ import time
 TIME_STEP = 1
 MAX_TIME_DIFF = 2
 
-class user_stats:
+class user_sim:
     '''
     The user_stats class is an over-simplified solution of user_stats.
     It can keep track of statistics such as when the number of channels joined,
@@ -136,7 +136,7 @@ def test_initial_stats_user_stats(user1):
 
 def test_valid_user_stats(user1):
     # Keep track of time stamps with simplified version of user/stats/v1
-    user1_sim = user_stats()
+    user1_sim = user_sim()
 
     # Sleeping to test different, changing time stamps
     channel_id = channels_create(user1['token'], "Channel1", True)['channel_id']
@@ -172,8 +172,8 @@ def test_valid_user_stats(user1):
     assert user_statistics['involvement_rate'] == 1
 
 def test_two_users_user_stats(user1, user2):
-    user1_sim = user_stats()
-    user2_sim = user_stats()
+    user1_sim = user_sim()
+    user2_sim = user_sim()
 
     channel_id = channels_create(user1['token'], "Channel1", True)['channel_id']
     user1_sim.joined_channel()
