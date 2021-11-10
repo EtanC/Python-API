@@ -97,6 +97,8 @@ def test_single_message(reset_data, channel1):
                 'message_id' : response_send_message.json()['message_id'],
                 'u_id' : channel1['user']['auth_user_id'],
                 'message' : 'hi',
+                'reacts' : [],
+                'is_pinned' : False
             }
         ],
         'start' : 0,
@@ -148,6 +150,8 @@ def test_pagination(reset_data, channel1):
             'message_id' : message_ids[i],
             'u_id' : channel1['user']['auth_user_id'],
             'message' : 'hi',
+            'reacts' : [],
+            'is_pinned' : False
         })
     assert channel_messages == expected
 
