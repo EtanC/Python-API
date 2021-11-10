@@ -194,3 +194,30 @@ def user_profile_setemail_v1(token, email):
     data_store.set(store)
 
     return {}  
+
+def user_stats_v1(token):
+    store = data_store.get()
+    user = token_to_user(token, store)
+    if user is None:
+        raise AccessError(description='Invalid token')
+    num_channels_joined = user['channels_joined'][-1]['num_channels_joined']
+    num_dms_joined = user['dms_joined'][-1]['num_dms_joined']
+    num_msgs_sent = user['messages_sent'][-1]['num_messages_sent']
+    num_channels = len(store['channels'])
+    num_dms = len(store['dms'])
+    # Waiting for users/stats/v1 implementation
+    # num_msgs = store['workspace_stats']['messages_exist'][-1]['num_messages_exist']
+    num_msgs = store['message_id'] - 1
+    if num_channels + num_dms + num_msgs != 0:
+        involvement_rate = (num_channels_joined + num_dms_joined +
+                            num_msgs_sent) / (num_channels + num_dms + num_msgs)
+    else:
+        involvement_rate = 0
+
+    stats = {
+        'channels_joined' : user['channels_joined'],
+        'dms_joined' : user['dms_joined'],
+        'messages_sent' : user['messages_sent'],
+        'involvement_rate' : involvement_rate,
+    }
+    return stats

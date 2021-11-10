@@ -11,7 +11,7 @@ import hashlib
 import smtplib, ssl
 import secrets
 from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD, RESET_CODE_LENGTH
-from src.helper import decode_token, get_user
+from src.helper import decode_token, get_user, current_timestamp
 
 MIN_PASSWORD_LENGTH = 6
 MIN_NAME_LENGTH = 1
@@ -183,6 +183,18 @@ def auth_register_v1(email, password, name_first, name_last):
         'handle_str' : user_handle,
         'active_session_ids' : [STARTING_SESSION_ID],
         'permission_id' : permission_id,
+        'channels_joined' : [{
+            'num_channels_joined' : 0,
+            'time_stamp' : current_timestamp(),
+        }],
+        'dms_joined' : [{
+            'num_dms_joined' : 0,
+            'time_stamp' : current_timestamp(),
+        }],
+        'messages_sent' : [{
+            'num_messages_sent' : 0,
+            'time_stamp' : current_timestamp(),
+        }],
     }
     store['users'].append(user)
     data_store.set(store)

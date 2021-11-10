@@ -89,20 +89,26 @@ def compare_user_stats(user_stats_return, user_stats_expected):
     '''
     Compares an instance of a "user_stats" dictionary to a user_stats class
     '''
+    assert len(user_stats_return['channels_joined']) == \
+            len(user_stats_expected.channels_joined)
     compare = zip(user_stats_return['channels_joined'],
-                  user_stats_expected.channels_joined, strict=True)
+                  user_stats_expected.channels_joined)
     for entry, expected in compare:
         assert entry['num_channels_joined'] == expected['num_channels_joined']
         assert abs(entry['time_stamp'] - expected['time_stamp']) < MAX_TIME_DIFF
+    assert len(user_stats_return['dms_joined']) == \
+            len(user_stats_expected.dms_joined)
     compare = zip(user_stats_return['dms_joined'],
-                  user_stats_expected.dms_joined, strict=True)
+                  user_stats_expected.dms_joined)
     for entry, expected in compare:
         assert entry['num_dms_joined'] == expected['num_dms_joined']
         assert abs(entry['time_stamp'] - expected['time_stamp']) < MAX_TIME_DIFF
+    assert len(user_stats_return['messages_sent']) == \
+            len(user_stats_expected.messages_sent)
     compare = zip(user_stats_return['messages_sent'],
-                  user_stats_expected.messages_sent, strict=True)
+                  user_stats_expected.messages_sent)
     for entry, expected in compare:
-        assert entry['messages_sent'] == expected['messages_sent']
+        assert entry['num_messages_sent'] == expected['num_messages_sent']
         assert abs(entry['time_stamp'] - expected['time_stamp']) < MAX_TIME_DIFF
 
 @pytest.fixture(autouse=True)
@@ -123,15 +129,8 @@ def user2():
 
 def test_initial_stats_user_stats(user1):
     user_statistics = user_stats(user1['token'])
-    curr_timestamp = datetime.now().replace(tzinfo=timezone.utc).timestamp()
-    # Checking that initial time stamp is accurate
-    for stat_key in ('channels_joined', 'dms_joined', 'messages_sent'):
-        stat_timestamp = user_statistics[stat_key][0]['time_stamp']
-        assert abs(stat_timestamp - curr_timestamp) < MAX_TIME_DIFF
-    # Checking that initially all metrics are 0 (only 1 user, no need to loop)
-    assert user_statistics['channels_joined'][0]['num_channels_joined'] == 0
-    assert user_statistics['dms_joined'][0]['num_dms_joined'] == 0
-    assert user_statistics['messages_sent'][0]['num_messages_sent'] == 0
+    user1_sim = user_sim()
+    compare_user_stats(user_statistics, user1_sim)
     assert user_statistics['involvement_rate'] == 0
 
 def test_valid_user_stats(user1):
@@ -183,7 +182,7 @@ def test_two_users_user_stats(user1, user2):
     user2_sim.joined_channel()
     time.sleep(TIME_STEP)
 
-    dm_id = dm_create(user1['token'], [user2['auth_user_id']])
+    dm_id = dm_create(user1['token'], [user2['auth_user_id']])['dm_id']
     user1_sim.joined_dm()
     user2_sim.joined_dm()
     time.sleep(TIME_STEP)

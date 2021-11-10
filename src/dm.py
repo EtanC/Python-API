@@ -1,7 +1,7 @@
 from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
-from src.helper import token_to_user, decode_token
+from src.helper import token_to_user, decode_token, current_timestamp
 
 STARTING_DM_ID = 1
 
@@ -27,7 +27,7 @@ def dm_create_v1(token, u_ids):
         raise AccessError(description='Invalid token')
 
     # INPUT ERROR: if any u_id in u_ids does not refer to a valid user
-    if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
+    if check_valid_id(u_ids, store) == False:
         raise InputError(description='Invalid u_id')
 
     # new dm_id  = last dm_id + 1
@@ -49,6 +49,12 @@ def dm_create_v1(token, u_ids):
     dm_name = []
     for users in user_list:
         dm_name.append(users['handle_str'])
+        # Recording dms_joined data for user/stats/v1
+        dms_joined = users['dms_joined'][-1]['num_dms_joined']
+        users['dms_joined'].append({
+            'num_dms_joined' : dms_joined + 1,
+            'time_stamp' : current_timestamp(),
+        })
     dm_name.sort()
     # over-writes the original list
     dm_name = ', '.join(dm_name)

@@ -4,7 +4,7 @@ from src.error import InputError
 from src.error import AccessError
 from json import dumps
 from flask import Flask, request
-from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm, is_global_owner
+from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm, is_global_owner, current_timestamp
 from datetime import timezone, datetime
 from src.channel import is_channel_member
 
@@ -40,6 +40,17 @@ def message_senddm_v1(token, dm_id, message):
     dm_user_list = dm['members']
     if user not in dm_user_list:
         raise AccessError(description="This user is NOT part of dm")
+
+    # Recording messages_sent data for user/stats/v1
+    try:
+        messages_sent = user['messages_sent'][-1]['num_messages_sent']
+    except KeyError:
+        print(user)
+        raise KeyError
+    user['messages_sent'].append({
+        'num_messages_sent' : messages_sent + 1,
+        'time_stamp' : current_timestamp(),
+    })
 
     # using datetime to capture the time the message was created
     dt = datetime.now()
@@ -174,6 +185,13 @@ def message_send_v1(token, channel_id, message):
     channel_user_list = channel['all_members']
     if user not in channel_user_list:
         raise AccessError(description="This user is NOT part of channel")
+
+    # Recording messages_sent data for user/stats/v1
+    messages_sent = user['messages_sent'][-1]['num_messages_sent']
+    user['messages_sent'].append({
+        'num_messages_sent' : messages_sent + 1,
+        'time_stamp' : current_timestamp(),
+    })
 
     # obtain message_id from store and update it for later
     message_id = store['message_id'] 
