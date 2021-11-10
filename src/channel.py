@@ -158,6 +158,7 @@ def channel_messages_v1(token, channel_id, start):
     store = data_store.get()
     # Checking if auth_user_id is valid
     user = token_to_user(token, store)
+    user_id = user['auth_user_id']
     if user == None:
         raise AccessError("token is not valid")
     # Checking channel_id is valid
@@ -173,6 +174,14 @@ def channel_messages_v1(token, channel_id, start):
     # Returning up to 50 messages
     end = start + 50
     messages = channel['messages'][start:end]
+
+    # react section
+    for message in messages: 
+        message['reacts'][0]['is_this_user_reacted'] = False
+        for id in message['reacts'][0]['u_ids']: 
+            if user_id == id: 
+                message['reacts'][0]['is_this_user_reacted'] = True
+
     # Setting end to -1 if no more messages left
     if start + 50 > len(channel['messages']):
         end = -1
