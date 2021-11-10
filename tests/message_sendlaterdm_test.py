@@ -334,7 +334,7 @@ def test_send_dm_before_sendlaterdm(reset):
     # sleep for 3.5 secs and check if first message is there
     time.sleep(3.5)
 
-    response_dm_messages = requests.get(f"{config.url}channel/messages/v2", params=data_dm_messages)
+    response_dm_messages = requests.get(f"{config.url}dm/messages/v1", params=data_dm_messages)
     
     dm_messages = response_dm_messages.json()
     current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
