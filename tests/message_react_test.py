@@ -165,7 +165,7 @@ def test_valid_dm_react(reset, create_dm):
                 'react_id' : 1,
                 'u_ids': [create_dm[1]['auth_user_id']]}],
     }]
-
+    print()
 
 def test_false_react(reset, create_dm): 
     data = {
