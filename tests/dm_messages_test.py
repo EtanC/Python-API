@@ -196,9 +196,9 @@ def test_multiple(reset):
         # remove the time stamp since we cannot test it properly
         del message['messages'][i]['time_created']
 
-        expected['messages'].append({
+        expected['messages'].insert(0, {
             'message' : 'I just sent a message lol xd',
-            'message_id': message_id[i],
+            'message_id': message_id[i] + 10,
             'u_id': reset[1]['auth_user_id'],
         })
         
