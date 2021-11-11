@@ -39,6 +39,8 @@ def standup_start_v1(token, channel_id, length):
     if user is None:
         raise AccessError(description="Invalid token")
     channel = get_channel(channel_id, store)
+    if not user in channel['all_members']:
+        raise AccessError(description="User not a member of the channel")
     if channel is None:
         raise InputError(description="Invalid channel id")
     if length < 0:
@@ -49,8 +51,6 @@ def standup_start_v1(token, channel_id, length):
     # if key doesnt exist, no standup currently active
     if 'standup' in channel:
         raise InputError(description="Active standup already running in channel")
-    if not user in channel['all_members']:
-        raise AccessError(description="User not a member of the channel")
     standup_thread = threading.Thread(
         target=start_standup, args=(user, channel_id, length)
     )
