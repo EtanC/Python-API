@@ -288,6 +288,12 @@ def channel_leave_v1(token, channel_id):
     channel['all_members'].remove(user)
     if is_channel_member(user['u_id'], channel['owner_members']):
         channel['owner_members'].remove(user)
+    # Recording channels_joined data for user/stats/v1
+    channels_joined = user['channels_joined'][-1]['num_channels_joined']
+    user['channels_joined'].append({
+        'num_channels_joined' : channels_joined - 1,
+        'time_stamp' : current_timestamp(),
+    })
     data_store.set(store)
     return {}
 

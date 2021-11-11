@@ -135,6 +135,15 @@ def dm_remove_v1(token, dm_id):
         if store['dms'][index]['dm_id'] == dm_id:
             dm_index = index
 
+
+    for user in store['dms'][index]['members']:
+        # Recording dms_joined data for user/stats/v1
+        dms_joined = user['dms_joined'][-1]['num_dms_joined']
+        user['dms_joined'].append({
+            'num_dms_joined' : dms_joined - 1,
+            'time_stamp' : current_timestamp(),
+        })
+
     if store['dms'][dm_index]['owner'] != owner:
         raise AccessError(description='Unauthorised owner')
     else:
@@ -295,6 +304,12 @@ def dm_leave_v1(token,dm_id):
             if store['dms'][dm_index]['members'][index] == user:
                 user_index = index
         del store['dms'][dm_index]['members'][user_index]
+        # Recording dms_joined data for user/stats/v1
+        dms_joined = user['dms_joined'][-1]['num_dms_joined']
+        user['dms_joined'].append({
+            'num_dms_joined' : dms_joined - 1,
+            'time_stamp' : current_timestamp(),
+        })
         data_store.set(store)
 
     return {}

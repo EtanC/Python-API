@@ -214,6 +214,9 @@ def user_stats_v1(token):
     else:
         involvement_rate = 0
 
+    if involvement_rate > 1:
+        involvement_rate = 1
+
     stats = {
         'channels_joined' : user['channels_joined'],
         'dms_joined' : user['dms_joined'],
