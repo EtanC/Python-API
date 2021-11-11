@@ -210,6 +210,7 @@ def test_names(reset):
 
     # create dm
     data = {
+        # owner of dm is abby smith
         'token': reset[1]['token'],
         'u_ids': [u_id1, u_id2, u_id3, u_id4]
     }
@@ -231,6 +232,6 @@ def test_names(reset):
     assert list_dm.json() == \
         {
             'dms': [
-                {'dm_id': dm_id, 'name': 'betasmith, coopersmith, deltasmith, eppasmith'}
+                {'dm_id': dm_id, 'name': 'abbysmith, betasmith, coopersmith, deltasmith, eppasmith'}
             ]
     }
