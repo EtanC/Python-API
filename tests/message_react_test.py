@@ -129,7 +129,7 @@ def test_already_reacted(reset,create_dm):
     assert response.status_code == 400
 
 
-def test_valid_dm_unreact(reset, create_dm): 
+def test_valid_dm_react(reset, create_dm): 
     data = {
         # receiver reacts to it
         'token' : create_dm[1]['token'],
