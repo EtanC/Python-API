@@ -4,7 +4,7 @@ from src.error import InputError
 from src.error import AccessError
 from json import dumps
 from flask import Flask, request
-from src.helper import get_message_dm, token_to_user, get_channel, decode_token, get_user, get_message, get_dm, is_global_owner
+from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm, is_global_owner
 from datetime import timezone, datetime
 from src.channel import is_channel_member
 
@@ -237,4 +237,8 @@ def message_pin_v1(token, message_id):
         raise InputError(description="message is ALREADY PINNED")
     else:    
         message['is_pinned'] = True
+
+    data_store.set(store)
+
+    return {}
 

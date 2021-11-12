@@ -440,6 +440,8 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
             'message_id': response_senddm_data['message_id'],
             'u_id': user2['auth_user_id'],
             'message': "valid_dm_message",
+            'reacts' : [],
+            'is_pinned' : False
             }
         ], 
         'start': 0,
