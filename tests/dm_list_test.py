@@ -99,7 +99,7 @@ def test_short(reset):
     assert response.json() == \
         {
             'dms': [
-                {'dm_id': dm_id, 'name': 'samsmith'}
+                {'dm_id': dm_id, 'name': 'johnsmith, samsmith'}
             ]
     }
 
@@ -180,6 +180,6 @@ def test_long(reset):
     assert list_dm.json() == \
         {
             'dms': [
-                {'dm_id': dm_id, 'name': 'betasmith, coopersmith, deltasmith, eppasmith'}
+                {'dm_id': dm_id, 'name': 'betasmith, coopersmith, deltasmith, eppasmith, johnsmith'}
             ]
     }

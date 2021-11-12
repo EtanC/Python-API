@@ -244,10 +244,10 @@ def test_long(reset):
     assert response_list.json() == \
         {
         'dms': [
-            {'dm_id': dm_id1, 'name': 'abbysmith'},
-            {'dm_id': dm_id2, 'name': 'abbysmith'},
-            {'dm_id': dm_id3, 'name': 'abbysmith'},
-            {'dm_id': dm_id4, 'name': 'abbysmith'}
+            {'dm_id': dm_id1, 'name': 'abbysmith, betasmith'},
+            {'dm_id': dm_id2, 'name': 'abbysmith, copesmith'},
+            {'dm_id': dm_id3, 'name': 'abbysmith, deltasmith'},
+            {'dm_id': dm_id4, 'name': 'abbysmith, eppasmith'}
         ]
     }
     assert response_details.status_code == 400
