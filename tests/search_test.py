@@ -105,6 +105,8 @@ def dm1(user1, user2):
     )
 
     dm_id = response_create.json()['dm_id']
+    owner   = user1
+
 
     data_send_dm = {
        "token": user1['token'],
@@ -124,8 +126,6 @@ def dm1(user1, user2):
         json=data_send_dm)
     
 
-    dm_id   = response_create.json()['dm_id']
-    owner   = user1
 
     return {'dm_id' : dm_id, 'owner': owner, 'all_users': u_ids}
 
