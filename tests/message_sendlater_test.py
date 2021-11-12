@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 import time 
 import requests
 from src import config
@@ -68,7 +68,7 @@ def test_valid(reset):
     current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
     assert abs(
         channel_messages['messages'][0]['time_created'] - current_time
-    ) < 2
+    ) < config.MAX_MESSAGE_TIME_DIFF
 
     # Checking the rest of the return
     expected = {
@@ -137,7 +137,7 @@ def test_two_messages(reset):
     current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
     assert abs(
         channel_messages['messages'][0]['time_created'] - current_time
-    ) < 2
+    ) < config.MAX_MESSAGE_TIME_DIFF
 
     # Checking the rest of the return
     expected = {
@@ -165,7 +165,7 @@ def test_two_messages(reset):
     current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
     assert abs(
         channel_messages['messages'][1]['time_created'] - current_time
-    ) < 2
+    ) < config.MAX_MESSAGE_TIME_DIFF
 
     # Checking the second message
     expected = {
@@ -305,7 +305,7 @@ def test_send_message_before_sendlater(reset):
     # check timing of message 2
     assert abs(
         channel_messages['messages'][0]['time_created'] - current_time
-    ) < 2
+    ) < config.MAX_MESSAGE_TIME_DIFF
 
     # removing time of 2nd message
     del channel_messages['messages'][0]['time_created']
@@ -333,7 +333,7 @@ def test_send_message_before_sendlater(reset):
     current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
     assert abs(
         channel_messages['messages'][1]['time_created'] - current_time
-    ) < 2
+    ) < config.MAX_MESSAGE_TIME_DIFF
 
     # Checking the rest of the return
     expected = {

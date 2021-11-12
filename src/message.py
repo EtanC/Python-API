@@ -262,8 +262,8 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     wait_seconds = time_sent - time_now
 
     # start the thread
-    thread = threading.Thread(target=sendlater_thread, args=[user['u_id'], channel_id, \
-        message, wait_seconds, reserved_message_id])
+    thread = threading.Thread(target=sendlater_thread, args=(user['u_id'], channel_id, \
+        message, wait_seconds, reserved_message_id))
     thread.start()
 
     return {'message_id':reserved_message_id}
