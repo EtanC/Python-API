@@ -144,6 +144,7 @@ def test_send_dm(reset):
     ) < 2
 
     del message['messages'][0]['time_created']
+    del message['messages'][0]['reacts']
     assert message == \
         {
             'messages' : [{
@@ -195,11 +196,12 @@ def test_multiple(reset):
         ) < 2
         # remove the time stamp since we cannot test it properly
         del message['messages'][i]['time_created']
+        del message['messages'][i]['reacts']
 
         expected['messages'].insert(0, {
             'message' : 'I just sent a message lol xd',
             'message_id': message_id[i] + 10,
             'u_id': reset[1]['auth_user_id'],
         })
-        
+    
     assert message == expected

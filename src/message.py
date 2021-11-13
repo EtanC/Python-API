@@ -50,6 +50,14 @@ def message_senddm_v1(token, dm_id, message):
     user_id = user['u_id']
     message_id = store['message_id'] 
     store['message_id'] += 1
+
+     # react dictionary
+    react = [
+        {
+            'react_id': 1,
+            'u_ids' : [], 
+        },
+    ]
     
     # Create the new dm_message and its contents
     new_dm_message = {
@@ -57,6 +65,7 @@ def message_senddm_v1(token, dm_id, message):
         'u_id': user_id,
         'message': dm_message_to_send,
         'time_created': time_created,
+        'reacts' : react
     }
    
     # Add the message to the dm
@@ -185,12 +194,21 @@ def message_send_v1(token, channel_id, message):
     dt = datetime.now()
     time_created = dt.replace(tzinfo=timezone.utc).timestamp()
 
+    # react dictionary
+    react = [
+        {
+            'react_id': 1,
+            'u_ids' : [], 
+        },
+    ]
+
     # create dict containing the new message info
     new_message = {}
     new_message['message_id'] = message_id
     new_message['u_id'] = user_id
     new_message['message'] = message_to_add
     new_message['time_created'] = time_created
+    new_message['reacts'] = react
     
     #get list of all messages (not deleted) from the channel 
     all_channel_messages = channel['messages']
