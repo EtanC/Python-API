@@ -70,7 +70,7 @@ def message_senddm_v1(token, dm_id, message):
    
     # Add the message to the dm
     all_dm_messages = dm['messages']
-    all_dm_messages.append(new_dm_message)
+    all_dm_messages.insert(0, new_dm_message)
     data_store.set(store)
     return {
         'message_id': message_id
