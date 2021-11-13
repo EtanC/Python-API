@@ -224,7 +224,7 @@ def message_pin_v1(token, message_id):
         raise AccessError(description='Invalid token')
 
     auth_user_id = user['u_id']
-    message = get_message(message_id, store)
+    message = get_the_message(message_id, store)
 
     # check message ID validity:
     if message == None:
@@ -253,7 +253,7 @@ def message_unpin_v1(token, message_id):
         raise AccessError(description='Invalid token')
 
     auth_user_id = user['u_id']
-    message = get_message(message_id, store)
+    message = get_the_message(message_id, store)
 
     # check message ID validity:
     if message == None:
@@ -270,3 +270,20 @@ def message_unpin_v1(token, message_id):
     data_store.set(store)
 
     return {}
+
+def get_the_message(message_id, store):
+    '''
+    Searches for the message in the data_store with the given message_id
+    Returns None if the message id was not found
+    '''
+
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                return message
+
+    for dm in store['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                return message
+    return None
