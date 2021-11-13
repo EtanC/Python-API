@@ -10,7 +10,7 @@ def notifications_get_v1(token):
     notifications = [{
         "channel_id": 0, 
         "dm_id": 0,
-        "notification_message": 0
+        "notification_message": ''
     }]
 
     token_data = decode_token(token)
