@@ -125,13 +125,12 @@ def test_valid_crop_nothing(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg")
+    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
     
-    # check if you can get image through json 
     assert response_photo.status_code == 200 
 
     # download image and check dimensions 
-    image = Image.open(requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True).raw)
+    image = Image.open(response_photo.raw)
     width, height = image.size
     assert width == start_width
     assert height == start_height 
@@ -151,13 +150,12 @@ def test_valid_crop(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg")
+    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
     
-    # check if you can get image through json 
     assert response_photo.status_code == 200
     
     # download image and check dimensions 
-    image = Image.open(requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True).raw)
+    image = Image.open(response_photo.raw)
     width, height = image.size
     assert width == 1800
     assert height == 1500 
@@ -170,7 +168,7 @@ def test_valid_twice(reset):
     start_width, start_height = start_image.size
     data_photo = {
         'token': reset['token'], 
-        'img_url': 'http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg', 
+        'img_url': img_url, 
         'x_start': 0, 
         'y_start': 0, 
         'x_end': start_width, 
@@ -179,12 +177,12 @@ def test_valid_twice(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg")
+    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
     
     # check if you can get image through json 
     assert response_photo.status_code == 200 
     
-    image = Image.open(requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True).raw)
+    image = Image.open(response_photo.raw)
     width, height = image.size
     assert width == start_width
     assert height == start_height 
@@ -202,14 +200,75 @@ def test_valid_twice(reset):
         'x_end': start_width2, 
         'y_end': start_height2
     }
-    response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
-    assert response_photo.json() == {} 
+    response_photo2 = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
+    assert response_photo2.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg")
+    response_photo2 = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
     
     # check if you can get image through json 
     assert response_photo.status_code == 200
-    image2 = Image.open(requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True).raw)
+    image2 = Image.open(response_photo2.raw)
     width2, height2 = image2.size
     assert width2 == start_width2
     assert height2 == start_height2 
+
+def test_valid_two_people(reset):
+    # test two differnet people calling uploadphoto
+    img_url = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
+    start_image = Image.open(requests.get(img_url, stream=True).raw)
+    start_width, start_height = start_image.size
+    data_photo = {
+        'token': reset['token'], 
+        'img_url': img_url, 
+        'x_start': 0, 
+        'y_start': 0, 
+        'x_end': start_width, 
+        'y_end': start_height
+    }
+    response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
+    assert response_photo.json() == {} 
+    
+    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
+    
+    # check if you can get image through json 
+    assert response_photo.status_code == 200 
+    
+    image = Image.open(response_photo.raw)
+    width, height = image.size
+    assert width == start_width
+    assert height == start_height 
+    
+    data_register = { 
+        'email': "realemail_813@outlook.edu.au",
+        'password': "Password2",
+        'name_first': "Jack",
+        'name_last': "Smith",
+    }
+
+    response_register = requests.post(f"{config.url}auth/register/v2", json=data_register)
+
+    img_url = "http://cgi.cse.unsw.edu.au/~morri/morriphoto.jpg"
+    start_image = Image.open(requests.get(img_url, stream=True).raw)
+    start_width, start_height = start_image.size
+    data_photo = {
+        'token': response_register.json()['token'], 
+        'img_url': img_url, 
+        'x_start': 0, 
+        'y_start': 0, 
+        'x_end': start_width, 
+        'y_end': start_height
+    }
+    response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
+    assert response_photo.json() == {} 
+    
+    response_photo = requests.get(f"{config.url}user/profile/photo/{response_register.json()['auth_user_id']}.jpg", stream=True)
+    
+    # check if you can get image through json 
+    assert response_photo.status_code == 200 
+    
+    image = Image.open(response_photo.raw)
+    width, height = image.size
+    assert width == start_width
+    assert height == start_height 
+    
+    
