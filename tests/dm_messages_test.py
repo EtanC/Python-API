@@ -144,6 +144,7 @@ def test_send_dm(reset):
     ) < 2
 
     del message['messages'][0]['time_created']
+    del message['messages'][0]['reacts']
     assert message == \
         {
             'messages' : [{
@@ -197,6 +198,7 @@ def test_multiple(reset):
         ) < 2
         # remove the time stamp since we cannot test it properly
         del message['messages'][i]['time_created']
+        del message['messages'][i]['reacts']
 
         expected['messages'].append({
             'message' : 'I just sent a message lol xd',
@@ -205,5 +207,5 @@ def test_multiple(reset):
             'reacts' : [],
             'is_pinned' : False
         })
-        
+    
     assert message == expected

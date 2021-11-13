@@ -8,7 +8,9 @@ from src.error import InputError, AccessError
 import jwt
 import re
 import hashlib
-from src.config import SECRET, EMAIL_REGEX
+import smtplib, ssl
+import secrets
+from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD, RESET_CODE_LENGTH
 from src.helper import decode_token, get_user
 
 MIN_PASSWORD_LENGTH = 6
@@ -215,5 +217,42 @@ def auth_logout_v1(token):
     if payload['session_id'] not in user['active_session_ids']:
         raise AccessError(description="Invalid token, session id not valid")
     user['active_session_ids'].remove(payload['session_id'])
+    data_store.set(store)
+    return {}
+
+def generate_reset_code():
+    # Specifying number of bytes, where 1 byte = 2 hex digits, so
+    # reset codes can only be multiples of 2 digits long
+    return secrets.token_hex(RESET_CODE_LENGTH // 2)
+
+def auth_passwordreset_request_v1(email):
+    store = data_store.get()
+    target_user = None
+    # Check if email is in system
+    for user in store['users']:
+        if user['email'] == email:
+            target_user = user
+    if target_user is None:
+        return {}
+    target_user['active_session_ids'] = []
+    # Make reset_code
+    reset_code = generate_reset_code()
+    # Store reset_code for later use
+    target_user['reset_code'] = reset_code
+    # Send email with reset_code
+    #-------------------------------------------------------------------
+    # TODO: make sure these hard coded pieces of text go into config.py
+    #-------------------------------------------------------------------
+    msg = f"""\
+Subject:Streams password reset
+
+Your password reset code is: {reset_code}
+If you haven't recently requested a password reset, please ignore this email
+"""
+    context = ssl.create_default_context()
+    server = smtplib.SMTP_SSL(host='smtp.gmail.com', port=465, context=context)
+    server.login(DUMMY_EMAIL, DUMMY_PASSWORD)
+    server.sendmail(DUMMY_EMAIL, email, msg)
+    server.quit()
     data_store.set(store)
     return {}
