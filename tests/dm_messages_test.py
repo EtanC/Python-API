@@ -169,7 +169,7 @@ def test_multiple(reset):
             f"{config.url}message/senddm/v1",
             json=data_send
         )
-        message_id.append(response_send.json()['message_id'])
+        message_id.insert(0, response_send.json()['message_id'])
     
     data = {
         'token':reset[1]['token'], 
@@ -198,9 +198,9 @@ def test_multiple(reset):
         del message['messages'][i]['time_created']
         del message['messages'][i]['reacts']
 
-        expected['messages'].insert(0, {
+        expected['messages'].append({
             'message' : 'I just sent a message lol xd',
-            'message_id': message_id[i] + 10,
+            'message_id': message_id[i],
             'u_id': reset[1]['auth_user_id'],
         })
     
