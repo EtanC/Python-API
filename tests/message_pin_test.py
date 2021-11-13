@@ -206,7 +206,7 @@ def test_valid_pin(reset_data, user1, channel1, message_to_pin): #POST
     assert response_data == expected_data
 
 # pin one message in dm
-'''
+
 def test_valid_pin_dm(reset_data, user1, dm1, message_to_pin_dm) : #POST:
     # user1 is the owner so can pin the message
     token = user1['token']
@@ -258,7 +258,6 @@ def test_valid_pin_dm(reset_data, user1, dm1, message_to_pin_dm) : #POST:
 
     del response_data['messages'][0]['time_created']
     assert response_data == expected_data
-'''
 
 # pin the correct message from multiple messages
 def test_valid_pin2(reset_data, user1, channel1, message_to_pin, other_message): #POST
