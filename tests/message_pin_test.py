@@ -185,7 +185,9 @@ def test_valid_pin(reset_data, user1, channel1, message_to_pin): #POST
                 'message_id': message_to_pin['message_id'],
                 'u_id': channel1['user_id'],
                 'message': "user1_valid_message_to_pin",
-                'reacts': [],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,                        
+                            'u_ids': []}],
                 'is_pinned': True,
                 
             }
@@ -237,7 +239,9 @@ def test_valid_pin_dm(reset_data, user1, dm1, message_to_pin_dm) : #POST:
                 'message_id': message_to_pin_dm['message_id'],
                 'u_id': user1['auth_user_id'],
                 'message': message_to_pin_dm['message'],
-                'reacts': [],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,                        
+                            'u_ids': []}],
                 'is_pinned': True,
             }
         ],
@@ -287,21 +291,25 @@ def test_valid_pin2(reset_data, user1, channel1, message_to_pin, other_message):
     expected_data = {
         'messages': [
             {
-                'message_id': message_to_pin['message_id'],
-                'u_id': channel1['user_id'],
-                'message': message_to_pin['message'],
-                'reacts': [],
-                'is_pinned': True,
-            },
-            
-            {
                 'message_id': other_message['message_id'],
                 'u_id': channel1['user_id'],
                 'message': other_message['message'],
-                'reacts': [],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,                        
+                            'u_ids': []}],
                 'is_pinned': False,
             },
 
+            {
+                'message_id': message_to_pin['message_id'],
+                'u_id': channel1['user_id'],
+                'message': message_to_pin['message'],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,                        
+                            'u_ids': []}],
+                'is_pinned': True,
+            },
+        
         ],
         'start': 0,
         'end': -1 

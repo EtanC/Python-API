@@ -151,7 +151,6 @@ def test_send_dm(reset):
                 'message': 'I just sent a message lol xd', 
                 'message_id': message_id,
                 'u_id': reset[1]['auth_user_id'],
-                'reacts' : [],
                 'is_pinned' : False
             }],
             'start' : 0,
@@ -204,7 +203,6 @@ def test_multiple(reset):
             'message' : 'I just sent a message lol xd',
             'message_id': message_id[i],
             'u_id': reset[1]['auth_user_id'],
-            'reacts' : [],
             'is_pinned' : False
         })
     
