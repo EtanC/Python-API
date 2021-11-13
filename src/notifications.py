@@ -1,7 +1,6 @@
 from src.data_store import data_store
 from src.error import InputError, AccessError
 from src.helper import token_to_user, get_user, decode_token
-from src.channel import 
 
 def notifications_get_v1(token):
 
