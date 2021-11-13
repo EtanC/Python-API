@@ -323,7 +323,7 @@ def test_owners_are_valid_edit(reset_data, channel1, user2, user1):
     data_edit_message = {
         "token": user1['token'],
         "message_id": message_id,
-        "message": edited_message
+        "message": edited_message,
     }
 
     #message/edit/v1
@@ -355,6 +355,7 @@ def test_owners_are_valid_edit(reset_data, channel1, user2, user1):
             'message_id': message_id,
             'u_id': user2['auth_user_id'],
             'message': edited_message,
+            'is_pinned' : False
             }
         ], 
         'start': 0,
@@ -449,6 +450,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
             'message_id': response_senddm_data['message_id'],
             'u_id': user2['auth_user_id'],
             'message': "valid_dm_message",
+            'is_pinned' : False
             }
         ], 
         'start': 0,
@@ -629,7 +631,7 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
     data_edit_message = {
         "token": token,
         "message_id": message_id,
-        "message": edited_message
+        "message": edited_message,
     }
 
     #message/edit/v1
@@ -661,6 +663,8 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
             'message_id': message_id,
             'u_id': channel1['user_id'],
             'message': edited_message,
+            'is_pinned' : False
+
             }
         ], 
         'start': 0,
@@ -809,6 +813,8 @@ def test_valid_send(reset_data, channel1, user1): #POST
             'message_id': response_send_message_data['message_id'],
             'u_id': channel1['user_id'],
             'message': "valid_message",
+            'is_pinned' : False
+
             }
         ], 
         'start': 0,
@@ -818,7 +824,7 @@ def test_valid_send(reset_data, channel1, user1): #POST
     data_details = {
         "token": user1['token'], 
         'channel_id': channel1['channel_id'],
-        'start': 0  # 0 = first message sent
+        'start': 0,  # 0 = first message sent
     } 
 
     response_channel_messages_details = requests.get(

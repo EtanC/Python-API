@@ -15,7 +15,7 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1, dm_leave_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
-from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_pin_v1, message_unpin_v1
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.standup import standup_start_v1, standup_active_v1
@@ -576,7 +576,7 @@ def message_react_v3():
     return dumps(return_message)
 
 @APP.route("/message/unreact/v1", methods=['POST'])
-def message_uneact_v3():
+def message_unreact_v3():
     '''
     Given a message within a channel or DM the authorised user is part of, 
     remove a "react" to that particular message.
@@ -604,6 +604,56 @@ def message_uneact_v3():
         data['react_id']
     )
     return dumps(return_message)
+
+@APP.route("/message/pin/v1", methods=['POST'])
+def message_pin():
+    '''
+    Given a message within a channel or DM, mark it as "pinned".
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (str) - id of message
+        
+    Exceptions: 
+        InputError  - message is already pinned
+                    - invalid message_id
+
+        AccessError - Authorised user not owner
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_pin_v1(
+        data['token'],
+        data['message_id'],
+    )
+    return dumps(message)
+
+@APP.route("/message/unpin/v1", methods=['POST'])
+def message_unpin():
+    '''
+    Given a message within a channel or DM, remove its mark as "pinned".
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id  (str) - id of message
+        
+    Exceptions: 
+        InputError  - message is already pinned
+                    - invalid message_id
+
+        AccessError - Authorised user not owner
+                    - Invalid token 
+    Return Value: 
+        Returns {} on successful call  
+    '''
+    data = request.get_json()
+    message = message_unpin_v1(
+        data['token'],
+        data['message_id'],
+    )
+    return dumps(message)
 
 '''
 

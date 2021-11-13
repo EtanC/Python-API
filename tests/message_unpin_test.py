@@ -74,7 +74,6 @@ def channel1(user1):
 def dm1(user1, user2):
 
     u_ids = []
-    u_ids.append(user1['auth_user_id'])
     u_ids.append(user2['auth_user_id'])
 
     #user1 creates a dm with user2 included
@@ -185,7 +184,9 @@ def test_valid_unpin(reset_data, user1, channel1, message_to_unpin): #POST
                 'message_id': message_to_unpin['message_id'],
                 'u_id': channel1['user_id'],
                 'message': "user1_valid_message_to_unpin",
-                'reacts': [],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,
+                            'u_ids': []}],
                 'is_pinned': False,
                 
             }
@@ -239,7 +240,9 @@ def test_valid_unpin_dm(reset_data, user1, dm1, message_to_unpin_dm) : #POST:
                 'message_id': message_to_unpin_dm['message_id'],
                 'u_id': user1['auth_user_id'],
                 'message': message_to_unpin_dm['message'],
-                'reacts': [],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,
+                            'u_ids': []}],
                 'is_pinned': False,
                 
             }
@@ -298,7 +301,9 @@ def test_valid_unpin2(reset_data, user1, channel1, message_to_unpin, other_messa
                 'message_id': other_message['message_id'],
                 'u_id': channel1['user_id'],
                 'message': other_message['message'],
-                'reacts': [],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,
+                            'u_ids': []}],
                 'is_pinned': False,
             },
             
@@ -306,7 +311,9 @@ def test_valid_unpin2(reset_data, user1, channel1, message_to_unpin, other_messa
                 'message_id': message_to_unpin['message_id'],
                 'u_id': channel1['user_id'],
                 'message': message_to_unpin['message'],
-                'reacts': [],
+                'reacts': [{'is_this_user_reacted': False,
+                            'react_id': 1,
+                            'u_ids': []}],
                 'is_pinned': False,
             },
             
