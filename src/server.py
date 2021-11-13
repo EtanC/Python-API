@@ -16,8 +16,10 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_rem
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
+from src.notifications import notifications_get_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.helper import decode_token 
+
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -878,6 +880,33 @@ def admin_userpermission_change():
 
     return dumps(return_dict)
 
+'''
+
+notifications.py section
+
+'''
+
+@APP.route("/message/react/v1", methods=['POST'])
+def notifications_get_v3():
+    '''
+    Return the user's most recent 20 notifications, 
+    ordered from most recent to least recent.
+    
+    Arguments:
+        token       (str) - token identifying user
+        
+    Exceptions: 
+        None
+
+    Return Value: 
+        Returns {notifications} on successful call
+    '''
+
+    data = request.get_json()
+    return_notifications = notifications_get_v1(
+        data['token'],
+    )
+    return dumps(return_notifications)
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
