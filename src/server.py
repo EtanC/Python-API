@@ -18,7 +18,7 @@ from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
-from src.standup import standup_start_v1, standup_send_v1
+from src.standup import standup_start_v1, standup_send_v1, standup_active_v1
 from src.helper import decode_token 
 
 
@@ -129,6 +129,7 @@ def auth_logout():
     '''
     data = request.get_json()
     return dumps(auth_logout_v1(data['token']))
+
 @APP.route("/auth/passwordreset/request/v1", methods=['POST'])
 def auth_passwordreset_request():
     '''
@@ -972,12 +973,11 @@ def standup_start():
         standup_start_v1(data['token'], data['channel_id'], data['length'])
     )
 
-@APP.route("/standup/send/v1", methods=['POST'])
-def standup_send():
+@APP.route("/standup/active/v1", methods=['GET'])
+def standup_active():
     '''
-    Sending a message to get buffered in the standup queue, 
-    assuming a standup is currently active. 
-    Note: We do not expect @ tags to be parsed as proper tags when sending to standup/send
+    For a given channel, return whether a standup is active in it, and what time the standup finishes. 
+    If no standup is active, then time_finish returns None.
 
     Arguments: 
         token       (str)   - Token of user starting the standup
@@ -992,6 +992,26 @@ def standup_send():
                     - Channel id is valid and user is not member of channel
     Return Value:
         Returns {} on successful call
+    '''
+    data = request.args
+    return dumps(
+        standup_active_v1(data['token'], int(data['channel_id']))
+    )
+
+@APP.route("/standup/send/v1", methods=['POST'])
+def standup_send():
+    '''
+    Sending a message to get buffered in the standup queue, 
+    assuming a standup is currently active. 
+    Note: We do not expect @ tags to be parsed as proper tags when sending to standup/send
+
+
+    Exceptions: 
+        InputError  - Invalid channel id
+        AccessError - Token is invalid
+                    - Channel id is valid and user is not member of channel
+    Return Value:
+        Returns {is_active, time_finish} on successful call
     '''
     data = request.get_json()
     return dumps(

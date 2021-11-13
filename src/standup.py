@@ -1,7 +1,6 @@
 from src.data_store import data_store
 from src.error import InputError, AccessError
 from src.helper import token_to_user, get_channel
-from src.message import message_send_v1
 import threading
 import time
 from datetime import datetime, timezone
@@ -51,16 +50,19 @@ def standup_start_v1(token, channel_id, length):
     # if key doesnt exist, no standup currently active
     if 'standup' in channel:
         raise InputError(description="Active standup already running in channel")
+    
     standup_thread = threading.Thread(
         target=start_standup, args=(user, channel_id, length)
     )
+    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
     channel['standup'] = {
         'initiator': user,
         'messages': [],
+        'time_finish' : current_time + length
     }
     data_store.set(store)
     standup_thread.start()
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    
     return {'time_finish' : current_time + length}
 
 def standup_send_v1(token, channel_id, message): 
@@ -75,14 +77,38 @@ def standup_send_v1(token, channel_id, message):
         raise AccessError(description="User not a member of the channel")
     if len(message) > 1000: 
         raise InputError(description="Invalid message that exceeds 1000 characters")
-
+    if 'standup' in channel:
+        pass
+    else:
+        raise InputError("Standup not active!")
     standup = channel['standup']
-    standup_message = standup['messages']
-    
-    if not standup['is_active']:
-        raise ValueError("Standup not active!")
 
-    standup_message += user['name_first']+": "+message+"\n"
+    standup_message = f"{user['handle_str']}:{message}"
     standup['messages'] = standup_message
     return {}
     
+def standup_active_v1(token, channel_id):
+    
+    store = data_store.get()
+    user = token_to_user(token, store)
+    
+    if user is None:
+        raise AccessError(description="Invalid token")
+    channel = get_channel(channel_id, store)
+    
+    if channel is None:
+        raise InputError(description="Invalid channel id")
+   
+    if not user in channel['all_members']:
+        raise AccessError(description="User not a member of the channel")
+
+    is_active = False
+    time_finish = None
+
+    if 'standup' in channel:
+        is_active = True
+        time_finish = channel['standup']['time_finish']
+        
+    return {'is_active' : is_active , 'time_finish' : time_finish}
+
+        
