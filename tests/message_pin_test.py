@@ -249,7 +249,6 @@ def test_valid_pin_dm(reset_data, user1, dm1, message_to_pin_dm) : #POST:
     expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
     response_data = response_dm_messages_details.json()
 
-    print(response_data)
 
     messages_result = response_data['messages']
     actual_time = messages_result[0]['time_created']
