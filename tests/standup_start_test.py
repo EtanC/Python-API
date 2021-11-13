@@ -5,6 +5,7 @@ from fake.channels import channels_create
 from fake.other import clear
 from src.error import InputError, AccessError
 import time
+
 @pytest.fixture(autouse=True)
 def reset_data():
     clear()
