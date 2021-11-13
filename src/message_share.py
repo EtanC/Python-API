@@ -44,6 +44,30 @@ def message_send_v1(token, og_message_id, message, channel_id, dm_id):
     
     user_id = user['u_id']
     message_to_add = message
+
+    # Section for notifications
+    handle = ''
+
+    for words in message_to_add.split():
+        if '@' in words:
+            handle = words[1:]
+
+    shortened_message = message_to_add[0:20]
+
+    for channels in store['channels']:
+        if channel_id == channels['channel_id']:
+            channel_name = channels['name']
+            channel_members = channels['all_members']
+
+    for users in channel_members:
+        if handle == users['handle_str']:
+            users['notifications'].insert(0, 
+                {
+                "channel_id": channel_id,
+                "dm_id": -1,
+                "notification_message": f'{user["handle_str"]} tagged you in {channel_name}: {shortened_message}'
+                }
+            )
     
     dt = datetime.now()
     time_created = dt.replace(tzinfo=timezone.utc).timestamp()
