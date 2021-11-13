@@ -18,7 +18,7 @@ from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
-from src.standup import standup_start_v1
+from src.standup import standup_start_v1, standup_send_v1
 from src.helper import decode_token 
 
 
@@ -971,6 +971,33 @@ def standup_start():
     return dumps(
         standup_start_v1(data['token'], data['channel_id'], data['length'])
     )
+
+@APP.route("/standup/send/v1", methods=['POST'])
+def standup_send():
+    '''
+    Sending a message to get buffered in the standup queue, 
+    assuming a standup is currently active. 
+    Note: We do not expect @ tags to be parsed as proper tags when sending to standup/send
+
+    Arguments: 
+        token       (str)   - Token of user starting the standup
+        channel_id  (int)   - Id of the channel the standup belongs to
+        message     (list)  - list of dictionary
+
+    Exceptions: 
+        InputError  - Invalid channel id
+                    - Length of message is over 1000 characters
+                    - Active standup is not currently running in channel
+        AccessError - Token is invalid
+                    - Channel id is valid and user is not member of channel
+    Return Value:
+        Returns {} on successful call
+    '''
+    data = request.get_json()
+    return dumps(
+        standup_send_v1(data['token'], int(data['channel_id']), data['message'])
+    )
+
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():

@@ -62,3 +62,27 @@ def standup_start_v1(token, channel_id, length):
     standup_thread.start()
     current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
     return {'time_finish' : current_time + length}
+
+def standup_send_v1(token, channel_id, message): 
+    store = data_store.get()
+    user = token_to_user(token, store)
+    if user is None:
+        raise AccessError(description="Invalid token")
+    channel = get_channel(channel_id, store)
+    if channel is None:
+        raise InputError(description="Invalid channel id")
+    if not user in channel['all_members']:
+        raise AccessError(description="User not a member of the channel")
+    if len(message) > 1000: 
+        raise InputError(description="Invalid message that exceeds 1000 characters")
+
+    standup = channel['standup']
+    standup_message = standup['messages']
+    
+    if not standup['is_active']:
+        raise ValueError("Standup not active!")
+
+    standup_message += user['name_first']+": "+message+"\n"
+    standup['messages'] = standup_message
+    return {}
+    
