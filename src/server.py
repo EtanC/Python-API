@@ -16,8 +16,10 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_rem
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
+from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.helper import decode_token 
+
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -541,6 +543,65 @@ def message_senddm():
     )
     return dumps(message)
 
+@APP.route("/message/react/v1", methods=['POST'])
+def message_react_v3():
+    '''
+    Given a message within a channel or DM the authorised user is part of, 
+    add a "react" to that particular message.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id       (int) - id of message
+        react_id     (int) - id of react
+        
+    Exceptions: 
+        InputError  - Message_id is invalid
+                    - React_id is invalid
+                    - Message has already been reacted to
+
+        AccessError
+                    - Invalid token 
+    Return Value: 
+        Returns {} 
+    '''
+
+    data = request.get_json()
+    return_message = message_react_v1(
+        data['token'],
+        data['message_id'],
+        data['react_id']
+    )
+    return dumps(return_message)
+
+@APP.route("/message/unreact/v1", methods=['POST'])
+def message_uneact_v3():
+    '''
+    Given a message within a channel or DM the authorised user is part of, 
+    remove a "react" to that particular message.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id       (int) - id of message
+        react_id     (int) - id of react
+        
+    Exceptions: 
+        InputError  - Message_id is invalid
+                    - React_id is invalid
+                    - Message have not been reacted to
+
+        AccessError
+                    - Invalid token 
+    Return Value: 
+        Returns {} 
+    '''
+
+    data = request.get_json()
+    return_message = message_unreact_v1(
+        data['token'],
+        data['message_id'],
+        data['react_id']
+    )
+    return dumps(return_message)
 
 '''
 
