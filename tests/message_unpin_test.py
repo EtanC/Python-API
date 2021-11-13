@@ -112,6 +112,25 @@ def message_to_unpin(user1, channel1):
     return {'message_id' : message_id , 'message' : message}
 
 @pytest.fixture
+def message_to_unpin_dm(user1, dm1):
+    token = user1['token']
+    dm_id = dm1['dm_id']
+    message = "user1_valid_message_to_unpin_dm"
+
+    data_send_message = {
+       "token": token,
+       "message": message,
+       "dm_id": dm_id
+    }
+    
+    # message/senddm/v1
+    response_send_message = requests.post(f"{config.url}message/senddm/v1",\
+        json=data_send_message
+    )
+    message_id = response_send_message.json()['message_id']
+    return {'message_id' : message_id , 'message' : message}
+
+@pytest.fixture
 def other_message(user1, channel1):
     token = user1['token']
     channel_id = channel1['channel_id']
@@ -187,11 +206,11 @@ def test_valid_unpin(reset_data, user1, channel1, message_to_unpin): #POST
     assert response_data == expected_data
 
 # unpin one message in dm
-def test_valid_unpin_dm(reset_data, user1, dm1, message_to_unpin) : #POST:
+def test_valid_unpin_dm(reset_data, user1, dm1, message_to_unpin_dm) : #POST:
     # user1 is the owner so can pin the message
     token = user1['token']
     dm_id = dm1['dm_id']
-    message_id = message_to_unpin['message_id']
+    message_id = message_to_unpin_dm['message_id']
 
     data_unpin_message = {
         "token": token,
@@ -207,19 +226,19 @@ def test_valid_unpin_dm(reset_data, user1, dm1, message_to_unpin) : #POST:
     # display any pinned messages
     channel_messages = {
         "token": token,
-        "channel_id": dm_id,
+        "dm_id": dm_id,
         "start": 0
     }
 
-    response_channel_messages_details =requests.get(f"{config.url}channel/messages/v2", \
+    response_channel_messages_details =requests.get(f"{config.url}dm/messages/v1", \
         params=channel_messages)
 
     expected_data = {
         'messages': [
             {
-                'message_id': message_to_unpin['message_id'],
+                'message_id': message_to_unpin_dm['message_id'],
                 'u_id': user1['auth_user_id'],
-                'message': "user1_valid_message_to_unpin",
+                'message': message_to_unpin_dm['message'],
                 'reacts': [],
                 'is_pinned': False,
                 
@@ -232,6 +251,9 @@ def test_valid_unpin_dm(reset_data, user1, dm1, message_to_unpin) : #POST:
     dt = datetime.now()
     expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
     response_data = response_channel_messages_details.json()
+
+    print(response_data)
+
     messages_result = response_data['messages']
     actual_time = messages_result[0]['time_created']
     time_difference = actual_time - expected_time
