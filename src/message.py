@@ -297,13 +297,20 @@ def sendlater_thread(user_id, channel_id, message, seconds, reserved_message_id)
     
     channel = get_channel(channel_id, store)
     time_created = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    react = [
+        {
+            'react_id': 1,
+            'u_ids' : [], 
+        },
+    ]
     new_message = {
         'message_id': reserved_message_id,
         'u_id': user_id,
         'message': message, 
         'time_created': time_created,
+        'reacts': react
     }
-    
+
     # append new message and its stats to the channel directly without 
     # checking for token, already checked message length (will post empty messages, 
     # since interface doesn't say anything about this and forums say 'you can decide')

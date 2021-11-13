@@ -78,6 +78,7 @@ def test_valid(reset):
     }
     # Removing time to check separately, index of 0 as there is only 1 message
     del channel_messages['messages'][0]['time_created']
+    del channel_messages['messages'][0]['reacts']
     assert channel_messages == expected
 
 def test_two_messages(reset): 
@@ -147,6 +148,7 @@ def test_two_messages(reset):
     }
     # Removing time to check separately, index of 0 as there is only 1 message
     del channel_messages['messages'][0]['time_created']
+    del channel_messages['messages'][0]['reacts']
     assert channel_messages == expected
 
     # sleep another 2 secs so roughly 5.5s total, check if second message is there
@@ -181,6 +183,8 @@ def test_two_messages(reset):
     # Removing time to check separately, index both 0 and 1 for all messages
     del channel_messages['messages'][1]['time_created']
     del channel_messages['messages'][0]['time_created']
+    del channel_messages['messages'][0]['reacts']
+    del channel_messages['messages'][1]['reacts']
     assert channel_messages == expected
 
 def test_invalid_channel_id(reset): 
@@ -303,7 +307,7 @@ def test_send_message_before_sendlater(reset):
 
     # removing time of 2nd message
     del channel_messages['messages'][0]['time_created']
-
+    del channel_messages['messages'][0]['reacts']
 
     quick_message = { 
         'message_id': response_send.json()['message_id'],
@@ -344,4 +348,6 @@ def test_send_message_before_sendlater(reset):
     # Removing time of both 1st and 2nd message
     del channel_messages['messages'][0]['time_created']
     del channel_messages['messages'][1]['time_created']
+    del channel_messages['messages'][0]['reacts']
+    del channel_messages['messages'][1]['reacts']
     assert channel_messages == expected
