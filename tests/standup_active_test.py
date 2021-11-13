@@ -120,7 +120,7 @@ def test_user_not_in_channel_standup_start(channel1, user2):
         params=data_standup)
     
     assert response.status_code == 403
-'''
+
 
 # Test valid standup active check 
 def test_valid_standup_active(channel1, standup1, user1):
@@ -140,4 +140,3 @@ def test_valid_standup_active(channel1, standup1, user1):
         'time_finish' : time_finish
     }
     assert expected_data == response_data
-'''

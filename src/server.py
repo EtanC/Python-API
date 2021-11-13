@@ -993,7 +993,7 @@ def standup_active():
 
     data = request.args
     return dumps(
-        standup_active_v1(data['token'], data['channel_id'])
+        standup_active_v1(data['token'], int(data['channel_id']))
     )
 
 
