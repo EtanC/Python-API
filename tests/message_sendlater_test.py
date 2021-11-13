@@ -56,12 +56,6 @@ def test_valid(reset):
 
     # sleep extra 1.5 secs so roughly 3.5 secs total, and check to see if message is there
     time.sleep(1.5)
-    data_messages = { 
-        'token': reset['user']['token'], 
-        'channel_id': reset['channel_id'],
-        'start': 0, 
-    }
-
     response_messages = requests.get(f"{config.url}channel/messages/v2", params=data_messages)
     
     channel_messages = response_messages.json()
