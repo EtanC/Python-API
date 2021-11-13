@@ -249,7 +249,54 @@ def test_limit_notifications(reset_data, user1, user2, channel1):
 
 # Testing reacts
 def test_react_notification(reset_data, user1, user2, channel1):
-    pass
+    
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    requests.post(f"{config.url}channel/join/v2",\
+    json=join_register)
+    
+    message_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id'],
+        "message": 'hello'
+    }
+    message = requests.post(
+        f"{config.url}message/send/v1",
+        json=message_register
+    )
+
+    message_id = message.json()['message_id']
+
+    react_register = {
+        "token": user1['token'],
+        "message_id": message_id,
+        "react_id": 1
+    }
+    requests.post(
+        f"{config.url}message/react/v1",
+        json=react_register
+    )
+
+    notifications_register = {
+        "token": user2['token']
+    }
+    response_notifications_get = requests.get(
+        f'{config.url}notifications/get/v1',
+        params=notifications_register
+    )
+
+    data_notifications_get = response_notifications_get.json()
+
+    expected_data = [{
+        "channel_id": channel1['channel_id'],
+        "dm_id": -1,
+        "notification_message": 'johnsmith reacted to your message in Channel1_Public'
+    }]
+
+    assert data_notifications_get == expected_data
 
 # Test for getting added to a channel
 def test_added_to_channel(reset_data, user1, user2, channel1):
@@ -286,17 +333,161 @@ def test_added_to_channel(reset_data, user1, user2, channel1):
 
 # Test for getting added to a dm
 def test_added_to_dm(reset_data, user1, user2, channel1):
-    pass
+    
+    data = {
+        'token': user1['token'],
+        'u_ids': [user1['auth_user_id'], user2['auth_user_id']]
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data
+    )
+    dm_id = response.json()['dm_id']
+
+    notifications_register = {
+        "token": user2['token']
+    }
+    response_notifications_get = requests.get(
+        f'{config.url}notifications/get/v1',
+        params=notifications_register
+    )
+
+    data_notifications_get = response_notifications_get.json()
+
+    expected_data = [{
+        "channel_id": -1,
+        "dm_id": dm_id,
+        "notification_message": 'johnsmith added you to johnsmith, chriselvin'
+    }]
+
+    assert data_notifications_get == expected_data
 
 # Test for when the message is greater than 20 characters
 def test_long_message(reset_data, user1, user2, channel1):
-    pass
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    requests.post(f"{config.url}channel/join/v2",\
+    json=join_register)
+
+    data_send_message = {
+        'token' : user2['token'],
+        'channel_id' : channel1['channel_id'],
+        'message' : '@johnsmith How are you today?',
+    }
+    requests.post(
+        f'{config.url}message/send/v1',
+        json=data_send_message
+    )
+
+    notifications_register = {
+        "token": user1['token']
+    }
+    response_notifications_get = requests.get(
+        f'{config.url}notifications/get/v1',
+        params=notifications_register
+    )
+
+    data_notifications_get = response_notifications_get.json()
+
+    expected_data = [{
+        "channel_id": channel1['channel_id'],
+        "dm_id": -1,
+        "notification_message": 'chriselvin tagged you in Channel1_Public: @johnsmith How are y'
+    }]
+
+    assert data_notifications_get == expected_data
 
 # Testing a mix of tagged, reacts and adds for timestamps
 def test_mixed_notifications(reset_data, user1, user2, channel1):
-    pass
+    # input parameters for channel_invite_v2
+    invite_register = {
+        "token": user1['token'],
+        "channel_id": channel1['channel_id'],
+        "u_id": user2['auth_user_id']
+    }
+
+    # invite user2 to the channel
+    requests.post(
+        f"{config.url}channel/invite/v2", json=invite_register
+    )
+
+    message_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id'],
+        "message": 'hello'
+    }
+    message = requests.post(
+        f"{config.url}message/send/v1",
+        json=message_register
+    )
+
+    message_id = message.json()['message_id']
+
+    react_register = {
+        "token": user1['token'],
+        "message_id": message_id,
+        "react_id": 1
+    }
+    requests.post(
+        f"{config.url}message/react/v1",
+        json=react_register
+    )
+
+    data_send_message = {
+        'token' : user1['token'],
+        'channel_id' : channel1['channel_id'],
+        'message' : '@chriselvin hello!',
+    }
+    requests.post(
+        f'{config.url}message/send/v1',
+        json=data_send_message
+    )
+
+    notifications_register = {
+        "token": user2['token']
+    }
+    response_notifications_get = requests.get(
+        f'{config.url}notifications/get/v1',
+        params=notifications_register
+    )
+
+    data_notifications_get = response_notifications_get.json()
+
+    expected_data = [
+        {
+            "channel_id": channel1['channel_id'],
+            "dm_id": -1,
+            "notification_message": 'johnsmith added you to Channel1'
+        },
+        {
+            "channel_id": channel1['channel_id'],
+            "dm_id": -1,
+            "notification_message": 'johnsmith reacted to your message in Channel1_Public'
+        },
+        {
+            "channel_id": channel1['channel_id'],
+            "dm_id": -1,
+            "notification_message": 'johnsmith tagged you in Channel1_Public: @chriselvin Hello!'
+        }
+    ]
+
+    assert data_notifications_get == expected_data
+
 
 def test_invalid_token(reset_data, user1, user2, channel1):
-    pass
+    # Remove user2
+    notifications_register = {
+        "token": "INVALID_TOKEN",
+    }    
+
+    response_notifications_get = requests.get(
+        f'{config.url}notifications/get/v1',
+        params=notifications_register
+    )
+
+    assert response_notifications_get.status_code == 403
 
     

@@ -185,6 +185,7 @@ def test_invalid_token_remove(reset_data, user1, channel1): #DELETE
 
     assert response_register_edit.status_code == 403
 
+
 def test_invalid_messageID_remove(reset_data, user1, channel1): #DELETE
 
     register_send = {
@@ -208,6 +209,7 @@ def test_invalid_messageID_remove(reset_data, user1, channel1): #DELETE
     response_register = requests.delete(f"{config.url}message/remove/v1",\
     json=data_register)
     assert response_register.status_code == 400
+
 
 def test_invalid_user_message_remove(reset_data, user1, channel1, user2): #DELETE
 
@@ -237,6 +239,7 @@ def test_invalid_user_message_remove(reset_data, user1, channel1, user2): #DELET
     response_remove_message = requests.delete(f"{config.url}message/remove/v1",\
     json=data_remove_message)
     assert response_remove_message.status_code == 403 
+
 
 def test_valid_message_remove(reset_data, user1, channel1): #DELETE
 
@@ -344,6 +347,7 @@ def test_owners_are_valid_edit(reset_data, channel1, user2, user1):
     time_difference = actual_time - expected_time
     assert time_difference < 2
     del response_data['messages'][0]['time_created']
+    del response_data['messages'][0]['reacts']
 
     expected_data = {
         'messages': [
@@ -359,6 +363,7 @@ def test_owners_are_valid_edit(reset_data, channel1, user2, user1):
 
     assert response_data == expected_data
 
+
 def test_invalid_token_senddm(reset_data, user1, dm1): 
 
     token_register_send = {
@@ -370,6 +375,7 @@ def test_invalid_token_senddm(reset_data, user1, dm1):
     response_register = requests.post(f"{config.url}message/senddm/v1",\
     json=token_register_send)
     assert response_register.status_code == 403
+
 
 def test_invalid_length_senddm(reset_data, user1, dm1): #POST
 
@@ -389,6 +395,7 @@ def test_invalid_length_senddm(reset_data, user1, dm1): #POST
     json=data_register)
     assert response_register.status_code == 400
 
+
 def test_invalid_dmID_senddm(reset_data, user1, dm1): #POST
 
     data_register = {
@@ -403,6 +410,7 @@ def test_invalid_dmID_senddm(reset_data, user1, dm1): #POST
     json=data_register)
     assert response_register.status_code == 400
 
+
 def test_non_member_senddm(reset_data, dm1, user3): #POST
 
     # user 3 is not a member of the DM
@@ -415,6 +423,7 @@ def test_non_member_senddm(reset_data, dm1, user3): #POST
     response_register = requests.post(f"{config.url}message/senddm/v1",\
     json=data_register)
     assert response_register.status_code == 403
+
 
 def test_valid_senddm(reset_data, dm1, user2): #POST
    
@@ -433,6 +442,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
     dt = datetime.now()
     expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
 
+    
     expected_data = {
         'messages': [
             {
@@ -464,6 +474,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
     time_difference = actual_time - expected_time
     assert time_difference < 2
     del response_data['messages'][0]['time_created']
+    del response_data['messages'][0]['reacts']
 
     assert response_data == expected_data
 
@@ -494,6 +505,7 @@ def test_invalid_token_edit(reset_data, user1, channel1):
 
     assert response_register_edit.status_code == 403
 
+
 def test_invalid_length_edit(reset_data, user1, channel1): #PUT
     
     register_send = {
@@ -519,6 +531,7 @@ def test_invalid_length_edit(reset_data, user1, channel1): #PUT
     json=data_register)
     assert response_register.status_code == 400
 
+
 def test_invalid_messageID_edit(reset_data, user1, channel1): #PUT
 
     register_send = {
@@ -543,6 +556,7 @@ def test_invalid_messageID_edit(reset_data, user1, channel1): #PUT
     response_register = requests.put(f"{config.url}message/edit/v1",\
     json=data_register)
     assert response_register.status_code == 400
+
 
 def test_invalid_user_message_edit(reset_data, user1, channel1, user2): #PUT
 
@@ -585,6 +599,7 @@ def test_invalid_user_message_edit(reset_data, user1, channel1, user2): #PUT
     response_edit_message = requests.put(f"{config.url}message/edit/v1",\
     json=data_edit_message)
     assert response_edit_message.status_code == 403 
+
 
 def test_valid_message_edit(reset_data, user1, channel1): #PUT
 
@@ -638,6 +653,7 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
     time_difference = actual_time - expected_time
     assert time_difference < 2
     del response_data['messages'][0]['time_created']
+    del response_data['messages'][0]['reacts']
 
     expected_data = {
         'messages': [
@@ -652,6 +668,7 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
     }
 
     assert response_data == expected_data
+
 
 def test_valid_message_edit_empty(reset_data, user1, channel1): #PUT
 
@@ -719,6 +736,7 @@ def test_invalid_token_send(reset_data, user1, channel1):
     json=token_register_send)
     assert response_register.status_code == 403
 
+
 def test_invalid_length_send(reset_data, user1, channel1): #POST
 
     # <1 length message
@@ -737,6 +755,7 @@ def test_invalid_length_send(reset_data, user1, channel1): #POST
     json=data_register)
     assert response_register.status_code == 400
 
+
 def test_invalid_channelID_send(reset_data, user1, channel1): #POST
 
     data_register = {
@@ -752,6 +771,7 @@ def test_invalid_channelID_send(reset_data, user1, channel1): #POST
     json=data_register)
     assert response_register.status_code == 400
 
+
 def test_nonmember_channel_send(reset_data, channel1, user2): # POST
 
     data_register = {
@@ -763,6 +783,7 @@ def test_nonmember_channel_send(reset_data, channel1, user2): # POST
     response_register = requests.post(f"{config.url}message/send/v1",\
     json=data_register)
     assert response_register.status_code == 403
+
 
 def test_valid_send(reset_data, channel1, user1): #POST
 
@@ -814,4 +835,5 @@ def test_valid_send(reset_data, channel1, user1): #POST
     assert time_difference < 2
 
     del response_data['messages'][0]['time_created']
+    del response_data['messages'][0]['reacts']
     assert response_data == expected_data
