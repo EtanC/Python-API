@@ -96,6 +96,9 @@ def test_valid_removeowner(two_owner_channel):
             },
         ],
     }
+    del channel_info['owner_members'][0]['profile_img_url']
+    del channel_info['all_members'][0]['profile_img_url']
+    del channel_info['all_members'][1]['profile_img_url']
     assert channel_info == expected
 
 def test_global_owner_permissions_removeowner(user1, user2, user3):

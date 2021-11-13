@@ -4,7 +4,7 @@ from src.data_store import data_store
 from src.channel import get_user
 from src.auth import valid_name 
 import requests
-from PIL import Image
+from PIL import Image, ImageChops
 import os 
 from src import config
 
@@ -45,6 +45,7 @@ def users_all_v1(token):
                 'name_first': user['name_first'], 
                 'name_last': user['name_last'],
                 'handle_str': user['handle_str'],
+                'profile_img_url': user['profile_img_url'],
             })
     
     return {'users': users_list}
@@ -82,6 +83,7 @@ def user_profile_v1(token, u_id):
         'name_first': user_data['name_first'], 
         'name_last': user_data['name_last'], 
         'handle_str': user_data['handle_str'], 
+        'profile_img_url': user_data['profile_img_url'],
     }
 
     return {'user': user}
@@ -231,7 +233,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     # check end values > start values 
     if x_end < x_start or y_end < y_start: 
         raise InputError(description='End value less than start value')
-    
+
     # check start value
     if x_start < 0 or y_start < 0: 
         raise InputError(description='Crop values out of bounds')
@@ -277,6 +279,6 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     image.save(new_image_path)
 
     # store url of photo in user dictionary
-    user['profile_img_url'] = f"{config.url}user/profile/photo/{new_image_name}"
+#    user['profile_img_url'] = f"{config.url}user/profile/photo/{new_image_name}"
     data_store.set(store)
     return {}

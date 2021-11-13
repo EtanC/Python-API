@@ -109,7 +109,10 @@ def test_valid_channel_leave(reset_data, two_member_channel):
             }
         ]
     }
-    assert response_details.json() == expected
+    details_data = response_details.json() 
+    del details_data['owner_members'][0]['profile_img_url']
+    del details_data['all_members'][0]['profile_img_url']
+    assert details_data == expected
 
 # Need addowner in master
 
@@ -161,7 +164,10 @@ def test_owner_leave_channel_leave(reset_data, two_member_channel):
             }
         ]
     }
-    assert response_details.json() == expected
+    data_details = response_details.json() 
+    del data_details['owner_members'][0]['profile_img_url']
+    del data_details['all_members'][0]['profile_img_url']
+    assert data_details == expected
 
 def test_only_owner_channel_leave(reset_data, channel1):
     data_channel_leave = {

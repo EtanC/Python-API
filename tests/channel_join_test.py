@@ -155,7 +155,9 @@ def test_valid_channel_join(reset_data, channel1_public, user2):
         "all_members": all_members,
     }
 
-
+    del response_join_register_data['owner_members'][0]['profile_img_url']
+    del response_join_register_data['all_members'][0]['profile_img_url']
+    del response_join_register_data['all_members'][1]['profile_img_url']
     assert response_join_register_data == expected_data
 
 def test_invalid_channel_join(reset_data, channel1_public, user2):

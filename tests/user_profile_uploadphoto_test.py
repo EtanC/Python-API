@@ -125,7 +125,13 @@ def test_valid_crop_nothing(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
+    data_profile = {
+        'token': reset['token'], 
+        'u_id': reset['auth_user_id']
+    }
+    response_profile = requests.get(f"{config.url}user/profile/v1", params=data_profile)
+    
+    response_photo = requests.get(response_profile.json()['user']['profile_img_url'], stream=True)
     
     assert response_photo.status_code == 200 
 
@@ -134,6 +140,8 @@ def test_valid_crop_nothing(reset):
     width, height = image.size
     assert width == start_width
     assert height == start_height 
+
+#    assert list(start_image.getdata()) == list(image.getdata())
     
 def test_valid_crop(reset): 
     # crop the photo
@@ -150,7 +158,13 @@ def test_valid_crop(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
+    data_profile = {
+        'token': reset['token'], 
+        'u_id': reset['auth_user_id']
+    }
+    response_profile = requests.get(f"{config.url}user/profile/v1", params=data_profile)
+    
+    response_photo = requests.get(response_profile.json()['user']['profile_img_url'], stream=True)
     
     assert response_photo.status_code == 200
     
@@ -177,7 +191,12 @@ def test_valid_twice(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
+    data_profile = {
+        'token': reset['token'], 
+        'u_id': reset['auth_user_id']
+    }
+    response_profile = requests.get(f"{config.url}user/profile/v1", params=data_profile)
+    response_photo = requests.get(response_profile.json()['user']['profile_img_url'], stream=True)
     
     # check if you can get image through json 
     assert response_photo.status_code == 200 
@@ -203,7 +222,7 @@ def test_valid_twice(reset):
     response_photo2 = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo2.json() == {} 
     
-    response_photo2 = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
+    response_photo2 = requests.get(response_profile.json()['user']['profile_img_url'], stream=True)
     
     # check if you can get image through json 
     assert response_photo.status_code == 200
@@ -228,7 +247,12 @@ def test_valid_two_people(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{reset['auth_user_id']}.jpg", stream=True)
+    data_profile = {
+        'token': reset['token'], 
+        'u_id': reset['auth_user_id']
+    }
+    response_profile = requests.get(f"{config.url}user/profile/v1", params=data_profile)
+    response_photo = requests.get(response_profile.json()['user']['profile_img_url'], stream=True)
     
     # check if you can get image through json 
     assert response_photo.status_code == 200 
@@ -261,7 +285,12 @@ def test_valid_two_people(reset):
     response_photo = requests.post(f"{config.url}user/profile/uploadphoto/v1", json=data_photo)
     assert response_photo.json() == {} 
     
-    response_photo = requests.get(f"{config.url}user/profile/photo/{response_register.json()['auth_user_id']}.jpg", stream=True)
+    data_profile = {
+        'token': reset['token'], 
+        'u_id': response_register.json()['auth_user_id']
+    }
+    response_profile = requests.get(f"{config.url}user/profile/v1", params=data_profile)
+    response_photo = requests.get(response_profile.json()['user']['profile_img_url'], stream=True)
     
     # check if you can get image through json 
     assert response_photo.status_code == 200 
@@ -270,5 +299,17 @@ def test_valid_two_people(reset):
     width, height = image.size
     assert width == start_width
     assert height == start_height 
-    
-    
+
+def test_default_profile(reset): 
+    # default profile pic is 800x800
+    data_profile = {
+        'token': reset['token'], 
+        'u_id': reset['auth_user_id']
+    }
+    response_profile = requests.get(f"{config.url}user/profile/v1", params=data_profile)
+    response_photo = requests.get(response_profile.json()['user']['profile_img_url'], stream=True)
+    assert response_photo.status_code == 200 
+    image = Image.open(response_photo.raw)
+    width, height = image.size
+    assert width == 800
+    assert height == 800

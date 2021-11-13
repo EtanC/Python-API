@@ -13,9 +13,7 @@ def clear_v1():
     images_path = os.path.join(os.getcwd(), 'images')
     if os.path.exists(images_path): 
         
-        # delete every file in directory 
+        # delete every file in directory except the default profile picture
         for filename in os.listdir(images_path): 
-            os.remove(os.path.join(images_path, filename))
-
-        # delete directory once its empty
-        os.rmdir(images_path) 
+            if filename != 'default.jpg':
+                os.remove(os.path.join(images_path, filename))
