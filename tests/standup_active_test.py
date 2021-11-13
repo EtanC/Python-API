@@ -1,12 +1,10 @@
 import pytest, requests
-from fake.standup import standup_start, standup_send, standup_active
 from src.standup import standup_start_v1, standup_active_v1
 from fake.auth import auth_register
 from src.channels import channels_create_v1
 from fake.other import clear
 from src.error import InputError, AccessError
 from src import config
-import time
 
 @pytest.fixture(autouse=True)
 def reset_data():
