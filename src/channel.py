@@ -63,6 +63,13 @@ def channel_invite_v1(token, channel_id, u_id):
     for channels in channels_list:
         if  channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
+            new_member['notifications'].insert(0, 
+                {
+                "channel_id": channel_id,
+                "dm_id": -1,
+                "notification_message": f'{user["handle_str"]} added you to {channels["name"]}'
+                }
+            )
 
     data_store.set(store)
     

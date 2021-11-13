@@ -946,7 +946,7 @@ notifications.py section
 
 '''
 
-@APP.route("/message/react/v1", methods=['POST'])
+@APP.route("/notifications/get/v1", methods=['GET'])
 def notifications_get_v3():
     '''
     Return the user's most recent 20 notifications, 
@@ -962,10 +962,8 @@ def notifications_get_v3():
         Returns {notifications} on successful call
     '''
 
-    data = request.get_json()
-    return_notifications = notifications_get_v1(
-        data['token'],
-    )
+    data = request.args
+    return_notifications = notifications_get_v1(data['token'])
     return dumps(return_notifications)
 
 @APP.route("/clear/v1", methods=['DELETE'])

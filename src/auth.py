@@ -183,6 +183,7 @@ def auth_register_v1(email, password, name_first, name_last):
         'handle_str' : user_handle,
         'active_session_ids' : [STARTING_SESSION_ID],
         'permission_id' : permission_id,
+        'notifications' : [],
     }
     store['users'].append(user)
     data_store.set(store)
