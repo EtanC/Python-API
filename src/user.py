@@ -201,6 +201,37 @@ def user_profile_setemail_v1(token, email):
 
     return {}  
 
+
+def users_stats_v1(token):
+    store = data_store.get()
+    user = token_to_user(token, store)
+    # Check token
+    if user is None:
+        raise AccessError(description='Invalid token')
+
+    channels_exist = store['workspace_stats']['channels_exist']
+    dms_exist = store['workspace_stats']['dms_exist']
+    messages_exist = store['workspace_stats']['messages_exist']
+
+    # Calculate involvement_rate
+    active_user_ids = set()
+    for channel in store['channels']:
+        for user in channel['all_members']:
+            active_user_ids.add(user['u_id'])
+    for dm in store['dms']:
+        for user in dm['members']:
+            active_user_ids.add(user['u_id'])
+    active_users = len(active_user_ids)
+
+    involvement_rate = active_users / len(store['users'])
+
+    return {
+        'channels_exist' : channels_exist,
+        'dms_exist' : dms_exist,
+        'messages_exist' : messages_exist,
+        'utilization_rate' : involvement_rate,
+    }
+
 def user_stats_v1(token):
     store = data_store.get()
     user = token_to_user(token, store)

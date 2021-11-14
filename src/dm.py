@@ -69,6 +69,13 @@ def dm_create_v1(token, u_ids):
 
     # Append channel_data to 'dms' list in data_store
     store['dms'].append(dm_data)
+
+    # Recording "total number of dms" data for users_stats_v1
+    store['workspace_stats']['dms_exist'].append({
+        'num_dms_exist' : len(store['dms']),
+        'time_stamp' : current_timestamp(),
+    })
+
     data_store.set(store)
 
     return {
@@ -148,6 +155,11 @@ def dm_remove_v1(token, dm_id):
         raise AccessError(description='Unauthorised owner')
     else:
         del store['dms'][dm_index]
+        # Recording "total number of dms" data for users_stats_v1
+        store['workspace_stats']['dms_exist'].append({
+            'num_dms_exist' : len(store['dms']),
+            'time_stamp' : current_timestamp(),
+        })
         data_store.set(store)
 
     return {}

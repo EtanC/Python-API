@@ -117,6 +117,13 @@ def channels_create_v1(token, name, is_public):
     
     # Append channel_data to 'channels' list in data_store 
     store['channels'].append(channel_data)
+
+    # Recording "total number of channels" data for users_stats_v1
+    store['workspace_stats']['channels_exist'].append({
+        'num_channels_exist' : len(store['channels']),
+        'time_stamp' : current_timestamp(),
+    })
+
     data_store.set(store)
     
     return {

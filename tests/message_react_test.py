@@ -166,7 +166,6 @@ def test_valid_dm_react(reset, create_dm):
                 'u_ids': [create_dm[1]['auth_user_id']]}],
                 'is_pinned' : False
         }]
-    print()
 
 def test_false_react(reset, create_dm): 
     data = {
