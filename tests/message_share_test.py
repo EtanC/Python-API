@@ -129,7 +129,6 @@ def dm1(user1, user2):
 
     return {'dm_id' : dm_id, 'owner': owner, 'all_users': u_ids}
 
-
 # create dm2 with user1 and user3
 @pytest.fixture
 def dm2(user1, user3):
@@ -153,7 +152,7 @@ def dm2(user1, user3):
     return {'dm_id' : dm_id, 'owner': owner, 'all_users': u_ids}
 
 # Send a message to channel1 which will be shared
-
+@pytest.fixture
 def message_to_share_channel(channel1, user1):
 
     message = "To_BE_SHARED!!"
@@ -166,6 +165,25 @@ def message_to_share_channel(channel1, user1):
 
     response_send = requests.post(
         f"{config.url}message/send/v1",
+        json=data_send
+    )
+
+    message_id = response_send.json()['message_id']
+    return {'message_id' : message_id, 'message': message}
+
+@pytest.fixture
+def message_to_share_dm(dm1, user1):
+
+    message = "To_BE_SHARED_DM!!"
+
+    data_send = {
+        'token' : user1['token'],
+        'dm_id' : dm1['dm_id'],
+        'message' : message
+    }
+
+    response_send = requests.post(
+        f"{config.url}message/senddm/v1",
         json=data_send
     )
 
@@ -196,10 +214,48 @@ def test_valid_share_channel(user1, channel2, message_to_share_channel):
 
     assert response_data == expected_data
 
+# share a message from channel1 to channel2
+def test_valid_share_dm(user1, dm2, message_to_share_dm):
 
-def test_invalid_channel_and_dm():
+    data_share = {
+        'token' : user1['token'],
+        'og_message_id' : message_to_share_dm['message_id'],
+        'message' : "XDDD", 
+        'channel_id' : -1, 
+        'dm_id' : dm2['dm_id']
+    }
+
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+
+    response_data = response_share.json()
+    expected_data = {
+        'shared_message_id' : 1
+    }
+
+    assert response_data == expected_data
+
+def test_invalid_channel_and_dm(user1, channel2, message_to_share_channel):
     #400
-    pass
+    data_share = {
+        'token' : user1['token'],
+        'og_message_id' : message_to_share_channel['message_id'],
+        'message' : "XDDD", 
+        'channel_id' : channel2['channel_id'], 
+        'dm_id' : -1
+    }
+
+    data_share['channel_id'] += 1
+    data_share['dm_id'] += 1
+
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 400
 
 def test_no_negative_one():
     #400

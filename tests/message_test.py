@@ -158,7 +158,6 @@ def test_owners_are_valid_remove(reset_data, channel1, user2, user1):
 
     assert response_data == expected_data
 
-
 def test_invalid_token_remove(reset_data, user1, channel1): #DELETE
 
     token_register_send = {
