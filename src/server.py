@@ -16,7 +16,7 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_rem
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
 
-from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_sendlaterdm_v1, message_sendlater_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_sendlaterdm_v1, message_sendlater_v1, message_share_v1
 
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
@@ -514,7 +514,6 @@ def message_remove():
     )
     return dumps(message)
 
-
 @APP.route("/message/senddm/v1", methods=['POST'])
 def message_senddm():
 
@@ -640,7 +639,7 @@ def message_react_v3():
     return dumps(return_message)
 
 @APP.route("/message/unreact/v1", methods=['POST'])
-def message_uneact_v3():
+def message_unreact_v3():
     '''
     Given a message within a channel or DM the authorised user is part of, 
     remove a "react" to that particular message.
@@ -669,6 +668,41 @@ def message_uneact_v3():
     )
     return dumps(return_message)
 
+@APP.route("/message/share/v1", methods=['POST'])
+def message_share():
+
+    '''
+    Shares a message to a channel or to a DM along with an additional message
+    that is optional to include
+    
+    Arguments:
+        token         (str) - token identifying user
+        og_message_id (int) - id of message to be shared
+        message       (str) - message
+        channel_id    (int) - id of channel to be shared, to DM if -1
+        dm_id         (int) - id of dm to be shared, to channel if -1
+
+    Exceptions: 
+        InputError  - message is too long 
+                    - invalid channel_id and dm_id
+                    - neither channel_id or dm_id are -1
+                    - invalid og_message_id
+
+        AccessError - Authorised user not member of dm or channel
+                    - Invalid token 
+    Return Value: 
+        Returns {shared_message_id} on successful call  
+    '''
+
+    data = request.get_json()
+    message = message_share_v1(
+        data['token'],
+        int(data['og_message_id']),
+        data['message'],
+        int(data['channel_id']),
+        data['dm_id']
+    )
+    return dumps(message)
 
 '''
 
