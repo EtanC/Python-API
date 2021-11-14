@@ -932,4 +932,54 @@ def test_no_tagging(reset_data, user1, user2, channel1):
 # Testing for getting tagged in a share message
 def test_share_tagged_notification(reset_data, user1, user2, channel1):
     pass
+
+def test_edited_messaged(reset_data, user1, user2, channel1):
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+
+    requests.post(f"{config.url}channel/join/v2",\
+    json=join_register)
+
+    data_send_message = {
+        'token' : user2['token'],
+        'channel_id' : channel1['channel_id'],
+        'message' : 'hi',
+    }
+    message = requests.post(
+        f'{config.url}message/send/v1',
+        json=data_send_message
+    )
+    
+    message_id = message.json()['message_id']
+    edited_message = "@johnsmith hi"
+
+    data_edit_message = {
+        "token": user2['token'],
+        "message_id": message_id,
+        "message": edited_message
+    }
+
+    #message/edit/v1
+    requests.put(f"{config.url}message/edit/v1", \
+        json=data_edit_message)
+
+    notifications_register = {
+        "token": user1['token']
+    }
+    response_notifications_get = requests.get(
+        f'{config.url}notifications/get/v1',
+        params=notifications_register
+    )
+
+    data_notifications_get = response_notifications_get.json()
+
+    expected_data = [{
+        "channel_id": channel1['channel_id'],
+        "dm_id": -1,
+        "notification_message": 'chriselvin tagged you in Channel1_Public: @johnsmith hi'
+    }]
+
+    assert data_notifications_get == expected_data
     

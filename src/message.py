@@ -173,11 +173,11 @@ def message_edit_v1(token, message_id, message):
     # Section to insert into notifications when a message is edited
     handle = ''
 
-    for words in message_to_edit.split():
+    for words in message.split():
         if '@' in words:
             handle = words[1:]
 
-    shortened_message = message_to_edit[0:20]
+    shortened_message = message[0:20]
 
     # Retrieving channel_id
     for channels in store['channels']:
