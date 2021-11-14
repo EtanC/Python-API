@@ -1,7 +1,9 @@
 from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
-from src.helper import token_to_user, decode_token
+from src.helper import token_to_user, decode_token, current_timestamp
+
+STARTING_DM_ID = 1
 
 '''
 
@@ -25,16 +27,19 @@ def dm_create_v1(token, u_ids):
         raise AccessError(description='Invalid token')
 
     # INPUT ERROR: if any u_id in u_ids does not refer to a valid user
-    if (check_valid_id(u_ids, store) == False) or len(u_ids) == 0:
+    if check_valid_id(u_ids, store) == False:
         raise InputError(description='Invalid u_id')
 
-    # get dm_id by counting number of dm and adding one
-    # assuming it starts at 1
-    dm_id = len(store['dms']) + 1
+    # new dm_id  = last dm_id + 1
+    if len(store['dms']) < 1:
+        dm_id = STARTING_DM_ID
+    else:
+        dm_id = store['dms'][-1]['dm_id'] + 1
 
     # based on user_id passed in,
     # copy creator user's dictionary into user_list
-    user_list = []
+    # include the owner
+    user_list = [owner]
     for u_id in u_ids:
         for users in store['users']:
             if u_id == users['u_id']:
@@ -44,6 +49,12 @@ def dm_create_v1(token, u_ids):
     dm_name = []
     for users in user_list:
         dm_name.append(users['handle_str'])
+        # Recording dms_joined data for user/stats/v1
+        dms_joined = users['dms_joined'][-1]['num_dms_joined']
+        users['dms_joined'].append({
+            'num_dms_joined' : dms_joined + 1,
+            'time_stamp' : current_timestamp(),
+        })
     dm_name.sort()
     # over-writes the original list
     dm_name = ', '.join(dm_name)
@@ -55,6 +66,7 @@ def dm_create_v1(token, u_ids):
         'messages': [],
         'name': dm_name
     }
+
     # Append channel_data to 'dms' list in data_store
     store['dms'].append(dm_data)
     data_store.set(store)
@@ -122,6 +134,15 @@ def dm_remove_v1(token, dm_id):
     for index in range(len(store['dms'])):
         if store['dms'][index]['dm_id'] == dm_id:
             dm_index = index
+
+
+    for user in store['dms'][dm_index]['members']:
+        # Recording dms_joined data for user/stats/v1
+        dms_joined = user['dms_joined'][-1]['num_dms_joined']
+        user['dms_joined'].append({
+            'num_dms_joined' : dms_joined - 1,
+            'time_stamp' : current_timestamp(),
+        })
 
     if store['dms'][dm_index]['owner'] != owner:
         raise AccessError(description='Unauthorised owner')
@@ -206,6 +227,7 @@ def dm_messages_v1(token, dm_id, start):
     # token check
     if token_to_user(token, store) is not None:
         user = token_to_user(token, store)
+        user_id = user['u_id']
     else:
         raise AccessError(description='Invalid token')
 
@@ -233,6 +255,14 @@ def dm_messages_v1(token, dm_id, start):
     # Returning up to 50 messages
     end = start + 50
     messages = store['dms'][dm_index]['messages'][start:end]
+
+    # react section
+    for message in messages: 
+        message['reacts'][0]['is_this_user_reacted'] = False
+        for id in message['reacts'][0]['u_ids']: 
+            if user_id == id: 
+                message['reacts'][0]['is_this_user_reacted'] = True
+        
     # Setting end to -1 if no more messages left
     if start + 50 > len(store['dms'][dm_index]['messages']):
         end = -1
@@ -283,6 +313,12 @@ def dm_leave_v1(token,dm_id):
             if store['dms'][dm_index]['members'][index] == user:
                 user_index = index
         del store['dms'][dm_index]['members'][user_index]
+        # Recording dms_joined data for user/stats/v1
+        dms_joined = user['dms_joined'][-1]['num_dms_joined']
+        user['dms_joined'].append({
+            'num_dms_joined' : dms_joined - 1,
+            'time_stamp' : current_timestamp(),
+        })
         data_store.set(store)
 
     return {}

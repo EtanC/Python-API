@@ -96,8 +96,10 @@ def test_stored_data(reset):
     }
 
     response = requests.get(f"{config.url}channel/details/v2", params=data_details)
-
-    assert response.json() == \
+    data_response = response.json() 
+    del data_response['owner_members'][0]['profile_img_url']
+    del data_response['all_members'][0]['profile_img_url']
+    assert data_response == \
     { 
         'name': 'channel1', 
         'is_public': True, 
@@ -147,9 +149,11 @@ def test_multiple_create(reset):
     }
 
     response = requests.get(f"{config.url}channel/details/v2", params=data_details)
+    data_response = response.json() 
+    del data_response['owner_members'][0]['profile_img_url']
+    del data_response['all_members'][0]['profile_img_url']
 
-
-    assert response.json() == \
+    assert data_response == \
     { 
         'name': 'channel1', 
         'is_public': True, 
@@ -179,8 +183,10 @@ def test_multiple_create(reset):
     }
 
     response = requests.get(f"{config.url}channel/details/v2", params=data_details)
-
-    assert response.json() == \
+    data_response = response.json() 
+    del data_response['owner_members'][0]['profile_img_url']
+    del data_response['all_members'][0]['profile_img_url']
+    assert data_response == \
         { 
         'name': 'channel2', 
         'is_public': True, 

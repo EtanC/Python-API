@@ -145,7 +145,8 @@ def test_channel_remove(reset_data, user1, user2, channel1):
         "owner_members": owner_members,
         "all_members": all_members,
     }
-
+    del response_details_data['owner_members'][0]['profile_img_url']
+    del response_details_data['all_members'][0]['profile_img_url']
     assert response_details_data == expected_data
 
 def test_channel_remove_owner(reset_data, user1, user2, channel1):
@@ -209,7 +210,7 @@ def test_channel_remove_owner(reset_data, user1, user2, channel1):
         "owner_members": owner_members,
         "all_members": all_members,
     }
-
+    del response_details_data['all_members'][0]['profile_img_url']
     assert response_details_data == expected_data
 
 def test_dm_remove(reset_data, user1, user2):
@@ -286,7 +287,7 @@ def test_remove_original_owner(reset_data, user1, user2):
         'name_last': 'Elvin', 
         'handle_str': 'chriselvin', 
     }]}
-
+    del users_all_data['users'][0]['profile_img_url']
     assert users_all_data == expected_data
 
 def test_channel_messages_remove(reset_data, user1, user2, channel1):
@@ -348,6 +349,7 @@ def test_channel_messages_remove(reset_data, user1, user2, channel1):
     }
     # Removing time to check separately, index of 0 as there is only 1 message
     del channel_messages['messages'][0]['time_created']
+    del channel_messages['messages'][0]['reacts']
     assert channel_messages == expected
 
 def test_dm_messages_remove(reset_data, user1, user2):
@@ -401,6 +403,7 @@ def test_dm_messages_remove(reset_data, user1, user2):
     ) < 2
 
     del message['messages'][0]['time_created']
+    del message['messages'][0]['reacts']
     assert message == \
         {
             'messages' : [{
@@ -443,7 +446,7 @@ def test_user_details_remove(reset_data, user1, user2):
         'name_last': 'user', 
         'handle_str': None, 
     }}
-
+    del user_profile_data['user']['profile_img_url']
     assert user_profile_data == expected_data
     
 

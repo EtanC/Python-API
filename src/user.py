@@ -3,6 +3,10 @@ from src.error import AccessError, InputError
 from src.data_store import data_store
 from src.channel import get_user
 from src.auth import valid_name 
+import requests
+from PIL import Image, ImageChops
+import os 
+from src import config
 
 def users_all_v1(token): 
     '''
@@ -41,6 +45,7 @@ def users_all_v1(token):
                 'name_first': user['name_first'], 
                 'name_last': user['name_last'],
                 'handle_str': user['handle_str'],
+                'profile_img_url': user['profile_img_url'],
             })
     
     return {'users': users_list}
@@ -78,6 +83,7 @@ def user_profile_v1(token, u_id):
         'name_first': user_data['name_first'], 
         'name_last': user_data['name_last'], 
         'handle_str': user_data['handle_str'], 
+        'profile_img_url': user_data['profile_img_url'],
     }
 
     return {'user': user}
@@ -165,7 +171,7 @@ def user_profile_setemail_v1(token, email):
     Update the authorised user's email address 
 
     Arguments: 
-        token (str) - token identifting user 
+        token (str) - token identifying user 
         email (str) - email user wants to change to if valid
     
     Exceptions: 
@@ -194,3 +200,111 @@ def user_profile_setemail_v1(token, email):
     data_store.set(store)
 
     return {}  
+
+def user_stats_v1(token):
+    store = data_store.get()
+    user = token_to_user(token, store)
+    if user is None:
+        raise AccessError(description='Invalid token')
+    num_channels_joined = user['channels_joined'][-1]['num_channels_joined']
+    num_dms_joined = user['dms_joined'][-1]['num_dms_joined']
+    num_msgs_sent = user['messages_sent'][-1]['num_messages_sent']
+    num_channels = len(store['channels'])
+    num_dms = len(store['dms'])
+    num_msgs = store['message_id'] - 1
+    if num_channels + num_dms + num_msgs != 0:
+        involvement_rate = (num_channels_joined + num_dms_joined +
+                            num_msgs_sent) / (num_channels + num_dms + num_msgs)
+    else:
+        involvement_rate = 0
+
+    if involvement_rate > 1:
+        involvement_rate = 1
+
+    stats = {
+        'channels_joined' : user['channels_joined'],
+        'dms_joined' : user['dms_joined'],
+        'messages_sent' : user['messages_sent'],
+        'involvement_rate' : involvement_rate,
+    }
+    return stats
+
+def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end): 
+    '''
+    Given a URL of an image on the internet, 
+    crops the image within bounds (x_start, y_start) and (x_end, y_end).
+    
+    Arguments: 
+        token   (str)   - token identifying user 
+        img_url (str)   - url of image, should only be http not https
+        x_start (int)   - left position of crop 
+        y_start (int)   - top position of crop 
+        x_end   (int)   - right position of crop 
+        y_end   (int)   - bottom position of crop 
+    
+    Exceptions: 
+        InputError  - img_url returns HTTP status other than 200 
+                    - crop x, y not within boundary
+                    - x_end < x_start, y_end < y_start
+                    - image uploaded not JPG / JPEG
+        AccessError - invalid token
+        
+    Return Value: 
+        Returns {} on successful call
+    '''
+    store = data_store.get()
+    user = token_to_user(token, store)
+    # check token 
+    if user is None: 
+        raise AccessError(description='Invalid token')
+    
+    # check end values > start values 
+    if x_end < x_start or y_end < y_start: 
+        raise InputError(description='End value less than start value')
+
+    # check start value
+    if x_start < 0 or y_start < 0: 
+        raise InputError(description='Crop values out of bounds')
+    
+    # check url return value
+    url_result = requests.get(img_url, stream=True)
+    if url_result.status_code != 200: 
+        raise InputError(description='Bad url')
+    
+    image = Image.open(url_result.raw)
+    # check image type
+    if image.format not in ('JPG', 'JPEG'): 
+        raise InputError(description='Image uploaded not a JPG/JPEG')
+
+    img_width, img_height = image.size
+    
+    # check end value
+    if x_end > img_width or y_end > img_height: 
+        raise InputError(description='Crop values out of bounds')
+    
+    # get path of current directory 
+    current_path = os.getcwd()
+    
+    # create path to new directory to store images
+    new_directory_path = os.path.join(current_path, 'images')
+    
+    # if there doesn't exist a directory for storing images, create one
+    if not os.path.exists(new_directory_path):
+        os.mkdir(new_directory_path)
+
+    # crop image
+    image = image.crop((x_start, y_start, x_end, y_end))
+    
+    # create path for new image, within storage directory
+    # store as .jpg since I think jpg == jpeg, should be fine to store both
+    # as jpg. 
+    # makes finding them later easier
+    # store image names as u_id since its unique for each user and thus
+    # will make it easier to find
+    
+    new_image_name = f"{user['u_id']}.jpg"
+    new_image_path = os.path.join(new_directory_path, new_image_name)
+    image.save(new_image_path)
+
+    data_store.set(store)
+    return {}

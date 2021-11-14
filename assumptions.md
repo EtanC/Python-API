@@ -16,3 +16,7 @@ auth/login/v1:
 Regarding all GET requests:
 * the same key is not used twice in the same url to pass data. If it is, only 
   the first one will be accepted.
+
+user/profile/uploadphoto/v1: 
+* calling uploadphoto multiple times with the same person would just overwrite the first
+  photo with the second one 

@@ -2,6 +2,7 @@ import jwt
 import re
 from src.error import InputError
 from src.config import SECRET, EMAIL_REGEX
+from datetime import datetime, timezone
 
 def get_user(auth_user_id, store):
     '''
@@ -31,6 +32,10 @@ def get_message(message_id, store):
 
     for channel in store['channels']:
         for message in channel['messages']:
+            if message['message_id'] == message_id:
+                return message
+    for dm in store['dms']:
+        for message in dm['messages']:
             if message['message_id'] == message_id:
                 return message
     return None
@@ -84,3 +89,6 @@ def valid_email(email, store):
 
 def is_global_owner(user):
     return user['permission_id'] == 1
+
+def current_timestamp():
+    return datetime.now().replace(tzinfo=timezone.utc).timestamp()
