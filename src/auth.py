@@ -195,6 +195,7 @@ def auth_register_v1(email, password, name_first, name_last):
         'handle_str' : user_handle,
         'active_session_ids' : [STARTING_SESSION_ID],
         'permission_id' : permission_id,
+        'notifications' : [],
         'channels_joined' : [{
             'num_channels_joined' : 0,
             'time_stamp' : current_timestamp(),
