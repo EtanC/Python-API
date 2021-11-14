@@ -162,6 +162,6 @@ def test_have_not_reacted(reset,create_dm):
                 'is_this_user_reacted' : False,
                 'react_id' : 1,
                 'u_ids': []}],
-            'is_pinned' : False
+                'is_pinned' : False
 
     }]
