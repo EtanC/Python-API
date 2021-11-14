@@ -980,7 +980,7 @@ def test_share_tagged_notification(reset_data, user1, user2, channel1):
         {
             "channel_id": channel1['channel_id'],
             "dm_id": -1,
-            "notification_message": 'johnsmith tagged you in chriselvin, johnsmith: hi @johnsmith'
+            "notification_message": 'johnsmith tagged you in chriselvin, johnsmith: @johnsmith'
         },
         {
             "channel_id": -1,
