@@ -127,7 +127,9 @@ def test_change_to_global_valid(reset_data, user1, user2, channel1_private):
         "owner_members": owner_members,
         "all_members": all_members,
     }
-
+    del response_join_register_data['owner_members'][0]['profile_img_url']
+    del response_join_register_data['all_members'][0]['profile_img_url']
+    del response_join_register_data['all_members'][1]['profile_img_url']
     assert response_join_register_data == expected_data
 
 def test_change_to_member_valid(reset_data, user1, user2, channel1_private):
