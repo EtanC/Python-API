@@ -331,7 +331,8 @@ def test_send_dm_before_sendlaterdm(reset):
     quick_dm = { 
         'message_id': response_senddm.json()['message_id'],
         'u_id': reset['creator']['auth_user_id'], 
-        'message': 'quick message'
+        'message': 'quick message',
+        'is_pinned' : False
     }
 
     assert dm_messages == {'messages' : [quick_dm], 'start': 0, 'end': -1}
@@ -355,6 +356,7 @@ def test_send_dm_before_sendlaterdm(reset):
                 'message_id' : response_sendlaterdm.json()['message_id'],
                 'u_id' : reset['creator']['auth_user_id'],
                 'message' : 'valid message',
+                
             }, 
         ],
         'start' : 0,
