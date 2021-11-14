@@ -59,30 +59,6 @@ def test_inputError(reset):
 
     assert response.status_code == 400
 
-
-def test_empty(reset):
-    register_person2 = {
-        "email": "realemail_2@outlook.edu.au",
-        "password": "Password1",
-        "name_first": "Beta",
-        "name_last": "Smith",
-    }
-    requests.post(
-        f"{config.url}auth/register/v2",
-        json=register_person2
-    )
-
-    data = {
-        'token': reset[0]['token'],
-        'u_ids': []
-    }
-    response = requests.post(
-        f"{config.url}dm/create/v1",
-        json=data
-    )
-    assert response.status_code == 400
-
-
 def test_invalid_token(reset): 
     data = {
         'token' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2V2aW4ifQ.kEg0Lcmdnk9a5WrUhfSi3F7hRsEHk5-7u7bZ9s49paA',

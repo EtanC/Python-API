@@ -97,6 +97,7 @@ def test_single_message(reset_data, channel1):
                 'message_id' : response_send_message.json()['message_id'],
                 'u_id' : channel1['user']['auth_user_id'],
                 'message' : 'hi',
+                'is_pinned' : False
             }
         ],
         'start' : 0,
@@ -104,6 +105,7 @@ def test_single_message(reset_data, channel1):
     }
     # Removing time to check separately, index of 0 as there is only 1 message
     del channel_messages['messages'][0]['time_created']
+    del channel_messages['messages'][0]['reacts']
     assert channel_messages == expected
 
 def test_pagination(reset_data, channel1):
@@ -144,10 +146,12 @@ def test_pagination(reset_data, channel1):
         ) < 2
         # Removing time stamp cuz we already checked it
         del channel_messages['messages'][i]['time_created']
+        del channel_messages['messages'][i]['reacts']
         expected['messages'].append({
             'message_id' : message_ids[i],
             'u_id' : channel1['user']['auth_user_id'],
             'message' : 'hi',
+            'is_pinned' : False
         })
     assert channel_messages == expected
 

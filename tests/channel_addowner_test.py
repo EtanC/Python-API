@@ -85,6 +85,10 @@ def test_valid_addowner(two_member_channel):
             },
         ],
     }
+    del channel_info['owner_members'][0]['profile_img_url']
+    del channel_info['owner_members'][1]['profile_img_url']
+    del channel_info['all_members'][0]['profile_img_url']
+    del channel_info['all_members'][1]['profile_img_url']
     channel_info['owner_members'].sort(key=lambda x: x['u_id'])
     channel_info['all_members'].sort(key=lambda x: x['u_id'])
     expected['owner_members'].sort(key=lambda x: x['u_id'])

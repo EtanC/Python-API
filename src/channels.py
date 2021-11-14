@@ -14,14 +14,12 @@ that the authorised user is part of.
 
 '''
 def channels_list_v1(token):
-    token_data = decode_token(token)
-    
-    # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
-        raise AccessError(description='Invalid token')
-
-    auth_user_id = token_data['auth_user_id']
     store = data_store.get()
+    # Checking if token refers to a valid user and is therefore valid
+    user = token_to_user(token, store)
+    if user is None:
+        raise AccessError(description='Invalid token')
+    auth_user_id = user['u_id']
 
     # access list within channels
     list_channels = store['channels']
@@ -49,13 +47,9 @@ Provide a list of all channels, including private channels, (and their associate
 
 
 def channels_listall_v1(token):
-    token_data = decode_token(token)
-    
-    # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if (token_data is None) or ('auth_user_id' not in token_data): 
-        raise AccessError(description='Invalid token')
-
     store = data_store.get()
+    if token_to_user(token, store) is None:
+        raise AccessError(description='Invalid token')
 
     list_channels = store['channels']
     # a list of dictionary that we return
@@ -90,15 +84,11 @@ Return Value:
 '''
             
 def channels_create_v1(token, name, is_public):
-    token_data = decode_token(token)
-    
     store = data_store.get()
-
-    # if token is invalid or doesn't have an 'auth_user_id' which it should 
-    if token_to_user(token, store) is None: 
+    # Search for the user from the token
+    user_dict = token_to_user(token, store)
+    if user_dict is None:
         raise AccessError(description='Invalid token')
-
-    auth_user_id = token_data['auth_user_id']
 
     # Checking for length of channel name 
     if len(name) < 1 or len(name) > 20: 
@@ -108,11 +98,12 @@ def channels_create_v1(token, name, is_public):
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
 
-    # based on auth_user_id passed in, copy creator user's dictionary into user_dict
-    user_dict = {} 
-    for users in store['users']: 
-        if auth_user_id == users['u_id']: 
-            user_dict = users 
+    # Recording channels_joined data for user/stats/v1
+    channels_joined = user_dict['channels_joined'][-1]['num_channels_joined']
+    user_dict['channels_joined'].append({
+        'num_channels_joined' : channels_joined + 1,
+        'time_stamp' : current_timestamp(),
+    })
 
     # Store channel data in a dictionary 
     channel_data = { 

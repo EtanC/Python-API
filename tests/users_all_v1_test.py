@@ -32,8 +32,9 @@ def test_one_valid(reset):
         'token': reset['token'], 
     } 
     response = requests.get(f'{config.url}users/all/v1', params=data_user)
-
-    assert response.json() == {'users': [{
+    response_data = response.json() 
+    del response_data['users'][0]['profile_img_url']
+    assert response_data == {'users': [{
         'u_id': reset['auth_user_id'], 
         'email': 'realemail_812@outlook.edu.au', 
         'name_first': 'John', 
@@ -84,10 +85,12 @@ def test_two_valid(reset):
         'name_last': 'Lee', 
         'handle_str': 'timlee'
     }]
-
+    response_data = response.json() 
+    del response_data['users'][0]['profile_img_url']
+    del response_data['users'][1]['profile_img_url']
     # sort both lists by u_id to allow direct comparison 
     sorted_users_list = sorted(users_list, key = lambda k: k['u_id']) 
-    sorted_response_list = sorted(response.json()['users'], key = lambda k: k['u_id']) 
+    sorted_response_list = sorted(response_data['users'], key = lambda k: k['u_id']) 
 
     assert sorted_users_list == sorted_response_list 
 
@@ -164,9 +167,14 @@ def test_three_valid(reset):
     }
     ]
 
+    response_data = response.json() 
+    del response_data['users'][0]['profile_img_url']
+    del response_data['users'][1]['profile_img_url']
+    del response_data['users'][2]['profile_img_url']
+
     # sort both lists by u_id to allow direct comparison 
     sorted_users_list = sorted(users_list, key = lambda k: k['u_id']) 
-    sorted_response_list = sorted(response.json()['users'], key = lambda k: k['u_id']) 
+    sorted_response_list = sorted(response_data['users'], key = lambda k: k['u_id']) 
 
     assert sorted_users_list == sorted_response_list 
 
