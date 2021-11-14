@@ -1,7 +1,7 @@
 from src.data_store import data_store
 from src.error import AccessError 
 from src.error import InputError 
-from src.helper import decode_token, token_to_user
+from src.helper import decode_token, token_to_user, current_timestamp
 
 # if it is valid it shouldnt raise an error 
 
@@ -98,6 +98,13 @@ def channels_create_v1(token, name, is_public):
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
 
+    # Recording channels_joined data for user/stats/v1
+    channels_joined = user_dict['channels_joined'][-1]['num_channels_joined']
+    user_dict['channels_joined'].append({
+        'num_channels_joined' : channels_joined + 1,
+        'time_stamp' : current_timestamp(),
+    })
+
     # Store channel data in a dictionary 
     channel_data = { 
         'channel_id': channel_id,
@@ -110,6 +117,13 @@ def channels_create_v1(token, name, is_public):
     
     # Append channel_data to 'channels' list in data_store 
     store['channels'].append(channel_data)
+
+    # Recording "total number of channels" data for users_stats_v1
+    store['workspace_stats']['channels_exist'].append({
+        'num_channels_exist' : len(store['channels']),
+        'time_stamp' : current_timestamp(),
+    })
+
     data_store.set(store)
     
     return {

@@ -158,7 +158,6 @@ def test_owners_are_valid_remove(reset_data, channel1, user2, user1):
 
     assert response_data == expected_data
 
-
 def test_invalid_token_remove(reset_data, user1, channel1): #DELETE
 
     token_register_send = {
@@ -355,6 +354,7 @@ def test_owners_are_valid_edit(reset_data, channel1, user2, user1):
             'message_id': message_id,
             'u_id': user2['auth_user_id'],
             'message': edited_message,
+            'is_pinned' : False
             }
         ], 
         'start': 0,
@@ -449,6 +449,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
             'message_id': response_senddm_data['message_id'],
             'u_id': user2['auth_user_id'],
             'message': "valid_dm_message",
+            'is_pinned' : False
             }
         ], 
         'start': 0,
@@ -661,6 +662,7 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
             'message_id': message_id,
             'u_id': channel1['user_id'],
             'message': edited_message,
+            'is_pinned' : False
             }
         ], 
         'start': 0,
@@ -809,6 +811,7 @@ def test_valid_send(reset_data, channel1, user1): #POST
             'message_id': response_send_message_data['message_id'],
             'u_id': channel1['user_id'],
             'message': "valid_message",
+            'is_pinned' : False
             }
         ], 
         'start': 0,

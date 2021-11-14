@@ -11,7 +11,10 @@ import hashlib
 import smtplib, ssl
 import secrets
 from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD, RESET_CODE_LENGTH
-from src.helper import decode_token, get_user
+from src.helper import decode_token, get_user, current_timestamp
+from PIL import Image
+import os
+from src import config
 
 MIN_PASSWORD_LENGTH = 6
 MIN_NAME_LENGTH = 1
@@ -174,6 +177,15 @@ def auth_register_v1(email, password, name_first, name_last):
         permission_id = 1
     else:
         permission_id = 2
+    # copy default.jpg as user_id.jpg
+    # store img url
+    new_directory_path = os.path.join(os.getcwd(), 'images')
+    default_profile = Image.open(os.path.join(new_directory_path, 'default.jpg'))
+    profile_pic = default_profile.copy()
+    new_image_name = f"{user_id}.jpg"
+    new_image_path = os.path.join(new_directory_path, new_image_name)
+    profile_pic.save(new_image_path)
+    
     user = {
         'u_id' : user_id,
         'email' : email,
@@ -184,6 +196,19 @@ def auth_register_v1(email, password, name_first, name_last):
         'active_session_ids' : [STARTING_SESSION_ID],
         'permission_id' : permission_id,
         'notifications' : [],
+        'channels_joined' : [{
+            'num_channels_joined' : 0,
+            'time_stamp' : current_timestamp(),
+        }],
+        'dms_joined' : [{
+            'num_dms_joined' : 0,
+            'time_stamp' : current_timestamp(),
+        }],
+        'messages_sent' : [{
+            'num_messages_sent' : 0,
+            'time_stamp' : current_timestamp(),
+        }],
+        'profile_img_url': f"{config.url}user/profile/photo/{new_image_name}",
     }
     store['users'].append(user)
     data_store.set(store)
@@ -257,3 +282,22 @@ If you haven't recently requested a password reset, please ignore this email
     server.quit()
     data_store.set(store)
     return {}
+
+def auth_passwordreset_reset_v1(reset_code, new_password):
+    # Check if password is valid
+    if not valid_password(new_password):
+        raise InputError(description="Password too short")
+    # Check if reset_code is valid
+    store = data_store.get()
+    target_user = None
+    for user in store['users']:
+        if 'reset_code' in user and user['reset_code'] == reset_code:
+            target_user = user
+    if target_user is None:
+        raise InputError(description="Invalid reset code")
+    # Invalidate the one time use reset_code, change password to new_password
+    del target_user['reset_code']
+    target_user['password'] = hash(new_password)
+    data_store.set(store)
+    return {}
+

@@ -3,7 +3,7 @@ from src.error import InputError
 from src.error import AccessError
 from src.channels import channels_list_v1, check_valid_user_id
 import re
-from src.helper import decode_token, token_to_user, get_channel, get_user, is_global_owner
+from src.helper import decode_token, token_to_user, get_channel, get_user, is_global_owner, current_timestamp
 
 def channel_invite_v1(token, channel_id, u_id):
     '''
@@ -70,6 +70,12 @@ def channel_invite_v1(token, channel_id, u_id):
                 "notification_message": f'{user["handle_str"]} added you to {channels["name"]}'
                 }
             )
+    # Recording channels_joined data for user/stats/v1
+    channels_joined = new_member['channels_joined'][-1]['num_channels_joined']
+    new_member['channels_joined'].append({
+        'num_channels_joined' : channels_joined + 1,
+        'time_stamp' : current_timestamp(),
+    })
 
     data_store.set(store)
     
@@ -124,6 +130,7 @@ def channel_details_v1(token, channel_id):
             'name_first': member['name_first'], 
             'name_last': member['name_last'], 
             'handle_str': member['handle_str'], 
+            'profile_img_url': member['profile_img_url'],
         })
     
     for owner in channel['owner_members']: 
@@ -133,8 +140,9 @@ def channel_details_v1(token, channel_id):
             'name_first': owner['name_first'], 
             'name_last': owner['name_last'], 
             'handle_str': owner['handle_str'], 
+            'profile_img_url': owner['profile_img_url'],
         })
-   
+
     return {
         'name': channel['name'],
         'is_public': channel['is_public'], 
@@ -237,6 +245,12 @@ def channel_join_v1(token, channel_id):
             
     # otherwise, join the user to the channel by appending
     channel['all_members'].append(user)
+    # Recording channels_joined data for user/stats/v1
+    channels_joined = user['channels_joined'][-1]['num_channels_joined']
+    user['channels_joined'].append({
+        'num_channels_joined' : channels_joined + 1,
+        'time_stamp' : current_timestamp(),
+    })
     data_store.set(store)
 
     return {
@@ -276,6 +290,12 @@ def channel_leave_v1(token, channel_id):
     channel['all_members'].remove(user)
     if is_channel_member(user['u_id'], channel['owner_members']):
         channel['owner_members'].remove(user)
+    # Recording channels_joined data for user/stats/v1
+    channels_joined = user['channels_joined'][-1]['num_channels_joined']
+    user['channels_joined'].append({
+        'num_channels_joined' : channels_joined - 1,
+        'time_stamp' : current_timestamp(),
+    })
     data_store.set(store)
     return {}
 

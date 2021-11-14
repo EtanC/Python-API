@@ -151,6 +151,7 @@ def test_send_dm(reset):
                 'message': 'I just sent a message lol xd', 
                 'message_id': message_id,
                 'u_id': reset[1]['auth_user_id'],
+                'is_pinned' : False
             }],
             'start' : 0,
             'end' : -1
@@ -169,7 +170,7 @@ def test_multiple(reset):
             f"{config.url}message/senddm/v1",
             json=data_send
         )
-        message_id.append(response_send.json()['message_id'])
+        message_id.insert(0, response_send.json()['message_id'])
     
     data = {
         'token':reset[1]['token'], 
@@ -202,6 +203,7 @@ def test_multiple(reset):
             'message' : 'I just sent a message lol xd',
             'message_id': message_id[i],
             'u_id': reset[1]['auth_user_id'],
+            'is_pinned' : False
         })
     
     assert message == expected

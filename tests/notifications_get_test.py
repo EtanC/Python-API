@@ -967,7 +967,7 @@ def test_share_tagged_notification(reset_data, user1, user2, channel1):
     )
 
     notifications_register = {
-        "token": user1['token']
+        "token": user2['token']
     }
     response_notifications_get = requests.get(
         f'{config.url}notifications/get/v1',
@@ -978,9 +978,9 @@ def test_share_tagged_notification(reset_data, user1, user2, channel1):
 
     expected_data = [
         {
-            "channel_id": channel1['channel_id'],
-            "dm_id": -1,
-            "notification_message": 'johnsmith tagged you in chriselvin, johnsmith: @johnsmith'
+            "channel_id": -1,
+            "dm_id": dm_id,
+            "notification_message": 'johnsmith tagged you in chriselvin, johnsmith: @chriselvin'
         },
         {
             "channel_id": -1,
