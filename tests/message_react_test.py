@@ -156,7 +156,7 @@ def test_valid_dm_react(reset, create_dm):
 
     del response['messages'][0]['time_created']
     assert response['messages'] ==   \
-    [{
+        [{
             'message': 'Hi how are you', 
             'message_id': create_dm[3]['message_id'],
             'u_id': create_dm[0]['auth_user_id'],
@@ -165,8 +165,7 @@ def test_valid_dm_react(reset, create_dm):
                 'react_id' : 1,
                 'u_ids': [create_dm[1]['auth_user_id']]}],
                 'is_pinned' : False
-
-    }]
+        }]
     print()
 
 def test_false_react(reset, create_dm): 

@@ -201,6 +201,34 @@ def user_profile_setemail_v1(token, email):
 
     return {}  
 
+def user_stats_v1(token):
+    store = data_store.get()
+    user = token_to_user(token, store)
+    if user is None:
+        raise AccessError(description='Invalid token')
+    num_channels_joined = user['channels_joined'][-1]['num_channels_joined']
+    num_dms_joined = user['dms_joined'][-1]['num_dms_joined']
+    num_msgs_sent = user['messages_sent'][-1]['num_messages_sent']
+    num_channels = len(store['channels'])
+    num_dms = len(store['dms'])
+    num_msgs = store['message_id'] - 1
+    if num_channels + num_dms + num_msgs != 0:
+        involvement_rate = (num_channels_joined + num_dms_joined +
+                            num_msgs_sent) / (num_channels + num_dms + num_msgs)
+    else:
+        involvement_rate = 0
+
+    if involvement_rate > 1:
+        involvement_rate = 1
+
+    stats = {
+        'channels_joined' : user['channels_joined'],
+        'dms_joined' : user['dms_joined'],
+        'messages_sent' : user['messages_sent'],
+        'involvement_rate' : involvement_rate,
+    }
+    return stats
+
 def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end): 
     '''
     Given a URL of an image on the internet, 

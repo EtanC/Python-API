@@ -4,18 +4,19 @@ from json import dumps
 from flask import Flask, request, send_file
 from flask_cors import CORS
 from src.error import InputError, AccessError 
-from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1, auth_passwordreset_request_v1
+from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
 from src.other import clear_v1
 from src import config
 from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
-    user_profile_setname_v1, user_profile_sethandle_v1, user_profile_uploadphoto_v1
+    user_profile_setname_v1, user_profile_sethandle_v1, user_stats_v1, user_profile_uploadphoto_v1
 
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1, dm_leave_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
-from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_pin_v1, message_unpin_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_sendlaterdm_v1, message_sendlater_v1, message_pin_v1, message_unpin_v1
+
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.standup import standup_start_v1, standup_active_v1
@@ -148,6 +149,28 @@ def auth_passwordreset_request():
     '''
     data = request.get_json()
     return dumps(auth_passwordreset_request_v1(data['email']))
+
+@APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
+def auth_passwordreset_reset():
+    '''
+    Given a reset code and new password, changes the user's password to
+    the new password if reset code and new password are valid
+
+    Arguments:
+        reset_code      (str) - reset_code sent by Streams app to user's email
+        new_password    (str) - new password specified by user
+
+    Exceptions: 
+        InputError  - reset_code is not a valid reset code
+                    - new_password less than 6 characters long
+
+    Return Value: 
+        Returns {}
+    '''
+    data = request.get_json()
+    return dumps(auth_passwordreset_reset_v1(
+        data['reset_code'], data['new_password']
+    ))
 
 '''
 
@@ -717,6 +740,7 @@ def message_unpin():
     )
     return dumps(message)
 
+
 '''
 
 dms.py section 
@@ -994,6 +1018,29 @@ def user_profile_setname():
     data = request.get_json() 
     user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
     return dumps({})
+
+@APP.route("/user/stats/v1", methods=['GET'])
+def user_stats():
+    '''
+    Given a token, returns data/statistics about the user's usage of Streams
+
+    Arguments: 
+        token       (str) - token identifying the user 
+    
+    Exceptions: 
+        AccessError - invalid token
+    
+    Return Value: 
+        On successful call, returns dictionary of shape
+    {
+     channels_joined: [{num_channels_joined, time_stamp}],
+     dms_joined: [{num_dms_joined, time_stamp}], 
+     messages_sent: [{num_messages_sent, time_stamp}], 
+     involvement_rate 
+    }
+    '''
+    data = request.args
+    return dumps(user_stats_v1(data['token']))
 
 @APP.route("/user/profile/uploadphoto/v1", methods=['POST'])
 def user_profile_uploadphoto(): 

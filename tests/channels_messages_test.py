@@ -97,7 +97,8 @@ def test_single_message(reset_data, channel1):
                 'message_id' : response_send_message.json()['message_id'],
                 'u_id' : channel1['user']['auth_user_id'],
                 'message' : 'hi',
-                'is_pinned': False            }
+                'is_pinned' : False
+            }
         ],
         'start' : 0,
         'end' : -1,

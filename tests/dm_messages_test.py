@@ -204,7 +204,6 @@ def test_multiple(reset):
             'message_id': message_id[i],
             'u_id': reset[1]['auth_user_id'],
             'is_pinned' : False
-
         })
     
     assert message == expected
