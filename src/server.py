@@ -11,11 +11,9 @@ from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
     user_profile_setname_v1, user_profile_sethandle_v1
-
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1, dm_leave_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
-
-from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_sendlater_v1
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.standup import standup_start_v1, standup_active_v1
@@ -153,7 +151,6 @@ def auth_passwordreset_request():
 channel.py section 
 
 '''
-
 
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
@@ -545,6 +542,37 @@ def message_senddm():
     )
     return dumps(message)
 
+@APP.route("/message/sendlater/v1", methods=['POST'])
+def message_sendlater():
+    '''
+    Send a message from authorised user to channel at a specified time in the 
+    future. 
+
+    Arguments: 
+        token       (str) - token identifying user
+        channel_id  (int) - channel_id of channel that message will be sent to
+        message     (str) - message that will be sent
+        time_sent   (int) - unix timestamp int of when the message will be sent
+    
+    Exceptions:
+        InputError  - invalid channel_id
+                    - length of message over 1000 chars
+                    - time_sent is a time in the past
+        AccessError - channel_id is valid but authorised user is not a part of it
+                    - invalid token
+    
+    Return Value: 
+        Returns { message_id } on successful call 
+    '''
+    data = request.get_json()
+    message_id = message_sendlater_v1(
+        data['token'], 
+        data['channel_id'], 
+        data['message'], 
+        data['time_sent'],
+    )
+    return dumps(message_id)
+
 @APP.route("/message/react/v1", methods=['POST'])
 def message_react_v3():
     '''
@@ -604,6 +632,7 @@ def message_uneact_v3():
         data['react_id']
     )
     return dumps(return_message)
+
 
 '''
 

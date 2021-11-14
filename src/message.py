@@ -7,6 +7,8 @@ from flask import Flask, request
 from src.helper import token_to_user, get_channel, decode_token, get_user, get_message, get_dm, is_global_owner
 from datetime import timezone, datetime
 from src.channel import is_channel_member
+import time
+import threading
 
 def message_senddm_v1(token, dm_id, message):
 
@@ -219,6 +221,102 @@ def message_send_v1(token, channel_id, message):
     return {
         'message_id': message_id
     }
+
+def message_sendlater_v1(token, channel_id, message, time_sent): 
+    '''
+    Send a message from authorised user to channel at a specified time in the 
+    future. 
+
+    Arguments: 
+        token       (str) - token identifying user
+        channel_id  (int) - channel_id of channel that message will be sent to
+        message     (str) - message that will be sent
+        time_sent   (int) - unix timestamp int of when the message will be sent
+    
+    Exceptions:
+        InputError  - invalid channel_id
+                    - length of message over 1000 chars
+                    - time_sent is a time in the past
+        AccessError - channel_id is valid but authorised user is not a part of it
+                    - invalid token
+    
+    Return Value: 
+        Returns { message_id } on successful call 
+    '''
+    store = data_store.get()
+    user = token_to_user(token, store)
+    
+    # check valid token
+    if (user is None): 
+        raise AccessError(description='Invalid token')
+    
+    channel = get_channel(channel_id, store)
+    # check channel id 
+    if (channel is None): 
+        raise InputError(description='Invalid channel_id')
+   
+    # check if user is in channel 
+    if (user not in channel['all_members']): 
+        raise AccessError(description='User not in channel')
+
+    # check message length
+    if (len(message) > 1000): 
+        raise InputError(description='Message too long')
+    
+    # check time is not in past
+    time_now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    
+    if (time_sent < time_now): 
+        raise InputError(description='Time sent is in the past')
+
+    # save the message_id of message that is not sent yet, move the message id
+    # in store ahead by one so the message_id of message after doesn't clash 
+    # with this one
+    reserved_message_id = store['message_id']
+    store['message_id'] += 1 
+    data_store.set(store)
+    
+    # calculate the number of seconds to wait and call threading function
+    wait_seconds = time_sent - time_now
+
+    # start the thread
+    thread = threading.Thread(target=sendlater_thread, args=(user['u_id'], channel_id, \
+        message, wait_seconds, reserved_message_id))
+    thread.start()
+
+    return {'message_id':reserved_message_id}
+
+def sendlater_thread(user_id, channel_id, message, seconds, reserved_message_id):
+    # wait until it is time to send message
+    time.sleep(seconds)
+
+    # send the message, don't use message_send function as that checks for 
+    # session id which means that if the user logs out before sendlater message is 
+    # sent, the message won't be sent due to token error 
+    store = data_store.get()
+    
+    channel = get_channel(channel_id, store)
+    time_created = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    react = [
+        {
+            'react_id': 1,
+            'u_ids' : [], 
+        },
+    ]
+    new_message = {
+        'message_id': reserved_message_id,
+        'u_id': user_id,
+        'message': message, 
+        'time_created': time_created,
+        'reacts': react
+    }
+
+    # append new message and its stats to the channel directly without 
+    # checking for token, already checked message length (will post empty messages, 
+    # since interface doesn't say anything about this and forums say 'you can decide')
+    channel['messages'].append(new_message)
+    
+    data_store.set(store)
 
 def has_owner_perms(auth_user_id, store, user, message_id): 
     for channel in store['channels']:
