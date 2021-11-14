@@ -143,7 +143,9 @@ def test_valid(reset, channel, user1, user2):
         "owner_members": owner_members,
         "all_members": all_members,
     }
-
+    del response_invite_register_data['owner_members'][0]['profile_img_url']
+    del response_invite_register_data['all_members'][0]['profile_img_url']
+    del response_invite_register_data['all_members'][1]['profile_img_url']
     assert response_invite_register_data == expected_data
 
 
