@@ -107,6 +107,26 @@ def channel2(user1):
 
     return {'user_id' : user_id, 'channel_id' : channel_id}
 
+# create public channel called channel3 where user3 will be added
+@pytest.fixture
+def channel3(user3):
+
+    channel2_register = {
+        'token': user3['token'],
+        'name': "Channel3_Public",
+        'is_public': True,
+    }
+
+    response_channel2_register = requests.post(
+        f"{config.url}channels/create/v2",
+        json=channel2_register
+    )
+
+    channel_id = response_channel2_register.json()['channel_id']
+    user_id    = user3['auth_user_id']
+
+    return {'user_id' : user_id, 'channel_id' : channel_id}
+
 # create dm1 with user1 and user2
 @pytest.fixture
 def dm1(user1, user2):
@@ -151,7 +171,7 @@ def dm2(user1, user3):
 
     return {'dm_id' : dm_id, 'owner': owner, 'all_users': u_ids}
 
-# Send a message to channel1 which will be shared
+# a channel message which will be shared
 @pytest.fixture
 def message_to_share_channel(channel1, user1):
 
@@ -171,6 +191,7 @@ def message_to_share_channel(channel1, user1):
     message_id = response_send.json()['message_id']
     return {'message_id' : message_id, 'message': message}
 
+# a dm message which will be shared
 @pytest.fixture
 def message_to_share_dm(dm1, user1):
 
@@ -208,12 +229,12 @@ def test_valid_share_channel(reset_data, user1, channel2, message_to_share_chann
 
     response_data = response_share.json()
     expected_data = {
-        'shared_message_id' : 1
+        'shared_message_id' : 2
     }
 
     assert response_data == expected_data
 
-# share a message from channel1 to channel2
+# share a message from dm1 to dm2
 def test_valid_share_dm(reset_data, user1, dm2, message_to_share_dm):
 
     data_share = {
@@ -231,7 +252,7 @@ def test_valid_share_dm(reset_data, user1, dm2, message_to_share_dm):
 
     response_data = response_share.json()
     expected_data = {
-        'shared_message_id' : 1
+        'shared_message_id' : 2
     }
 
     assert response_data == expected_data
@@ -312,30 +333,13 @@ def test_message_too_long(reset_data, user1, channel2, message_to_share_channel)
     
     assert response_share.status_code == 400
     
-def test_message_too_short(reset_data, user1, channel2, message_to_share_channel):
+def test_user_not_in_channel(reset_data, user1, channel3, message_to_share_channel):
     
     data_share = {
         'token' : user1['token'],
         'og_message_id' : message_to_share_channel['message_id'],
         'message' : "", 
-        'channel_id' : channel2['channel_id'], 
-        'dm_id' : -1
-    }
-
-    response_share = requests.post(
-        f"{config.url}message/share/v1",
-        json=data_share
-    )
-    
-    assert response_share.status_code == 400
-
-def test_user_not_in_channel(reset_data, user3, channel2, message_to_share_channel):
-    
-    data_share = {
-        'token' : user3['token'],
-        'og_message_id' : message_to_share_channel['message_id'],
-        'message' : "", 
-        'channel_id' : channel2['channel_id'], 
+        'channel_id' : channel3['channel_id'], 
         'dm_id' : -1
     }
 
@@ -345,7 +349,24 @@ def test_user_not_in_channel(reset_data, user3, channel2, message_to_share_chann
     )
     
     assert response_share.status_code == 403
+
+def test_user_not_in_dm(reset_data, user2, dm2, message_to_share_dm):
     
+    data_share = {
+        'token' : user2['token'],
+        'og_message_id' : message_to_share_dm['message_id'],
+        'message' : "", 
+        'channel_id' : -1, 
+        'dm_id' : dm2['dm_id']
+    }
+
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 403
+
 def test_invalid_token(reset_data, user1, channel2, message_to_share_channel):
     
     data_share = {

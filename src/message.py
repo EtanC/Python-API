@@ -231,7 +231,6 @@ def has_owner_perms(auth_user_id, store, user, message_id):
 def message_share_v1(token, og_message_id, message, channel_id, dm_id):
 
     store = data_store.get()
-
     user = token_to_user(token, store)
     if user == None:
         raise AccessError(description='Invalid token')
@@ -240,24 +239,33 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
     dm = get_dm(dm_id, store)
 
     # check message length:
-    if (len(message) < 1 or len(message) > 1000):
+    if (len(message) > 1000):
         raise InputError(description="message is TOO SHORT or TOO LONG")
 
     # check channel id's validity:
     if get_channel(channel_id, store) is None and get_dm(dm_id, store) is None:
         raise InputError(description="channel_id and dm_id is INVALID")
 
-    if channel_id == -1 and dm_id == -1:
-        raise InputError(description="one of channel_id or dm_id must be -1")
+    if get_channel(channel_id, store) is not None:
+        # check user is part of channel:
+        channel_user_list = channel['all_members']
+        if user not in channel_user_list:
+            raise AccessError(description="This user is NOT part of channel")
+
+    if get_dm(dm_id, store) is not None:
+        # check user is part of dm:
+        dm_user_list = dm['members']
+        if user not in dm_user_list:
+            raise AccessError(description="This user is NOT part of DM")
+
+    if channel_id != -1:
+        if dm_id != -1:
+            raise InputError(description="one of channel_id or dm_id must be -1")
 
     # check message ID validity:
     if get_message(og_message_id, store) == None:   
             raise InputError(description="Invalid message for channel")
         
-    # check user is part of channel:
-    channel_user_list = channel['all_members']
-    if user not in channel_user_list:
-        raise AccessError(description="This user is NOT part of channel")
 
     # obtain message_id from store and update it for later
     message_id = store['message_id'] 
@@ -274,6 +282,8 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
             handle = words[1:]
 
     shortened_message = message_to_add[0:20]
+
+    channel_members = []
 
     for channels in store['channels']:
         if channel_id == channels['channel_id']:
