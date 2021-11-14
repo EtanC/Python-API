@@ -11,14 +11,10 @@ import hashlib
 import smtplib, ssl
 import secrets
 from src.config import SECRET, EMAIL_REGEX, DUMMY_EMAIL, DUMMY_PASSWORD, RESET_CODE_LENGTH
-<<<<<<< HEAD
 from src.helper import decode_token, get_user, current_timestamp
-=======
-from src.helper import decode_token, get_user
 from PIL import Image
 import os
 from src import config
->>>>>>> e92eac8a5ccd5d086ec39ad2edc58082c2f95797
 
 MIN_PASSWORD_LENGTH = 6
 MIN_NAME_LENGTH = 1

@@ -98,11 +98,6 @@ def channels_create_v1(token, name, is_public):
     # get channel id by counting number of channels and adding one 
     channel_id = len(store['channels']) + 1 
 
-    # based on auth_user_id passed in, copy creator user's dictionary into user_dict
-    user_dict = {} 
-    for users in store['users']: 
-        if auth_user_id == users['u_id']: 
-            user_dict = users 
     # Recording channels_joined data for user/stats/v1
     channels_joined = user_dict['channels_joined'][-1]['num_channels_joined']
     user_dict['channels_joined'].append({
