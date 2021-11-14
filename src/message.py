@@ -233,7 +233,7 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
     store = data_store.get()
 
     user = token_to_user(token, store)
-    if user is None:
+    if user == None:
         raise AccessError(description='Invalid token')
 
     channel = get_channel(channel_id, store)
@@ -250,8 +250,9 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
     if channel_id == -1 and dm_id == -1:
         raise InputError(description="one of channel_id or dm_id must be -1")
 
-    if og_message_id not in channel['messages']['message_id']:
-        raise InputError(description="Invalid message for channel")
+    # check message ID validity:
+    if get_message(og_message_id, store) == None:   
+            raise InputError(description="Invalid message for channel")
         
     # check user is part of channel:
     channel_user_list = channel['all_members']
@@ -299,6 +300,8 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
             'u_ids' : [], 
         },
     ]
+
+    og_message = ""
 
     if channel_id == -1:
         for messages in dm['messages']:

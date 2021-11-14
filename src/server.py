@@ -636,7 +636,7 @@ def message_share():
         int(data['og_message_id']),
         data['message'],
         int(data['channel_id']),
-        int(data['dm_id'])
+        data['dm_id']
     )
     return dumps(message)
 
