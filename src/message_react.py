@@ -2,7 +2,7 @@ from _pytest.monkeypatch import V
 from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
-from src.helper import token_to_user, get_message
+from src.helper import token_to_user, get_message, get_user
 
 def message_react_v1(token, message_id, react_id): 
     store = data_store.get()
@@ -11,7 +11,9 @@ def message_react_v1(token, message_id, react_id):
     if token_to_user(token, store) is not None:
         user_id = token_to_user(token,store)['u_id']
     else: 
-        raise AccessError(description='Invalid token')
+        raise AccessError(description='Invalid token') 
+
+    user_react = token_to_user(token,store)
 
     # check message ID validity:
     if get_message(message_id, store) is not None:
@@ -30,6 +32,22 @@ def message_react_v1(token, message_id, react_id):
 
     # append the reacted person to the user list
     message['reacts'][0]['u_ids'].append(user_id)
+
+    for channels in store['channels']:
+        for messages in channels['messages']:
+            if messages['message_id'] == message['message_id']:
+                channel_name = channels['name']
+                channel_id = channels['channel_id']
+    
+    user = get_user(message['u_id'], store)
+    user['notifications'].insert(0, 
+        {
+        "channel_id": channel_id,
+        "dm_id": -1,
+        "notification_message": f'{user_react["handle_str"]} reacted to your message in {channel_name}'
+        }
+    )
+
     data_store.set(store)
 
     return {}

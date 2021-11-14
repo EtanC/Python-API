@@ -59,6 +59,16 @@ def dm_create_v1(token, u_ids):
     # over-writes the original list
     dm_name = ', '.join(dm_name)
 
+    for users in user_list:
+        if users['u_id'] != owner['u_id']:
+            users['notifications'].insert(0, 
+                {
+                "channel_id": -1,
+                "dm_id": dm_id,
+                "notification_message": f'{owner["handle_str"]} added you to {dm_name}'
+                }
+            )
+
     dm_data = {
         'dm_id': dm_id,
         'members': user_list,

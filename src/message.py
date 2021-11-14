@@ -60,6 +60,30 @@ def message_senddm_v1(token, dm_id, message):
     message_id = store['message_id'] 
     store['message_id'] += 1
 
+    # Section for notifications when tagging someone in a dm
+    handle = ''
+
+    for words in dm_message_to_send.split():
+        if '@' in words:
+            handle = words[1:]
+
+    shortened_message = dm_message_to_send[0:20]
+
+    for dms in store['dms']:
+        if dm_id == dms['dm_id']:
+            dm_name = dms['name']
+            dm_members = dms['members']
+
+    for users in dm_members:
+        if handle == users['handle_str']:
+            users['notifications'].insert(0, 
+                {
+                "channel_id": -1,
+                "dm_id": dm_id,
+                "notification_message": f'{user["handle_str"]} tagged you in {dm_name}: {shortened_message}'
+                }
+            )
+
      # react dictionary
     react = [
         {
@@ -171,6 +195,36 @@ def message_edit_v1(token, message_id, message):
     # edit the message
     message_to_edit['message'] = message
 
+    # Section to insert into notifications when a message is edited
+    handle = ''
+
+    for words in message.split():
+        if '@' in words:
+            handle = words[1:]
+
+    shortened_message = message[0:20]
+
+    # Retrieving channel_id
+    for channels in store['channels']:
+        for messages in channels['messages']:
+            if message_id == messages['message_id']:
+                channel_id = channels['channel_id']
+
+    for channels in store['channels']:
+        if channel_id == channels['channel_id']:
+            channel_name = channels['name']
+            channel_members = channels['all_members']
+
+    for users in channel_members:
+        if handle == users['handle_str']:
+            users['notifications'].insert(0, 
+                {
+                "channel_id": channel_id,
+                "dm_id": -1,
+                "notification_message": f'{user["handle_str"]} tagged you in {channel_name}: {shortened_message}'
+                }
+            )
+
     # if the new message is empty, delete it 
     if (message_to_edit['message']) == "":
         for i,channel in enumerate(store['channels']):
@@ -228,6 +282,31 @@ def message_send_v1(token, channel_id, message):
     
     user_id = user['u_id']
     message_to_add = message
+
+    # Section for notifications when tagging someone in a channel
+    handle = ''
+
+    for words in message_to_add.split():
+        if '@' in words:
+            handle = words[1:]
+
+    shortened_message = message_to_add[0:20]
+
+    for channels in store['channels']:
+        if channel_id == channels['channel_id']:
+            channel_name = channels['name']
+            channel_members = channels['all_members']
+
+    for users in channel_members:
+        if handle == users['handle_str']:
+            users['notifications'].insert(0, 
+                {
+                "channel_id": channel_id,
+                "dm_id": -1,
+                "notification_message": f'{user["handle_str"]} tagged you in {channel_name}: {shortened_message}'
+                }
+            )
+
     
     dt = datetime.now()
     time_created = dt.replace(tzinfo=timezone.utc).timestamp()

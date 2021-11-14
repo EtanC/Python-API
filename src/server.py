@@ -16,7 +16,7 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_rem
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
 from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_sendlaterdm_v1, message_sendlater_v1, message_pin_v1, message_share_v1
-
+from src.notifications import notifications_get_v1
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.standup import standup_start_v1, standup_send_v1, standup_active_v1
@@ -1142,6 +1142,32 @@ def admin_userpermission_change():
     return_dict = admin_userpermission_change_v1(data['token'], int(data['u_id']), int(data['permission_id']))
 
     return dumps(return_dict)
+
+'''
+
+notifications.py section
+
+'''
+
+@APP.route("/notifications/get/v1", methods=['GET'])
+def notifications_get_v3():
+    '''
+    Return the user's most recent 20 notifications, 
+    ordered from most recent to least recent.
+    
+    Arguments:
+        token       (str) - token identifying user
+        
+    Exceptions: 
+        None
+
+    Return Value: 
+        Returns {notifications} on successful call
+    '''
+
+    data = request.args
+    return_notifications = notifications_get_v1(data['token'])
+    return dumps(return_notifications)
 
 '''
 
