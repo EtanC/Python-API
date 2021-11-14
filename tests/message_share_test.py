@@ -257,11 +257,26 @@ def test_invalid_channel_and_dm(user1, channel2, message_to_share_channel):
     
     assert response_share.status_code == 400
 
-def test_no_negative_one():
+def test_no_negative_one(user1, channel2, message_to_share_channel):
     #400
-    pass
+    data_share = {
+        'token' : user1['token'],
+        'og_message_id' : message_to_share_channel['message_id'],
+        'message' : "XDDD", 
+        'channel_id' : channel2['channel_id'], 
+        'dm_id' : -1
+    }
 
-def test_invalid_message():
+    data_share['og_message_id'] += 1
+
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 400
+
+def test_invalid_message(user1, channel2, message_to_share_channel):
     #400
     pass
 
