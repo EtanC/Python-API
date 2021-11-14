@@ -20,6 +20,7 @@ from src.message import message_edit_v1, message_send_v1, message_senddm_v1, mes
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.standup import standup_start_v1, standup_send_v1, standup_active_v1
+from src.search import search_v1
 from src.helper import decode_token 
 import os 
 
@@ -1220,6 +1221,24 @@ def standup_send():
         standup_send_v1(data['token'], int(data['channel_id']), data['message'])
     )
 
+@APP.route("/search/v1", methods=['GET'])
+def search(): 
+    '''
+    Arguments:
+        token       (str)     - token identifying user 
+        query_str   (str)     - string to search message
+
+    Exceptions: 
+        InputError  - query string length is <0 or >1000 
+        AccessError - Invalid token
+
+    Return Value: 
+        Returns {messages} on successful creation 
+    '''
+
+    data = request.args
+    messages = search_v1(data['token'], data['query_str'])
+    return dumps(messages)
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
