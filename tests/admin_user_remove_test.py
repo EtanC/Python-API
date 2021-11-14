@@ -349,6 +349,7 @@ def test_channel_messages_remove(reset_data, user1, user2, channel1):
     }
     # Removing time to check separately, index of 0 as there is only 1 message
     del channel_messages['messages'][0]['time_created']
+    del channel_messages['messages'][0]['reacts']
     assert channel_messages == expected
 
 def test_dm_messages_remove(reset_data, user1, user2):
@@ -402,6 +403,7 @@ def test_dm_messages_remove(reset_data, user1, user2):
     ) < 2
 
     del message['messages'][0]['time_created']
+    del message['messages'][0]['reacts']
     assert message == \
         {
             'messages' : [{

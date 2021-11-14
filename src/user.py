@@ -278,7 +278,5 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     new_image_path = os.path.join(new_directory_path, new_image_name)
     image.save(new_image_path)
 
-    # store url of photo in user dictionary
-#    user['profile_img_url'] = f"{config.url}user/profile/photo/{new_image_name}"
     data_store.set(store)
     return {}

@@ -15,10 +15,15 @@ from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1, dm_leave_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
 
-from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1
+
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_sendlaterdm_v1, message_sendlater_v1
+
+from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
+from src.standup import standup_start_v1, standup_active_v1
 from src.helper import decode_token 
 import os 
+
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -127,6 +132,7 @@ def auth_logout():
     '''
     data = request.get_json()
     return dumps(auth_logout_v1(data['token']))
+
 @APP.route("/auth/passwordreset/request/v1", methods=['POST'])
 def auth_passwordreset_request():
     '''
@@ -150,7 +156,6 @@ def auth_passwordreset_request():
 channel.py section 
 
 '''
-
 
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
@@ -542,6 +547,128 @@ def message_senddm():
     )
     return dumps(message)
 
+@APP.route("/message/sendlaterdm/v1", methods=['POST'])
+def message_sendlaterdm():
+    '''
+    Send a message from the authorised user to the DM specified by dm_id 
+    automatically at a specified time in the future.
+    
+    Arguments: 
+        token       (str)   - token identifying user
+        dm_id       (int)   - ID of DM that message will be sent to 
+        message     (str)   - message that will be sent
+        time_sent   (int)   - unix timestamp of when the message will be sent
+    
+    Exceptions: 
+        InputError  - invalid dm_id
+                    - length of message over 1000 char 
+                    - time_sent is a time of the past
+        AccessError - invalid token
+                    - dm_id is valid and authorised user is not a member of the dm
+    
+    Return Value:
+        Returns { message_id } on successful call 
+    '''
+    data = request.get_json()
+    message_id = message_sendlaterdm_v1(
+        data['token'],
+        data['dm_id'],
+        data['message'],
+        data['time_sent'],
+    )
+    return dumps(message_id)
+
+@APP.route("/message/sendlater/v1", methods=['POST'])
+def message_sendlater():
+    '''
+    Send a message from authorised user to channel at a specified time in the 
+    future. 
+
+    Arguments: 
+        token       (str) - token identifying user
+        channel_id  (int) - channel_id of channel that message will be sent to
+        message     (str) - message that will be sent
+        time_sent   (int) - unix timestamp int of when the message will be sent
+    
+    Exceptions:
+        InputError  - invalid channel_id
+                    - length of message over 1000 chars
+                    - time_sent is a time in the past
+        AccessError - channel_id is valid but authorised user is not a part of it
+                    - invalid token
+    
+    Return Value: 
+        Returns { message_id } on successful call 
+    '''
+    data = request.get_json()
+    message_id = message_sendlater_v1(
+        data['token'], 
+        data['channel_id'], 
+        data['message'], 
+        data['time_sent'],
+    )
+    return dumps(message_id)
+
+@APP.route("/message/react/v1", methods=['POST'])
+def message_react_v3():
+    '''
+    Given a message within a channel or DM the authorised user is part of, 
+    add a "react" to that particular message.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id       (int) - id of message
+        react_id     (int) - id of react
+        
+    Exceptions: 
+        InputError  - Message_id is invalid
+                    - React_id is invalid
+                    - Message has already been reacted to
+
+        AccessError
+                    - Invalid token 
+    Return Value: 
+        Returns {} 
+    '''
+
+    data = request.get_json()
+    return_message = message_react_v1(
+        data['token'],
+        data['message_id'],
+        data['react_id']
+    )
+    return dumps(return_message)
+
+@APP.route("/message/unreact/v1", methods=['POST'])
+def message_uneact_v3():
+    '''
+    Given a message within a channel or DM the authorised user is part of, 
+    remove a "react" to that particular message.
+    
+    Arguments:
+        token       (str) - token identifying user
+        message_id       (int) - id of message
+        react_id     (int) - id of react
+        
+    Exceptions: 
+        InputError  - Message_id is invalid
+                    - React_id is invalid
+                    - Message have not been reacted to
+
+        AccessError
+                    - Invalid token 
+    Return Value: 
+        Returns {} 
+    '''
+
+    data = request.get_json()
+    return_message = message_unreact_v1(
+        data['token'],
+        data['message_id'],
+        data['react_id']
+    )
+    return dumps(return_message)
+
 
 '''
 
@@ -891,6 +1018,61 @@ def admin_userpermission_change():
     return_dict = admin_userpermission_change_v1(data['token'], int(data['u_id']), int(data['permission_id']))
 
     return dumps(return_dict)
+
+'''
+
+standup.py section
+
+'''
+
+@APP.route("/standup/start/v1", methods=['POST'])
+def standup_start():
+    '''
+    Given a token, channel id and standup length, starts a standup in the given
+    channel
+
+    Arguments: 
+        token       (str)   - Token of user starting the standup
+        channel_id  (int)   - Id of the channel the standup belongs to
+        length      (int)   - Length of the standup in seconds
+
+    Exceptions: 
+        InputError  - Invalid channel id
+                    - Length is negative
+                    - Active standup already running in channel
+        AccessError - Token is invalid
+                    - Channel id is valid and user is not member of channel
+    Return Value:
+        Returns {time_finish} on successful call
+    '''
+
+    data = request.get_json()
+    return dumps(
+        standup_start_v1(data['token'], data['channel_id'], data['length'])
+    )
+
+@APP.route("/standup/active/v1", methods=['GET'])
+def standup_active():
+    '''
+    For a given channel, return whether a standup is active in it, and what time the standup finishes. 
+    If no standup is active, then time_finish returns None.
+
+    Arguments: 
+        token       (str)   - Token of user starting the standup
+        channel_id  (int)   - Id of the channel the standup belongs to
+
+    Exceptions: 
+        InputError  - Invalid channel id
+        AccessError - Token is invalid
+                    - Channel id is valid and user is not member of channel
+    Return Value:
+        Returns {is_active, time_finish} on successful call
+    '''
+
+    data = request.args
+    return dumps(
+        standup_active_v1(data['token'], int(data['channel_id']))
+    )
 
 
 @APP.route("/clear/v1", methods=['DELETE'])
