@@ -1,4 +1,5 @@
 import json
+from src.helper import current_timestamp
 '''
 data_store.py
 
@@ -30,7 +31,27 @@ initial_object = {
     'users': [],
     'channels': [],
     'message_id': 1,
-    'dms' : []
+    'dms' : [],
+    'workspace_stats' : {
+        'channels_exist' : [
+            {
+                'num_channels_exist' : 0,
+                'time_stamp' : current_timestamp(),
+            },
+        ],
+        'dms_exist' : [
+            {
+                'num_dms_exist' : 0,
+                'time_stamp' : current_timestamp(),
+            },
+        ],
+        'messages_exist' : [
+            {
+                'num_messages_exist' : 0,
+                'time_stamp' : current_timestamp(),
+            },
+        ],
+    },
 }
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 

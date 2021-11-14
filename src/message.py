@@ -81,6 +81,14 @@ def message_senddm_v1(token, dm_id, message):
     # Add the message to the dm
     all_dm_messages = dm['messages']
     all_dm_messages.insert(0, new_dm_message)
+    
+    # Recording "total number of messages" data for users_stats_v1
+    msg_count = store['workspace_stats']['messages_exist'][-1]['num_messages_exist']
+    store['workspace_stats']['messages_exist'].append({
+        'num_messages_exist' : msg_count + 1,
+        'time_stamp' : current_timestamp(),
+    })
+    
     data_store.set(store)
     return {
         'message_id': message_id
@@ -120,6 +128,13 @@ def message_remove_v1(token, message_id):
         for j,message in enumerate(channel['messages']):
             if message['message_id'] == message_id:
                 del store['channels'][i]['messages'][j]
+
+    # Recording "total number of messages" data for users_stats_v1
+    msg_count = store['workspace_stats']['messages_exist'][-1]['num_messages_exist']
+    store['workspace_stats']['messages_exist'].append({
+        'num_messages_exist' : msg_count - 1,
+        'time_stamp' : current_timestamp(),
+    })
 
     data_store.set(store)
     return {}
@@ -162,6 +177,12 @@ def message_edit_v1(token, message_id, message):
             for j,message in enumerate(channel['messages']):
                 if message['message_id'] == message_id:
                     del store['channels'][i]['messages'][j]
+        # Recording "total number of messages" data for users_stats_v1
+        msg_count = store['workspace_stats']['messages_exist'][-1]['num_messages_exist']
+        store['workspace_stats']['messages_exist'].append({
+            'num_messages_exist' : msg_count - 1,
+            'time_stamp' : current_timestamp(),
+        })
 
     data_store.set(store)
     return {}
@@ -233,6 +254,12 @@ def message_send_v1(token, channel_id, message):
 
     #add the new message to the channel
     all_channel_messages.insert(0, new_message)
+    # Recording "total number of messages" data for users_stats_v1
+    msg_count = store['workspace_stats']['messages_exist'][-1]['num_messages_exist']
+    store['workspace_stats']['messages_exist'].append({
+        'num_messages_exist' : msg_count + 1,
+        'time_stamp' : current_timestamp(),
+    })
     data_store.set(store)
     return {
         'message_id': message_id
