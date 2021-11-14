@@ -34,6 +34,10 @@ def get_message(message_id, store):
         for message in channel['messages']:
             if message['message_id'] == message_id:
                 return message
+    for dm in store['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                return message
     return None
     
 def get_dm(dm_id, store):

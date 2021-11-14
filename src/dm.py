@@ -227,6 +227,7 @@ def dm_messages_v1(token, dm_id, start):
     # token check
     if token_to_user(token, store) is not None:
         user = token_to_user(token, store)
+        user_id = user['u_id']
     else:
         raise AccessError(description='Invalid token')
 
@@ -254,6 +255,14 @@ def dm_messages_v1(token, dm_id, start):
     # Returning up to 50 messages
     end = start + 50
     messages = store['dms'][dm_index]['messages'][start:end]
+
+    # react section
+    for message in messages: 
+        message['reacts'][0]['is_this_user_reacted'] = False
+        for id in message['reacts'][0]['u_ids']: 
+            if user_id == id: 
+                message['reacts'][0]['is_this_user_reacted'] = True
+        
     # Setting end to -1 if no more messages left
     if start + 50 > len(store['dms'][dm_index]['messages']):
         end = -1
