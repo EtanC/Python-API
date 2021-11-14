@@ -684,10 +684,10 @@ def message_pin_v1(token, message_id):
         user = token_to_user(token, store)
     else:
         raise AccessError(description='Invalid token')
+
     auth_user_id = user['u_id']
-
-
     message = get_the_message(message_id, store)
+
     # check message ID validity:
     if message == None:
         raise InputError(description="message ID is INVALID")
@@ -700,9 +700,39 @@ def message_pin_v1(token, message_id):
     else:    
         message['is_pinned'] = True
 
+    data_store.set(store)
+
+    return {}
+
+def message_unpin_v1(token, message_id):
+
+    store = data_store.get()
+
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if token_to_user(token, store) is not None:
+        user = token_to_user(token, store)
+    else:
+        raise AccessError(description='Invalid token')
+
+    auth_user_id = user['u_id']
+    message = get_the_message(message_id, store)
+
+    # check message ID validity:
+    if message == None:
+        raise InputError(description="message ID is INVALID")
+
+    if not has_owner_perms(auth_user_id, store, user, message_id):
+        raise AccessError(description="User CANNOT unpin message")
+
+    if message['is_pinned'] == False:
+        raise InputError(description="message is ALREADY UNPINNED")
+    else:    
+        message['is_pinned'] = False
 
     data_store.set(store)
+
     return {}
+
     
 def get_the_message(message_id, store):
     '''

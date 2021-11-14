@@ -412,7 +412,6 @@ def test_dm_messages_remove(reset_data, user1, user2):
                 'message_id': message_id,
                 'u_id': user2['auth_user_id'],
                 'is_pinned' : False
-                
             }],
             'start' : 0,
             'end' : -1

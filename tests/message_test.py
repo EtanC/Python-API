@@ -322,7 +322,7 @@ def test_owners_are_valid_edit(reset_data, channel1, user2, user1):
     data_edit_message = {
         "token": user1['token'],
         "message_id": message_id,
-        "message": edited_message
+        "message": edited_message,
     }
 
     #message/edit/v1
@@ -630,7 +630,7 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
     data_edit_message = {
         "token": token,
         "message_id": message_id,
-        "message": edited_message
+        "message": edited_message,
     }
 
     #message/edit/v1
@@ -821,7 +821,7 @@ def test_valid_send(reset_data, channel1, user1): #POST
     data_details = {
         "token": user1['token'], 
         'channel_id': channel1['channel_id'],
-        'start': 0  # 0 = first message sent
+        'start': 0,  # 0 = first message sent
     } 
 
     response_channel_messages_details = requests.get(

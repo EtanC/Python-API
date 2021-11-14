@@ -151,7 +151,7 @@ def test_pagination(reset_data, channel1):
             'message_id' : message_ids[i],
             'u_id' : channel1['user']['auth_user_id'],
             'message' : 'hi',
-            'is_pinned' : False
+            'is_pinned': False
         })
     assert channel_messages == expected
 
