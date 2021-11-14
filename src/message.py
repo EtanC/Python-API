@@ -222,6 +222,72 @@ def message_send_v1(token, channel_id, message):
         'message_id': message_id
     }
 
+
+def message_sendlaterdm_v1(token, dm_id, message, time_sent):
+    '''
+    Send a message from the authorised user to the DM specified by dm_id 
+    automatically at a specified time in the future.
+    
+    Arguments: 
+        token       (str)   - token identifying user
+        dm_id       (int)   - ID of DM that message will be sent to 
+        message     (str)   - message that will be sent
+        time_sent   (int)   - unix timestamp of when the message will be sent
+    
+    Exceptions: 
+        InputError  - invalid dm_id
+                    - length of message over 1000 char 
+                    - time_sent is a time of the past
+        AccessError - invalid token
+                    - dm_id is valid and authorised user is not a member of the dm
+    
+    Return Value:
+        Returns { message_id } on successful call 
+    '''
+    
+    store = data_store.get() 
+    user = token_to_user(token, store)
+    
+    # check valid token
+    if user is None: 
+        raise AccessError(description='Invalid token')
+    
+    # check valid dm_id
+    dm = get_dm(dm_id, store)
+    if dm is None: 
+        raise InputError(description='Invalid dm_id')
+
+    # check if user is in dm
+    if user not in dm['members']: 
+        raise AccessError(description='User not in DM')
+
+    # check message length
+    if len(message) > 1000: 
+        raise InputError(description='Message too long')
+    
+    # check time_sent not in past
+    time_now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    
+    if (time_sent < time_now): 
+        raise InputError(description='Time sent is in the past')
+    
+    # save the message_id of message that is not sent yet, move the message id
+    # in store ahead by one so the message_id of message after doesn't clash 
+    # with this one
+    reserved_message_id = store['message_id']
+    store['message_id'] += 1
+    data_store.set(store)
+    
+    # calculate the number of seconds to wait and call the threading function
+    wait_seconds = time_sent - time_now
+    
+    # start thread
+    thread = threading.Thread(target=sendlaterdm_thread, args=[user['u_id'], dm_id, \
+        message, wait_seconds, reserved_message_id])
+    thread.start()
+    
+    return { 'message_id': reserved_message_id }
+
 def message_sendlater_v1(token, channel_id, message, time_sent): 
     '''
     Send a message from authorised user to channel at a specified time in the 
@@ -265,7 +331,7 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     
     # check time is not in past
     time_now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
-    
+
     if (time_sent < time_now): 
         raise InputError(description='Time sent is in the past')
 
@@ -273,6 +339,7 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     # in store ahead by one so the message_id of message after doesn't clash 
     # with this one
     reserved_message_id = store['message_id']
+
     store['message_id'] += 1 
     data_store.set(store)
     
@@ -315,6 +382,37 @@ def sendlater_thread(user_id, channel_id, message, seconds, reserved_message_id)
     # checking for token, already checked message length (will post empty messages, 
     # since interface doesn't say anything about this and forums say 'you can decide')
     channel['messages'].append(new_message)
+    
+    data_store.set(store)
+    
+def sendlaterdm_thread(user_id, dm_id, message, seconds, reserved_message_id):
+    # wait until it is time to send message to dm 
+    time.sleep(seconds)
+    
+    # send the message, don't use senddm function as that checks for 
+    # session id which means that if the user logs out before sendlaterdm message is 
+    # sent, the message won't be sent due to token error 
+    store = data_store.get()
+    dm = get_dm(dm_id, store)
+    time_created = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    react = [
+        {
+            'react_id': 1,
+            'u_ids' : [], 
+        },
+    ]
+    new_message = {
+        'message_id': reserved_message_id,
+        'u_id': user_id,
+        'message': message,
+        'time_created': time_created,
+        'reacts': react
+    }
+    
+    # append new message and its stats to the DM directly without 
+    # checking for token, already checked message length (will post empty messages, 
+    # since interface doesn't say anything about this and forums say 'you can decide')
+    dm['messages'].append(new_message)
     
     data_store.set(store)
 
