@@ -119,7 +119,11 @@ def test_handle_str(reset_data):
             },
         ],
     }
-    assert response_details.json() == expected
+    details_data = response_details.json()
+    del details_data['owner_members'][0]['profile_img_url']
+    del details_data['all_members'][0]['profile_img_url']
+    
+    assert details_data == expected
 
 def test_handle_str_repeated(reset_data):
     data_register = {
@@ -181,7 +185,10 @@ def test_handle_str_repeated(reset_data):
             },
         ],
     }
-    assert response_details.json() == expected
+    details_data = response_details.json() 
+    del details_data['owner_members'][0]['profile_img_url']
+    del details_data['all_members'][0]['profile_img_url']
+    assert details_data == expected
 
 # Tests for error checking auth_register
 
