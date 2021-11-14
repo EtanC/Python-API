@@ -312,7 +312,8 @@ def test_send_message_before_sendlater(reset):
     quick_message = { 
         'message_id': response_send.json()['message_id'],
         'u_id': reset['user']['auth_user_id'], 
-        'message': 'quick message'
+        'message': 'quick message',
+        'is_pinned' : False
     }
 
     assert channel_messages == {'messages' : [quick_message], 'start': 0, 'end': -1}

@@ -74,7 +74,8 @@ def message_senddm_v1(token, dm_id, message):
         'u_id': user_id,
         'message': dm_message_to_send,
         'time_created': time_created,
-        'reacts' : react
+        'reacts' : react,
+        'is_pinned' : False
     }
    
     # Add the message to the dm
@@ -225,6 +226,7 @@ def message_send_v1(token, channel_id, message):
     new_message['message'] = message_to_add
     new_message['time_created'] = time_created
     new_message['reacts'] = react
+    new_message['is_pinned'] = False
     
     #get list of all messages (not deleted) from the channel 
     all_channel_messages = channel['messages']
@@ -437,3 +439,48 @@ def has_owner_perms(auth_user_id, store, user, message_id):
                 if not is_channel_member(auth_user_id, channel['owner_members']) and not is_global_owner(user):
                     return False
     return True
+
+def message_pin_v1(token, message_id):
+
+    store = data_store.get()
+    # if token is invalid or doesn't have an 'auth_user_id' which it should 
+    if token_to_user(token, store) is not None:
+        user = token_to_user(token, store)
+    else:
+        raise AccessError(description='Invalid token')
+    auth_user_id = user['u_id']
+
+
+    message = get_the_message(message_id, store)
+    # check message ID validity:
+    if message == None:
+        raise InputError(description="message ID is INVALID")
+
+    if not has_owner_perms(auth_user_id, store, user, message_id):
+        raise AccessError(description="User CANNOT pin message")
+
+    if message['is_pinned'] == True:
+        raise InputError(description="message is ALREADY PINNED")
+    else:    
+        message['is_pinned'] = True
+
+
+    data_store.set(store)
+    return {}
+    
+def get_the_message(message_id, store):
+    '''
+    Searches for the message in the data_store with the given message_id
+    Returns None if the message id was not found
+    '''
+
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                return message
+
+    for dm in store['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                return message
+    return None
