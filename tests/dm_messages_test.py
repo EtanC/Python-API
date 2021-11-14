@@ -170,7 +170,7 @@ def test_multiple(reset):
             f"{config.url}message/senddm/v1",
             json=data_send
         )
-        message_id.append(response_send.json()['message_id'])
+        message_id.insert(0, response_send.json()['message_id'])
     
     data = {
         'token':reset[1]['token'], 

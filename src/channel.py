@@ -117,6 +117,7 @@ def channel_details_v1(token, channel_id):
             'name_first': member['name_first'], 
             'name_last': member['name_last'], 
             'handle_str': member['handle_str'], 
+            'profile_img_url': member['profile_img_url'],
         })
     
     for owner in channel['owner_members']: 
@@ -126,8 +127,9 @@ def channel_details_v1(token, channel_id):
             'name_first': owner['name_first'], 
             'name_last': owner['name_last'], 
             'handle_str': owner['handle_str'], 
+            'profile_img_url': owner['profile_img_url'],
         })
-   
+
     return {
         'name': channel['name'],
         'is_public': channel['is_public'], 

@@ -55,7 +55,8 @@ def test_one_member(reset):
     response = requests.get(f"{config.url}channel/details/v2", \
         params=data_details)
     response_details = response.json() 
-
+    del response_details['owner_members'][0]['profile_img_url']
+    del response_details['all_members'][0]['profile_img_url']
     assert response_details == \
     {
         'name': data_create['name'], 
@@ -237,7 +238,8 @@ def test_two_members(reset):
     # check channel name and public / private status is correct 
     assert return_dict['name'] == channel_name 
     assert return_dict['is_public'] == is_public 
-
+    
+    del return_dict['owner_members'][0]['profile_img_url']
     # only 1 owner in this iteration, so checking for only one owner
     assert return_dict['owner_members'] ==  [
         {
@@ -266,6 +268,10 @@ def test_two_members(reset):
         },
     ]
 
+
+    del return_dict['all_members'][0]['profile_img_url']
+    del return_dict['all_members'][1]['profile_img_url']
+    
     # using sorted and lambda function to sort both lists according to u_id
     # this should make it so that both lists are sorted in the same order 
     # and thus allowing for direct comparison 
@@ -372,7 +378,8 @@ def test_three_members(reset):
 
     assert return_dict['name'] == channel_name 
     assert return_dict['is_public'] == is_public 
-
+    
+    del return_dict['owner_members'][0]['profile_img_url']
     assert return_dict['owner_members'] ==  [
         {
             'u_id': auth_user_id_1, 
@@ -407,6 +414,9 @@ def test_three_members(reset):
         }, 
     ]
 
+    del return_dict['all_members'][0]['profile_img_url']
+    del return_dict['all_members'][1]['profile_img_url']
+    del return_dict['all_members'][2]['profile_img_url']
     new_return_list = sorted(return_dict['all_members'], key = lambda k: k['u_id']) 
     new_mem_list = sorted(mem_list, key = lambda k: k['u_id']) 
 

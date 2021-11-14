@@ -1,7 +1,7 @@
 import sys
 import signal
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask_cors import CORS
 from src.error import InputError, AccessError 
 from src.auth import auth_login_v1, auth_register_v1, auth_logout_v1, auth_passwordreset_request_v1
@@ -10,16 +10,16 @@ from src import config
 from src.user import users_all_v1, user_profile_v1
 from src.channels import channels_create_v1, channels_list_v1, channels_listall_v1
 from src.user import users_all_v1, user_profile_v1, user_profile_setemail_v1, \
-    user_profile_setname_v1, user_profile_sethandle_v1
+    user_profile_setname_v1, user_profile_sethandle_v1, user_profile_uploadphoto_v1
 
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, dm_remove_v1, dm_messages_v1, dm_leave_v1
 from src.channel import channel_details_v1, channel_messages_v1, channel_join_v1, channel_addowner_v1, channel_invite_v1, channel_removeowner_v1, channel_leave_v1
-
-from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_pin_v1
+from src.message import message_edit_v1, message_send_v1, message_senddm_v1, message_remove_v1, message_sendlaterdm_v1, message_sendlater_v1, message_pin_v1
 from src.message_react import message_react_v1, message_unreact_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
-from src.standup import standup_start_v1
+from src.standup import standup_start_v1, standup_active_v1
 from src.helper import decode_token 
+import os 
 
 
 def quit_gracefully(*args):
@@ -129,6 +129,7 @@ def auth_logout():
     '''
     data = request.get_json()
     return dumps(auth_logout_v1(data['token']))
+
 @APP.route("/auth/passwordreset/request/v1", methods=['POST'])
 def auth_passwordreset_request():
     '''
@@ -152,7 +153,6 @@ def auth_passwordreset_request():
 channel.py section 
 
 '''
-
 
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
@@ -544,6 +544,68 @@ def message_senddm():
     )
     return dumps(message)
 
+@APP.route("/message/sendlaterdm/v1", methods=['POST'])
+def message_sendlaterdm():
+    '''
+    Send a message from the authorised user to the DM specified by dm_id 
+    automatically at a specified time in the future.
+    
+    Arguments: 
+        token       (str)   - token identifying user
+        dm_id       (int)   - ID of DM that message will be sent to 
+        message     (str)   - message that will be sent
+        time_sent   (int)   - unix timestamp of when the message will be sent
+    
+    Exceptions: 
+        InputError  - invalid dm_id
+                    - length of message over 1000 char 
+                    - time_sent is a time of the past
+        AccessError - invalid token
+                    - dm_id is valid and authorised user is not a member of the dm
+    
+    Return Value:
+        Returns { message_id } on successful call 
+    '''
+    data = request.get_json()
+    message_id = message_sendlaterdm_v1(
+        data['token'],
+        data['dm_id'],
+        data['message'],
+        data['time_sent'],
+    )
+    return dumps(message_id)
+
+@APP.route("/message/sendlater/v1", methods=['POST'])
+def message_sendlater():
+    '''
+    Send a message from authorised user to channel at a specified time in the 
+    future. 
+
+    Arguments: 
+        token       (str) - token identifying user
+        channel_id  (int) - channel_id of channel that message will be sent to
+        message     (str) - message that will be sent
+        time_sent   (int) - unix timestamp int of when the message will be sent
+    
+    Exceptions:
+        InputError  - invalid channel_id
+                    - length of message over 1000 chars
+                    - time_sent is a time in the past
+        AccessError - channel_id is valid but authorised user is not a part of it
+                    - invalid token
+    
+    Return Value: 
+        Returns { message_id } on successful call 
+    '''
+    data = request.get_json()
+    message_id = message_sendlater_v1(
+        data['token'], 
+        data['channel_id'], 
+        data['message'], 
+        data['time_sent'],
+    )
+    return dumps(message_id)
+
 @APP.route("/message/react/v1", methods=['POST'])
 def message_react_v3():
     '''
@@ -628,6 +690,7 @@ def message_pin():
         data['message_id'],
     )
     return dumps(message)
+
 
 '''
 
@@ -907,6 +970,19 @@ def user_profile_setname():
     user_profile_setname_v1(data['token'], data['name_first'], data['name_last'])
     return dumps({})
 
+@APP.route("/user/profile/uploadphoto/v1", methods=['POST'])
+def user_profile_uploadphoto(): 
+    data = request.get_json()
+    return dumps(user_profile_uploadphoto_v1(data['token'], data['img_url'], \
+        data['x_start'], data['y_start'], data['x_end'], data['y_end']))
+
+@APP.route("/user/profile/photo/<user_id>.jpg", methods=['GET'])
+def user_showphoto(user_id): 
+    # ASSUMING THIS IS ONLY CALLED FOR TESTING, THUS NO NEED FOR ERRORCHECKING
+    # ASSUME PHOTO HAS ALREADY BEEN UPLOADED
+    return send_file(f'{os.getcwd()}/images/{user_id}.jpg', mimetype='image/jpg')
+
+
 
 '''
 
@@ -996,6 +1072,30 @@ def standup_start():
     return dumps(
         standup_start_v1(data['token'], data['channel_id'], data['length'])
     )
+
+@APP.route("/standup/active/v1", methods=['GET'])
+def standup_active():
+    '''
+    For a given channel, return whether a standup is active in it, and what time the standup finishes. 
+    If no standup is active, then time_finish returns None.
+
+    Arguments: 
+        token       (str)   - Token of user starting the standup
+        channel_id  (int)   - Id of the channel the standup belongs to
+
+    Exceptions: 
+        InputError  - Invalid channel id
+        AccessError - Token is invalid
+                    - Channel id is valid and user is not member of channel
+    Return Value:
+        Returns {is_active, time_finish} on successful call
+    '''
+
+    data = request.args
+    return dumps(
+        standup_active_v1(data['token'], int(data['channel_id']))
+    )
+
 
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():

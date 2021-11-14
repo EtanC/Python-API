@@ -36,8 +36,9 @@ def test_valid(reset):
     }
 
     response = requests.get(f'{config.url}user/profile/v1', params=data_profile)
-
-    assert response.json()['user'] == { 
+    data_response = response.json()
+    del data_response['user']['profile_img_url']
+    assert data_response['user'] == { 
         'u_id': reset['auth_user_id'], 
         'email': 'niceemail@outlook.edu.au', 
         'name_first': 'John', 
