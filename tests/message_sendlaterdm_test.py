@@ -99,6 +99,7 @@ def test_valid(reset):
     # remove time created in dm, as it won't be the same as the one recorded
     # just then, there'll be a small difference that can't be avoided
     del dm_messages['messages'][0]['time_created']
+    del dm_messages['messages'][0]['reacts']
     assert dm_messages == expected
 
 
@@ -165,6 +166,7 @@ def test_two_dms(reset):
     }
     # Removing time to check separately, index of 0 as there is only 1 dm
     del dm_messages['messages'][0]['time_created']
+    del dm_messages['messages'][0]['reacts']
     assert dm_messages == expected
 
     # sleep another 2 secs so roughly 5.5s total, check if second dm is there
@@ -199,6 +201,8 @@ def test_two_dms(reset):
     # Removing time to check separately, index both 0 and 1 for all messages
     del dm_messages['messages'][1]['time_created']
     del dm_messages['messages'][0]['time_created']
+    del dm_messages['messages'][0]['reacts']
+    del dm_messages['messages'][1]['reacts']
     assert dm_messages == expected
 
 def test_invalid_dm_id(reset): 
@@ -321,6 +325,7 @@ def test_send_dm_before_sendlaterdm(reset):
 
     # removing time of 2nd dm
     del dm_messages['messages'][0]['time_created']
+    del dm_messages['messages'][0]['reacts']
 
 
     quick_dm = { 
@@ -358,4 +363,6 @@ def test_send_dm_before_sendlaterdm(reset):
     # Removing time of both 1st and 2nd dm's
     del dm_messages['messages'][0]['time_created']
     del dm_messages['messages'][1]['time_created']
+    del dm_messages['messages'][0]['reacts']
+    del dm_messages['messages'][1]['reacts']
     assert dm_messages == expected
