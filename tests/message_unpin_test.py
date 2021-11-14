@@ -416,3 +416,36 @@ def test_no_owner_permissions(reset_data, user1, user2, channel1, message_to_unp
         json=data_unpin_message)
     
     assert response.status_code == 403
+
+# token is invalid
+def test_invalid_token(reset_data, user1, user2, channel1, message_to_unpin):
+
+    # get user2 to join channel1 
+    join_register = {
+        "token": user2['token'],
+        "channel_id": channel1['channel_id']
+    }
+    requests.post(
+        f"{config.url}channel/join/v2", json=join_register
+    )
+
+    # user 1 pins the message
+    data_pin_message = {
+        "token": user1['token'],
+        "message_id": message_to_unpin['message_id'],
+    }
+
+    requests.post(f"{config.url}message/pin/v1", \
+        json=data_pin_message)
+
+
+    # token is invalid for unpinning
+    data_unpin_message = {
+        "token": "INVALID_TOKEN",
+        "message_id": message_to_unpin['message_id'],
+    }
+
+    response = requests.post(f"{config.url}message/unpin/v1", \
+        json=data_unpin_message)
+    
+    assert response.status_code == 403
