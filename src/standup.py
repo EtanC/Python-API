@@ -9,22 +9,28 @@ def start_standup(user, channel_id, length):
     # Wait for messages from standup to be sent
     time.sleep(length)
     # Collect all messages from standup
-    standup_message = ""
     store = data_store.get()
     channel = get_channel(channel_id, store)
-    for message in channel['standup']['messages']:
-        standup_message += (
-            f"{message['user']['handle_str']}: {message['message']}\n"
-        )
+    standup_message = '\n'.join([
+        f"{message['user']['handle_str']}: {message['message']}"
+        for message in channel['standup']['messages']
+    ])
     # User who initiated standup sends the message
     timestamp = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    react = [
+        {
+            'react_id': 1,
+            'u_ids' : [], 
+        },
+    ]
     message = {
         'message_id' : store['message_id'],
         'u_id' : user['u_id'],
         'message' : standup_message,
-        'time_sent' : timestamp,
+        'time_created' : timestamp,
         'reacts' : [],
         'is_pinned' : False,
+        'reacts' : react,
     }
     channel['messages'].insert(0, message)
     # Clean up standup since standup ended
@@ -77,14 +83,14 @@ def standup_send_v1(token, channel_id, message):
         raise AccessError(description="User not a member of the channel")
     if len(message) > 1000: 
         raise InputError(description="Invalid message that exceeds 1000 characters")
-    if 'standup' in channel:
-        pass
-    else:
+    if 'standup' not in channel:
         raise InputError("Standup not active!")
-    standup = channel['standup']
 
-    standup_message = f"{user['handle_str']}:{message}"
-    standup['messages'] = standup_message
+    channel['standup']['messages'].append({
+        'user' : user,
+        'message' : message,
+    })
+    data_store.set(store)
     return {}
     
 def standup_active_v1(token, channel_id):

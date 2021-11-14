@@ -34,7 +34,7 @@ def test_standup_send_valid(channel1):
     # send message 
     message = 'Hello from the other side'
     standup_send(channel1['user']['token'], channel1['channel_id'], message)
-    time.sleep(5)
+    time.sleep(4)
     channel_message = channel_messages(channel1['user']['token'], channel1['channel_id'], 0)
     print(channel_message)
     del channel_message['messages'][0]['time_created']
@@ -44,7 +44,7 @@ def test_standup_send_valid(channel1):
         'messages': [{
             'message_id': 1, 
             'u_id': channel1['user']['auth_user_id'], 
-            'message': message, 
+            'message': f"johnsmith: {message}",
             }], 
         'start': 0,
         'end': -1
