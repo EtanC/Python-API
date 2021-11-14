@@ -37,8 +37,9 @@ def test_valid(reset):
     }
 
     response = requests.get(f"{config.url}user/profile/v1", params=data_profile)
-
-    assert response.json() == { 
+    response_data = response.json() 
+    del response_data['user']['profile_img_url']
+    assert response_data == { 
         'user': {
             'u_id': reset['auth_user_id'], 
             'email': 'realemail_812@outlook.edu.au', 
@@ -65,8 +66,9 @@ def test_same_name(reset):
     }
 
     response = requests.get(f"{config.url}user/profile/v1", params=data_profile)
-
-    assert response.json() == { 
+    response_data = response.json()
+    del response_data['user']['profile_img_url']
+    assert response_data == { 
         'user': {
             'u_id': reset['auth_user_id'], 
             'email': 'realemail_812@outlook.edu.au', 
