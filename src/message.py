@@ -170,6 +170,36 @@ def message_edit_v1(token, message_id, message):
     # edit the message
     message_to_edit['message'] = message
 
+    # Section to insert into notifications when a message is edited
+    handle = ''
+
+    for words in message_to_edit.split():
+        if '@' in words:
+            handle = words[1:]
+
+    shortened_message = message_to_edit[0:20]
+
+    # Retrieving channel_id
+    for channels in store['channels']:
+        for messages in channels['messages']:
+            if message_id == messages['message_id']:
+                channel_id = channels['channel_id']
+
+    for channels in store['channels']:
+        if channel_id == channels['channel_id']:
+            channel_name = channels['name']
+            channel_members = channels['all_members']
+
+    for users in channel_members:
+        if handle == users['handle_str']:
+            users['notifications'].insert(0, 
+                {
+                "channel_id": channel_id,
+                "dm_id": -1,
+                "notification_message": f'{user["handle_str"]} tagged you in {channel_name}: {shortened_message}'
+                }
+            )
+
     # if the new message is empty, delete it 
     if (message_to_edit['message']) == "":
         for i,channel in enumerate(store['channels']):
