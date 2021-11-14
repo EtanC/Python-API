@@ -190,9 +190,8 @@ def message_to_share_dm(dm1, user1):
     message_id = response_send.json()['message_id']
     return {'message_id' : message_id, 'message': message}
 
-
 # share a message from channel1 to channel2
-def test_valid_share_channel(user1, channel2, message_to_share_channel):
+def test_valid_share_channel(reset_data, user1, channel2, message_to_share_channel):
 
     data_share = {
         'token' : user1['token'],
@@ -215,7 +214,7 @@ def test_valid_share_channel(user1, channel2, message_to_share_channel):
     assert response_data == expected_data
 
 # share a message from channel1 to channel2
-def test_valid_share_dm(user1, dm2, message_to_share_dm):
+def test_valid_share_dm(reset_data, user1, dm2, message_to_share_dm):
 
     data_share = {
         'token' : user1['token'],
@@ -237,8 +236,8 @@ def test_valid_share_dm(user1, dm2, message_to_share_dm):
 
     assert response_data == expected_data
 
-def test_invalid_channel_and_dm(user1, channel2, message_to_share_channel):
-    #400
+def test_invalid_channel_and_dm(reset_data, user1, channel2, message_to_share_channel):
+    
     data_share = {
         'token' : user1['token'],
         'og_message_id' : message_to_share_channel['message_id'],
@@ -257,8 +256,26 @@ def test_invalid_channel_and_dm(user1, channel2, message_to_share_channel):
     
     assert response_share.status_code == 400
 
-def test_no_negative_one(user1, channel2, message_to_share_channel):
-    #400
+def test_no_negative_one(reset_data, user1, channel2, message_to_share_channel):
+    
+    data_share = {
+        'token' : user1['token'],
+        'og_message_id' : message_to_share_channel['message_id'],
+        'message' : "XDDD", 
+        'channel_id' : channel2['channel_id'], 
+        'dm_id' : 999
+    }
+
+
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 400
+
+def test_invalid_message(reset_data, user1, channel2, message_to_share_channel):
+    
     data_share = {
         'token' : user1['token'],
         'og_message_id' : message_to_share_channel['message_id'],
@@ -275,19 +292,73 @@ def test_no_negative_one(user1, channel2, message_to_share_channel):
     )
     
     assert response_share.status_code == 400
+    
+def test_message_too_long(reset_data, user1, channel2, message_to_share_channel):
+    
+    data_share = {
+        'token' : user1['token'],
+        'og_message_id' : message_to_share_channel['message_id'],
+        'message' : "", 
+        'channel_id' : channel2['channel_id'], 
+        'dm_id' : -1
+    }
 
-def test_invalid_message(user1, channel2, message_to_share_channel):
-    #400
-    pass
+    data_share['message'] = 'x' * 1001
 
-def test_message_too_long():
-    #400
-    pass
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 400
+    
+def test_message_too_short(reset_data, user1, channel2, message_to_share_channel):
+    
+    data_share = {
+        'token' : user1['token'],
+        'og_message_id' : message_to_share_channel['message_id'],
+        'message' : "", 
+        'channel_id' : channel2['channel_id'], 
+        'dm_id' : -1
+    }
 
-def test_user_not_in_channel():
-    #403
-    pass
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 400
 
-def test_invalid_token():
-    #403
-    pass
+def test_user_not_in_channel(reset_data, user3, channel2, message_to_share_channel):
+    
+    data_share = {
+        'token' : user3['token'],
+        'og_message_id' : message_to_share_channel['message_id'],
+        'message' : "", 
+        'channel_id' : channel2['channel_id'], 
+        'dm_id' : -1
+    }
+
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 403
+    
+def test_invalid_token(reset_data, user1, channel2, message_to_share_channel):
+    
+    data_share = {
+        'token' : "invalid_token",
+        'og_message_id' : message_to_share_channel['message_id'],
+        'message' : "", 
+        'channel_id' : channel2['channel_id'], 
+        'dm_id' : -1
+    }
+
+    response_share = requests.post(
+        f"{config.url}message/share/v1",
+        json=data_share
+    )
+    
+    assert response_share.status_code == 403

@@ -633,10 +633,10 @@ def message_share():
     data = request.get_json()
     message = message_share_v1(
         data['token'],
-        data['og_message_id'],
+        int(data['og_message_id']),
         data['message'],
-        data['channel_id'],
-        data['dm_id']
+        int(data['channel_id']),
+        int(data['dm_id'])
     )
     return dumps(message)
 
