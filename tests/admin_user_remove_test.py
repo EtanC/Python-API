@@ -342,6 +342,7 @@ def test_channel_messages_remove(reset_data, user1, user2, channel1):
                 'message_id' : response_send_message.json()['message_id'],
                 'u_id' : user2['auth_user_id'],
                 'message' : 'Removed user',
+                'is_pinned' : False
             }
         ],
         'start' : 0,
@@ -410,6 +411,8 @@ def test_dm_messages_remove(reset_data, user1, user2):
                 'message': 'Removed user', 
                 'message_id': message_id,
                 'u_id': user2['auth_user_id'],
+                'is_pinned' : False
+                
             }],
             'start' : 0,
             'end' : -1
