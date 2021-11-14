@@ -931,8 +931,67 @@ def test_no_tagging(reset_data, user1, user2, channel1):
 
 # Testing for getting tagged in a share message
 def test_share_tagged_notification(reset_data, user1, user2, channel1):
-    pass
 
+    data_send_message = {
+        'token' : user1['token'],
+        'channel_id' : channel1['channel_id'],
+        'message' : 'hi',
+    }
+    message = requests.post(
+        f'{config.url}message/send/v1',
+        json=data_send_message
+    )
+    og_message_id = message.json()['message_id']
+
+    data = {
+        'token': user1['token'],
+        'u_ids': [user2['auth_user_id']]
+    }
+    response = requests.post(
+        f"{config.url}dm/create/v1",
+        json=data
+    )
+    dm_id = response.json()['dm_id']
+
+    share_data = {
+        'token': user1['token'],
+        'og_message_id': og_message_id,
+        'message': '@chriselvin',
+        'channel_id': -1,
+        'dm_id': dm_id
+    }
+
+    requests.post(
+        f'{config.url}message/share/v1',
+        json=share_data
+    )
+
+    notifications_register = {
+        "token": user1['token']
+    }
+    response_notifications_get = requests.get(
+        f'{config.url}notifications/get/v1',
+        params=notifications_register
+    )
+
+    data_notifications_get = response_notifications_get.json()
+
+    expected_data = [
+        {
+            "channel_id": channel1['channel_id'],
+            "dm_id": -1,
+            "notification_message": 'johnsmith tagged you in chriselvin, johnsmith: hi @johnsmith'
+        },
+        {
+            "channel_id": -1,
+            "dm_id": dm_id,
+            "notification_message": 'johnsmith added you to chriselvin, johnsmith'
+        }
+    ]
+
+    assert data_notifications_get == expected_data
+
+# Testing for when a message is edited to include a tag
 def test_edited_messaged(reset_data, user1, user2, channel1):
     join_register = {
         "token": user2['token'],
