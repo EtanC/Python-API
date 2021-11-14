@@ -28,7 +28,6 @@ def start_standup(user, channel_id, length):
         'u_id' : user['u_id'],
         'message' : standup_message,
         'time_created' : timestamp,
-        'reacts' : [],
         'is_pinned' : False,
         'reacts' : react,
     }
