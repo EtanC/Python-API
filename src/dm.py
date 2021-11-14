@@ -136,7 +136,7 @@ def dm_remove_v1(token, dm_id):
             dm_index = index
 
 
-    for user in store['dms'][index]['members']:
+    for user in store['dms'][dm_index]['members']:
         # Recording dms_joined data for user/stats/v1
         dms_joined = user['dms_joined'][-1]['num_dms_joined']
         user['dms_joined'].append({

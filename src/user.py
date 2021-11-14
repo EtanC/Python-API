@@ -205,8 +205,6 @@ def user_stats_v1(token):
     num_msgs_sent = user['messages_sent'][-1]['num_messages_sent']
     num_channels = len(store['channels'])
     num_dms = len(store['dms'])
-    # Waiting for users/stats/v1 implementation
-    # num_msgs = store['workspace_stats']['messages_exist'][-1]['num_messages_exist']
     num_msgs = store['message_id'] - 1
     if num_channels + num_dms + num_msgs != 0:
         involvement_rate = (num_channels_joined + num_dms_joined +
