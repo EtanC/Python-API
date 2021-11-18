@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import time 
 import requests
 from src import config
-
+from src.helper import current_timestamp
 @pytest.fixture
 def reset():
     requests.delete(f"{config.url}clear/v1")
@@ -45,7 +45,7 @@ def reset():
 def test_valid(reset): 
     # time_sent = current time + 3 seconds
     # send dm after 3 secs
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
+    time_sent = current_timestamp() + 3
     
     # creator of dm requests sendlaterdm
     data_sendlaterdm = {
@@ -77,7 +77,7 @@ def test_valid(reset):
     time.sleep(1.5)
     response_dm = requests.get(f"{config.url}dm/messages/v1", params=data_dm)
     dm_messages = response_dm.json() 
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    current_time = current_timestamp()
     # check timing of dm sent
     assert abs(
         dm_messages['messages'][0]['time_created'] - current_time
@@ -106,7 +106,7 @@ def test_valid(reset):
 def test_two_dms(reset): 
     # time_sent = current time + 3 seconds
     # send dm 3 secs after
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
+    time_sent = current_timestamp() + 3
     data_sendlaterdm = {
         'token': reset['creator']['token'], 
         'dm_id': reset['dm_id'],
@@ -118,7 +118,7 @@ def test_two_dms(reset):
     assert type(response_sendlaterdm_1.json()['message_id']) is int
 
     # send another dm 5 secs after
-    time_sent_2 = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 5
+    time_sent_2 = current_timestamp() + 5
     data_sendlaterdm = {
         'token': reset['creator']['token'], 
         'dm_id': reset['dm_id'],
@@ -147,7 +147,7 @@ def test_two_dms(reset):
     
     # check timing of dm 1 
     dm_messages = response_dm.json()
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    current_time = current_timestamp()
     assert abs(
         dm_messages['messages'][0]['time_created'] - current_time
     ) < 2
@@ -176,7 +176,7 @@ def test_two_dms(reset):
     
     # check timing of 2nd message 
     dm_messages = response_dm.json()
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    current_time = current_timestamp()
     assert abs(
         dm_messages['messages'][1]['time_created'] - current_time
     ) < 2
@@ -207,7 +207,7 @@ def test_two_dms(reset):
 
 def test_invalid_dm_id(reset): 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
+    time_sent = current_timestamp() + 3
     data_sendlaterdm = { 
         'token': reset['creator']['token'], 
         'dm_id': reset['dm_id'] + 1, 
@@ -220,7 +220,7 @@ def test_invalid_dm_id(reset):
 
 def test_long_message(reset):
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
+    time_sent = current_timestamp() + 3
     data_sendlaterdm = { 
         'token': reset['creator']['token'], 
         'dm_id': reset['dm_id'], 
@@ -232,7 +232,7 @@ def test_long_message(reset):
 
 def test_time_sent_in_past(reset): 
     # time_sent = current time - 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() - 3
+    time_sent = current_timestamp() - 3
     data_sendlaterdm = { 
         'token': reset['creator']['token'], 
         'dm_id': reset['dm_id'], 
@@ -256,7 +256,7 @@ def test_user_not_in_dm(reset):
 
 
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
+    time_sent = current_timestamp() + 3
     data_sendlater = { 
         'token': response_register.json()['token'], 
         'dm_id': reset['dm_id'], 
@@ -269,7 +269,7 @@ def test_user_not_in_dm(reset):
 
 def test_invalid_token(reset):
     # time_sent = current time + 3 seconds
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
+    time_sent = current_timestamp() + 3
     data_sendlaterdm = { 
         'token': 'invalid_token', 
         'dm_id': reset['dm_id'], 
@@ -288,7 +288,7 @@ def test_send_dm_before_sendlaterdm(reset):
 
     # time_sent = current time + 3 seconds
     # send a dm after 3 secs
-    time_sent = datetime.now().replace(tzinfo=timezone.utc).timestamp() + 3
+    time_sent = current_timestamp() + 3
     data_sendlaterdm = {
         'token': reset['creator']['token'], 
         'dm_id': reset['dm_id'],
@@ -315,7 +315,7 @@ def test_send_dm_before_sendlaterdm(reset):
 
     response_dm_messages = requests.get(f"{config.url}dm/messages/v1", params=data_dm_messages)
     
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    current_time = current_timestamp()
     dm_messages = response_dm_messages.json()
     
     # check timing of dm 2
@@ -343,7 +343,7 @@ def test_send_dm_before_sendlaterdm(reset):
     response_dm_messages = requests.get(f"{config.url}dm/messages/v1", params=data_dm_messages)
     
     dm_messages = response_dm_messages.json()
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    current_time = current_timestamp()
     # check timing of 1st message
     assert abs(
         dm_messages['messages'][1]['time_created'] - current_time

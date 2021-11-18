@@ -9,12 +9,9 @@ from fake.users import users_stats
 from datetime import datetime, timezone
 from json import dumps
 import time
-
+from src.helper import current_timestamp
 TIME_STEP = 1
 MAX_TIME_DIFF = 2
-
-def current_timestamp():
-    return datetime.now().replace(tzinfo=timezone.utc).timestamp()
 
 class workspace_stats:
     def __init__(self):
@@ -63,13 +60,12 @@ class workspace_stats:
             'dms_exist' : self.dms_exist,
             'messages_exist' : self.messages_exist,
         }}, indent=4)
-    # def remove_dm(self):
-    # def remove_message(self):
 
 def compare_users_stats(users_stats_return, users_stats_expected):
     '''
     Compares an instance of a "users_stats" dictionary to a workspace_stats class
     '''
+    users_stats_return = users_stats_return['workspace_stats']
     assert len(users_stats_return['channels_exist']) == \
             len(users_stats_expected.channels_exist)
     compare = zip(users_stats_return['channels_exist'],
@@ -119,7 +115,6 @@ def test_initial_users_stats(user1):
     workspace_statistics = users_stats(user1['token'])
     compare_users_stats(workspace_statistics, workspace_sim)
 
-
 def test_valid_users_stats(user1, user2):
     workspace_sim = workspace_stats()
 
@@ -136,7 +131,7 @@ def test_valid_users_stats(user1, user2):
 
     workspace_statistics = users_stats(user1['token'])
     compare_users_stats(workspace_statistics, workspace_sim)
-    assert workspace_statistics['utilization_rate'] == 1
+    assert workspace_statistics['workspace_stats']['utilization_rate'] == 1
 
 def test_multiple_users_users_stats(user1, user2, user3):
     workspace_sim = workspace_stats()
@@ -163,7 +158,7 @@ def test_multiple_users_users_stats(user1, user2, user3):
 
     workspace_statistics = users_stats(user2['token'])
     compare_users_stats(workspace_statistics, workspace_sim)
-    assert workspace_statistics['utilization_rate'] == 2/3
+    assert workspace_statistics['workspace_stats']['utilization_rate'] == 2/3
 
 def test_invalid_token_users_stats():
     with pytest.raises(AccessError):

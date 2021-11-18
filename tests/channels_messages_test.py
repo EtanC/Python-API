@@ -2,7 +2,7 @@ import pytest
 import requests
 from src import config
 from datetime import timezone, datetime
-
+from src.helper import current_timestamp
 @pytest.fixture
 def reset_data():
     requests.delete(f'{config.url}clear/v1')
@@ -86,7 +86,7 @@ def test_single_message(reset_data, channel1):
     )
     # Checking time stamp
     channel_messages = response_messages.json()
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    current_time = current_timestamp()
     assert abs(
         channel_messages['messages'][0]['time_created'] - current_time
     ) < 2
@@ -140,7 +140,7 @@ def test_pagination(reset_data, channel1):
     channel_messages = response_messages.json()
     for i in range(50):
         # Checking time stamp for each message sent
-        current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        current_time = current_timestamp()
         assert abs(
             channel_messages['messages'][i]['time_created'] - current_time
         ) < 2

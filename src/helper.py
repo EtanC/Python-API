@@ -91,4 +91,4 @@ def is_global_owner(user):
     return user['permission_id'] == 1
 
 def current_timestamp():
-    return datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    return int(datetime.now(timezone.utc).replace(tzinfo=timezone.utc).timestamp())

@@ -2,6 +2,7 @@ import pytest
 import requests
 from src import config 
 from datetime import datetime, timezone
+from src.helper import current_timestamp
 
 @pytest.fixture
 def reset_data():
@@ -331,7 +332,7 @@ def test_channel_messages_remove(reset_data, user1, user2, channel1):
     )
     # Checking time stamp
     channel_messages = response_messages.json()
-    current_time = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    current_time = current_timestamp()
     assert abs(
         channel_messages['messages'][0]['time_created'] - current_time
     ) < 2
@@ -397,7 +398,7 @@ def test_dm_messages_remove(reset_data, user1, user2):
     message_id = response_send.json()['message_id']
 
     # making sure that the time is within 2 seconds of each other
-    time_current = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    time_current = current_timestamp()
 
     assert abs(
         message['messages'][0]['time_created'] - time_current

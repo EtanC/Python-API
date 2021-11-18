@@ -10,7 +10,7 @@ from fake.user import user_stats
 from datetime import datetime, timezone
 from json import dumps
 import time
-
+from src.helper import current_timestamp
 TIME_STEP = 1
 MAX_TIME_DIFF = 2
 
@@ -28,7 +28,7 @@ class user_sim:
         Initialises stats to their respective initial values, which are
         all currently 0. Also records the time_stamps of these stats
         '''
-        curr_timestamp = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        curr_timestamp = current_timestamp()
         self.channels_joined = [{
             'num_channels_joined' : 0,
             'time_stamp' : curr_timestamp,
@@ -46,7 +46,7 @@ class user_sim:
         Updates the number of channels joined, creating another entry
         with this new number and its time_stamp in self.channels_joined
         '''
-        curr_timestamp = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        curr_timestamp = current_timestamp()
         num_channels_joined = self.channels_joined[-1]['num_channels_joined']
         self.channels_joined.append({
             'num_channels_joined' : num_channels_joined + 1,
@@ -57,7 +57,7 @@ class user_sim:
         Updates the number of dms joined, creating another entry
         with this new number and its time_stamp in self.dms_joined
         '''
-        curr_timestamp = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        curr_timestamp = current_timestamp()
         num_dms_joined = self.dms_joined[-1]['num_dms_joined']
         self.dms_joined.append({
             'num_dms_joined' : num_dms_joined + 1,
@@ -68,7 +68,7 @@ class user_sim:
         Updates the number of messages sent by user, creating another entry
         with this new number and its time_stamp in self.messages_sent
         '''
-        curr_timestamp = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        curr_timestamp = current_timestamp()
         num_messages_sent = self.messages_sent[-1]['num_messages_sent']
         self.messages_sent.append({
             'num_messages_sent' : num_messages_sent + 1,
@@ -89,6 +89,7 @@ def compare_user_stats(user_stats_return, user_stats_expected):
     '''
     Compares an instance of a "user_stats" dictionary to a user_stats class
     '''
+    user_stats_return = user_stats_return['user_stats']
     assert len(user_stats_return['channels_joined']) == \
             len(user_stats_expected.channels_joined)
     compare = zip(user_stats_return['channels_joined'],
@@ -131,7 +132,7 @@ def test_initial_stats_user_stats(user1):
     user_statistics = user_stats(user1['token'])
     user1_sim = user_sim()
     compare_user_stats(user_statistics, user1_sim)
-    assert user_statistics['involvement_rate'] == 0
+    assert user_statistics['user_stats']['involvement_rate'] == 0
 
 def test_valid_user_stats(user1):
     # Keep track of time stamps with simplified version of user/stats/v1
@@ -163,12 +164,12 @@ def test_valid_user_stats(user1):
 
     user_statistics = user_stats(user1['token'])
     # Sorting lists by time_stamp as they are not guarranteed to be in order
-    user_statistics['channels_joined'].sort(key=lambda x: x['time_stamp'])
-    user_statistics['dms_joined'].sort(key=lambda x: x['time_stamp'])
-    user_statistics['messages_sent'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['channels_joined'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['dms_joined'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['messages_sent'].sort(key=lambda x: x['time_stamp'])
     # Check if statistics are recorded correctly
     compare_user_stats(user_statistics, user1_sim)
-    assert user_statistics['involvement_rate'] == 1
+    assert user_statistics['user_stats']['involvement_rate'] == 1
 
 def test_two_users_user_stats(user1, user2):
     user1_sim = user_sim()
@@ -200,20 +201,20 @@ def test_two_users_user_stats(user1, user2):
 
     user_statistics = user_stats(user1['token'])
     # Sorting lists by time_stamp as they are not guarranteed to be in order
-    user_statistics['channels_joined'].sort(key=lambda x: x['time_stamp'])
-    user_statistics['dms_joined'].sort(key=lambda x: x['time_stamp'])
-    user_statistics['messages_sent'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['channels_joined'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['dms_joined'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['messages_sent'].sort(key=lambda x: x['time_stamp'])
     # Check if statistics are recorded correctly
     compare_user_stats(user_statistics, user1_sim)
     # Calculated involvement rate by hand
-    assert user_statistics['involvement_rate'] == 0.8
+    assert user_statistics['user_stats']['involvement_rate'] == 0.8
 
     user_statistics = user_stats(user2['token'])
     # Sorting lists by time_stamp as they are not guarranteed to be in order
-    user_statistics['channels_joined'].sort(key=lambda x: x['time_stamp'])
-    user_statistics['dms_joined'].sort(key=lambda x: x['time_stamp'])
-    user_statistics['messages_sent'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['channels_joined'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['dms_joined'].sort(key=lambda x: x['time_stamp'])
+    user_statistics['user_stats']['messages_sent'].sort(key=lambda x: x['time_stamp'])
     # Check if statistics are recorded correctly
     compare_user_stats(user_statistics, user2_sim)
 
-    assert user_statistics['involvement_rate'] == 0.6
+    assert user_statistics['user_stats']['involvement_rate'] == 0.6

@@ -225,12 +225,13 @@ def users_stats_v1(token):
 
     involvement_rate = active_users / len(store['users'])
 
-    return {
+    workspace_stats={
         'channels_exist' : channels_exist,
         'dms_exist' : dms_exist,
         'messages_exist' : messages_exist,
         'utilization_rate' : involvement_rate,
     }
+    return {'workspace_stats': workspace_stats}
 
 def user_stats_v1(token):
     store = data_store.get()
@@ -258,7 +259,7 @@ def user_stats_v1(token):
         'messages_sent' : user['messages_sent'],
         'involvement_rate' : involvement_rate,
     }
-    return stats
+    return {'user_stats': stats}
 
 def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end): 
     '''

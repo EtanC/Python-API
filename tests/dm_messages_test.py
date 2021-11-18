@@ -3,7 +3,7 @@ import pytest
 import requests
 from src import config 
 from datetime import datetime, timezone
-
+from src.helper import current_timestamp
 @pytest.fixture
 def reset(): 
     requests.delete(f"{config.url}clear/v1")
@@ -137,7 +137,7 @@ def test_send_dm(reset):
     message_id = response_send.json()['message_id']
 
     # making sure that the time is within 2 seconds of each other
-    time_current = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    time_current = current_timestamp()
 
     assert abs(
         message['messages'][0]['time_created'] - time_current
@@ -191,7 +191,7 @@ def test_multiple(reset):
 
     for i in range(50):
         # making sure that the time is within 2 seconds of each other
-        time_current = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        time_current = current_timestamp()
         assert abs(
             message['messages'][i]['time_created'] - time_current
         ) < 2

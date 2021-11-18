@@ -2,13 +2,13 @@ import pytest
 import requests
 from src import message
 from src.channel import channel_messages_v1
-from datetime import timezone, datetime
 import json
 from src.channels import channels_create_v1
 from src.message import message_send_v1, message_remove_v1, message_edit_v1
 from datetime import timezone, datetime
 from src import config
-from src.channel import channel_messages_v1
+from src.channel import channel_messages_v1 
+from src.helper import current_timestamp
 '''
 port = 8080
 url = f"http://localhost:{port}/"
@@ -312,8 +312,7 @@ def test_owners_are_valid_edit(reset_data, channel1, user2, user1):
     )
     response_send_message_data = response_send_message.json()
 
-    dt = datetime.now()
-    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+    expected_time = current_timestamp()
 
     # user1(channel1 owner) edits the message user2 sent
     message_id = response_send_message_data['message_id']
@@ -439,8 +438,7 @@ def test_valid_senddm(reset_data, dm1, user2): #POST
 
     response_senddm_data = response_senddm.json()
     
-    dt = datetime.now()
-    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+    expected_time = current_timestamp()
 
     
     expected_data = {
@@ -620,8 +618,7 @@ def test_valid_message_edit(reset_data, user1, channel1): #PUT
     )
     response_send_message_data = response_send_message.json()
 
-    dt = datetime.now()
-    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+    expected_time = current_timestamp()
 
     # user1 edits the message
     message_id = response_send_message_data['message_id']
@@ -801,8 +798,7 @@ def test_valid_send(reset_data, channel1, user1): #POST
     )
     response_send_message_data = response_send_message.json()
 
-    dt = datetime.now()
-    expected_time = dt.replace(tzinfo=timezone.utc).timestamp()
+    expected_time = current_timestamp()
     
 
     expected_data = {

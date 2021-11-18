@@ -51,8 +51,7 @@ def message_senddm_v1(token, dm_id, message):
     })
 
     # using datetime to capture the time the message was created
-    dt = datetime.now()
-    time_created = dt.replace(tzinfo=timezone.utc).timestamp()
+    time_created = current_timestamp()
     
     # Get the contents for the new dm message
     dm_message_to_send = message
@@ -307,9 +306,7 @@ def message_send_v1(token, channel_id, message):
                 }
             )
 
-    
-    dt = datetime.now()
-    time_created = dt.replace(tzinfo=timezone.utc).timestamp()
+    time_created = current_timestamp()
 
     # react dictionary
     react = [
@@ -387,7 +384,7 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
         raise InputError(description='Message too long')
     
     # check time_sent not in past
-    time_now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    time_now = current_timestamp()
     
     if (time_sent < time_now): 
         raise InputError(description='Time sent is in the past')
@@ -451,7 +448,7 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
         raise InputError(description='Message too long')
     
     # check time is not in past
-    time_now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    time_now = current_timestamp()
 
     if (time_sent < time_now): 
         raise InputError(description='Time sent is in the past')
@@ -484,7 +481,7 @@ def sendlater_thread(user_id, channel_id, message, seconds, reserved_message_id)
     store = data_store.get()
     
     channel = get_channel(channel_id, store)
-    time_created = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    time_created = current_timestamp()
     react = [
         {
             'react_id': 1,
@@ -515,7 +512,7 @@ def sendlaterdm_thread(user_id, dm_id, message, seconds, reserved_message_id):
     # sent, the message won't be sent due to token error 
     store = data_store.get()
     dm = get_dm(dm_id, store)
-    time_created = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+    time_created = current_timestamp()
     react = [
         {
             'react_id': 1,
@@ -633,8 +630,7 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
                     }
                 )
     
-    dt = datetime.now()
-    time_created = dt.replace(tzinfo=timezone.utc).timestamp()
+    time_created = current_timestamp()
 
     # react dictionary
     react = [
