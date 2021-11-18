@@ -124,7 +124,7 @@ def test_valid_notification(reset_data, user1, user2, channel1):
         "notification_message": 'chriselvin tagged you in Channel1_Public: @johnsmith hi'
     }]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Only using tagged for this test
 def test_many_notifications(reset_data, user1, user2, channel1):
@@ -195,7 +195,7 @@ def test_many_notifications(reset_data, user1, user2, channel1):
         }
     ]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Only using tagged for this test
 def test_limit_notifications(reset_data, user1, user2, channel1):
@@ -551,7 +551,7 @@ def test_limit_notifications(reset_data, user1, user2, channel1):
         }
     ]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing reacts
 def test_react_notification(reset_data, user1, user2, channel1):
@@ -602,7 +602,7 @@ def test_react_notification(reset_data, user1, user2, channel1):
         "notification_message": 'johnsmith reacted to your message in Channel1_Public'
     }]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Test for getting added to a channel
 def test_added_to_channel(reset_data, user1, user2, channel1):
@@ -635,7 +635,7 @@ def test_added_to_channel(reset_data, user1, user2, channel1):
         "notification_message": 'johnsmith added you to Channel1_Public'
     }]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Test for getting added to a dm
 def test_added_to_dm(reset_data, user1, user2, channel1):
@@ -666,7 +666,7 @@ def test_added_to_dm(reset_data, user1, user2, channel1):
         "notification_message": 'johnsmith added you to chriselvin, johnsmith'
     }]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Test for when the message is greater than 20 characters
 def test_long_message(reset_data, user1, user2, channel1):
@@ -704,7 +704,7 @@ def test_long_message(reset_data, user1, user2, channel1):
         "notification_message": 'chriselvin tagged you in Channel1_Public: @johnsmith How are y'
     }]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing a mix of tagged, reacts and adds for timestamps
 def test_mixed_notifications(reset_data, user1, user2, channel1):
@@ -780,7 +780,7 @@ def test_mixed_notifications(reset_data, user1, user2, channel1):
         }
     ]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing for an invalid token
 def test_invalid_token(reset_data, user1, user2, channel1):
@@ -829,7 +829,7 @@ def test_invalid_tag(reset_data, user1, user2, channel1):
 
     expected_data = []
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing for when a person is tagged but is not in the channel
 def test_tagged_outside_channel(reset_data, user1, user2, user3, channel1):
@@ -856,7 +856,7 @@ def test_tagged_outside_channel(reset_data, user1, user2, user3, channel1):
 
     expected_data = []
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing for when a person is tagged but is not in the dm
 def test_tagged_outside_dm(reset_data, user1, user2, user3):
@@ -893,7 +893,7 @@ def test_tagged_outside_dm(reset_data, user1, user2, user3):
 
     expected_data = []
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing for when there are just normal messages with no tagging
 def test_no_tagging(reset_data, user1, user2, channel1):
@@ -927,7 +927,7 @@ def test_no_tagging(reset_data, user1, user2, channel1):
 
     expected_data = []
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing for getting tagged in a share message
 def test_share_tagged_notification(reset_data, user1, user2, channel1):
@@ -989,7 +989,7 @@ def test_share_tagged_notification(reset_data, user1, user2, channel1):
         }
     ]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
 
 # Testing for when a message is edited to include a tag
 def test_edited_messaged(reset_data, user1, user2, channel1):
@@ -1040,5 +1040,5 @@ def test_edited_messaged(reset_data, user1, user2, channel1):
         "notification_message": 'chriselvin tagged you in Channel1_Public: @johnsmith hi'
     }]
 
-    assert data_notifications_get == expected_data
+    assert data_notifications_get['notifications'] == expected_data
     

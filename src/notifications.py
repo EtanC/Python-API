@@ -15,4 +15,4 @@ def notifications_get_v1(token):
         if auth_user_id == users['u_id']:
             notifications = users['notifications'][0:20]
 
-    return notifications
+    return {'notifications': notifications}
