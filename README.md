@@ -1,7 +1,5 @@
 # COMP1531 Major Project
 
-**✨ Teamwork makes the [UNSW] Streams work 🌈**
-
 ## Contents
 
   1.  Aims
